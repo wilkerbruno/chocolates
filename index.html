@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinassi Chocolates - Chocolates Artesanais Premium</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- WhatsApp Flutuante -->
+    <a href="https://wa.me/5583999999999?text=Olá! Gostaria de fazer um pedido." class="whatsapp-float" target="_blank" aria-label="WhatsApp">
+        <svg viewBox="0 0 32 32" fill="currentColor">
+            <path d="M16 0C7.164 0 0 7.163 0 16c0 2.816.736 5.464 2.025 7.76L0 32l8.448-2.218A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.455c-2.513 0-4.88-.69-6.91-1.895l-.496-.296-5.145 1.35 1.374-5.022-.324-.513A13.413 13.413 0 012.545 16c0-7.424 6.03-13.455 13.455-13.455S29.455 8.576 29.455 16 23.424 29.455 16 29.455zm7.394-10.096c-.406-.203-2.397-1.183-2.77-1.318-.372-.135-.642-.203-.913.203-.27.406-1.048 1.318-1.285 1.589-.237.27-.473.304-.88.101-.406-.203-1.713-.631-3.263-2.013-1.206-1.075-2.02-2.402-2.257-2.809-.237-.406-.025-.626.178-.828.183-.183.406-.473.61-.71.203-.237.27-.406.406-.677.135-.27.068-.507-.034-.71-.101-.203-.913-2.2-1.251-3.014-.33-.793-.666-.686-.913-.699-.237-.012-.507-.015-.777-.015s-.71.101-1.082.507c-.372.406-1.42 1.386-1.42 3.383s1.453 3.924 1.656 4.194c.203.27 2.858 4.366 6.927 6.123.968.418 1.724.668 2.313.855.972.309 1.856.265 2.555.161.78-.116 2.397-.98 2.735-1.927.338-.946.338-1.758.237-1.927-.101-.169-.372-.27-.78-.473z"/>
+        </svg>
+    </a>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <h1>Spinassi <span>Chocolate</span></h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active">Início</a></li>
+                <li><a href="#produtos" class="nav-link">Produtos</a></li>
+                <li><a href="#sobre" class="nav-link">Sobre</a></li>
+                <li><a href="#contato" class="nav-link">Contato</a></li>
+            </ul>
+            <button class="cart-btn" id="cartBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Hero Section com Vídeo e Efeito Parallax -->
+    <section id="home" class="hero">
+        <div class="hero-video-container">
+            <video autoplay muted loop playsinline class="hero-video">
+                <source src="https://cdn.pixabay.com/video/2022/12/09/142391-779394026_large.mp4" type="video/mp4">
+            </video>
+            <div class="hero-overlay"></div>
+        </div>
+        <!-- Efeito de chocolate derretendo será criado pelos pseudo-elementos ::before e ::after -->
+        <div class="hero-content">
+            <span class="hero-subtitle">Experiência Artesanal Premium</span>
+            <h2 class="hero-title">O Prazer do<br>Chocolate Perfeito</h2>
+            <p class="hero-description">Criações únicas feitas à mão com cacau selecionado das melhores fazendas do mundo</p>
+            <a href="#produtos" class="btn-primary">Descobrir Coleção</a>
+        </div>
+        <div class="scroll-indicator">
+            <span></span>
+        </div>
+    </section>
+
+    <!-- Produtos Section -->
+    <section id="produtos" class="produtos-section">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-subtitle">Nossa Coleção</span>
+                <h2 class="section-title">Chocolates Artesanais</h2>
+                <p class="section-description">Cada peça é uma obra-prima cuidadosamente elaborada</p>
+            </div>
+
+            <div class="produtos-grid" id="produtosGrid">
+                <!-- Produtos serão inseridos via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Section -->
+    <section id="sobre" class="sobre-section">
+        <div class="container">
+            <div class="sobre-grid">
+                <div class="sobre-content">
+                    <span class="section-subtitle">Nossa História</span>
+                    <h2 class="section-title">Artesanato & Paixão</h2>
+                    <p>Na Chocolaterie Noir, transformamos cacau premium em experiências inesquecíveis. Cada chocolate é feito à mão por nossos mestres chocolatiers, usando técnicas tradicionais belgas e ingredientes selecionados.</p>
+                    <p>Nossa jornada começou com um sonho: criar chocolates que não apenas satisfazem, mas encantam todos os sentidos. Hoje, somos reconhecidos pela excelência e inovação.</p>
+                    <div class="sobre-stats">
+                        <div class="stat">
+                            <span class="stat-number">15+</span>
+                            <span class="stat-label">Anos de Experiência</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">100%</span>
+                            <span class="stat-label">Artesanal</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Criações Únicas</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sobre-image">
+                    <img src="https://images.unsplash.com/photo-1511381939415-e44015466834?w=800" alt="Chocolate artesanal">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato Section -->
+    <section id="contato" class="contato-section">
+        <div class="container">
+            <div class="contato-grid">
+                <div class="contato-info">
+                    <span class="section-subtitle">Entre em Contato</span>
+                    <h2 class="section-title">Adoraríamos Ouvir Você</h2>
+                    <p>Tem alguma dúvida ou pedido especial? Nossa equipe está pronta para ajudar.</p>
+                    
+                    <div class="contato-details">
+                        <div class="detail-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <div>
+                                <h4>Endereço</h4>
+                                <p>Av. Chocolat, 123 - Centro<br>São Paulo, SP</p>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <div>
+                                <h4>Telefone</h4>
+                                <p>(83) 99999-9999</p>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <div>
+                                <h4>Email</h4>
+                                <p>contato@chocolaterienoir.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <form class="contato-form" id="contatoForm">
+                    <div class="form-group">
+                        <input type="text" id="nome" name="nome" required placeholder=" ">
+                        <label for="nome">Seu Nome</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" required placeholder=" ">
+                        <label for="email">Seu Email</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="telefone" name="telefone" placeholder=" ">
+                        <label for="telefone">Telefone (opcional)</label>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="mensagem" name="mensagem" rows="5" required placeholder=" "></textarea>
+                        <label for="mensagem">Sua Mensagem</label>
+                    </div>
+                    <button type="submit" class="btn-primary">Enviar Mensagem</button>
+                    <div class="form-message" id="formMessage"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3>Chocolaterie Noir</h3>
+                    <p>Experiências únicas em cada mordida. Chocolates artesanais premium feitos com paixão.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Links Rápidos</h4>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#produtos">Produtos</a></li>
+                        <li><a href="#sobre">Sobre</a></li>
+                        <li><a href="#contato">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Horário</h4>
+                    <p>Segunda - Sexta: 9h - 18h<br>Sábado: 10h - 16h<br>Domingo: Fechado</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Redes Sociais</h4>
+                    <div class="social-links">
+                        <a href="#" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="Facebook">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Chocolaterie Noir. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal do Carrinho -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-modal-content">
+            <div class="cart-header">
+                <h3>Seu Carrinho</h3>
+                <button class="close-cart" id="closeCart">&times;</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Items do carrinho serão inseridos aqui -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">R$ 0,00</span>
+                </div>
+                <button class="btn-primary btn-checkout" id="checkoutBtn">Finalizar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
