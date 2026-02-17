@@ -220,5 +220,3 @@ if __name__ == '__main__':
     # Criar pasta de logs se não existir
     if not os.path.exists('logs'):
         os.makedirs('logs')
-    
-    app.run(debug=True, host='0.0.0.0', port=5000)
