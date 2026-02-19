@@ -8,6 +8,40 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* Remove a ondulação/drip entre menu e vídeo */
+        .hero::before,
+        .hero::after {
+            display: none !important;
+        }
+
+        /* Garante que o vídeo fique no fundo */
+        .hero-video-container {
+            z-index: 0 !important;
+        }
+
+        /* Garante que o overlay fique acima do vídeo */
+        .hero-overlay {
+            z-index: 1 !important;
+        }
+
+        /* Texto e botão ficam na frente de tudo */
+        .hero-content {
+            z-index: 10 !important;
+            position: relative !important;
+        }
+
+        /* Cards laterais também acima do vídeo */
+        .hero-videos-showcase {
+            z-index: 10 !important;
+        }
+
+        /* Indicador de scroll acima do vídeo */
+        .scroll-indicator {
+            z-index: 10 !important;
+        }
+    </style>
 </head>
 <body>
     <!-- WhatsApp Flutuante -->
@@ -43,18 +77,41 @@
     <!-- Hero Section com Vídeo e Efeito Parallax -->
     <section id="home" class="hero">
         <div class="hero-video-container">
-            <video autoplay muted loop playsinline class="hero-video">
-                <source src="https://cdn.pixabay.com/video/2022/12/09/142391-779394026_large.mp4" type="video/mp4">
+            <video autoplay muted loop playsinline disablePictureInPicture
+                   class="hero-video" id="heroMainVideo"
+                   oncontextmenu="return false;">
+                <source src="assets/video/chocolate.mp4" type="video/mp4">
+                <img src="assets/video/chocolate.gif" alt="Chocolate derretendo">
             </video>
             <div class="hero-overlay"></div>
         </div>
-        <!-- Efeito de chocolate derretendo será criado pelos pseudo-elementos ::before e ::after -->
+
         <div class="hero-content">
             <span class="hero-subtitle">Experiência Artesanal Premium</span>
             <h2 class="hero-title">O Prazer do<br>Chocolate Perfeito</h2>
             <p class="hero-description">Criações únicas feitas à mão com cacau selecionado das melhores fazendas do mundo</p>
             <a href="#produtos" class="btn-primary">Descobrir Coleção</a>
         </div>
+
+        <!-- Dois vídeos decorativos flutuantes -->
+        <div class="hero-videos-showcase">
+            <div class="hero-video-card hero-video-card--left">
+                <video autoplay muted loop playsinline disablePictureInPicture
+                       oncontextmenu="return false;">
+                    <source src="chocolate.mp4" type="video/mp4">
+                    <img src="chocolate.gif" alt="Chocolate">
+                </video>
+                
+            </div>
+            <div class="hero-video-card hero-video-card--right">
+                <video autoplay muted loop playsinline disablePictureInPicture
+                       oncontextmenu="return false;">
+                    <source src="chocolate.mp4" type="video/mp4">
+                </video>
+                
+            </div>
+        </div>
+
         <div class="scroll-indicator">
             <span></span>
         </div>
@@ -236,5 +293,25 @@
     </div>
 
     <script src="assets/js/script.js"></script>
+
+    <script>
+        // Garante que o vídeo principal nunca pare de rodar
+        (function () {
+            const video = document.getElementById('heroMainVideo');
+            if (!video) return;
+
+            // Força play se o vídeo pausar por qualquer motivo
+            video.addEventListener('pause', () => video.play());
+
+            // Remove controles e interação por clique/toque
+            video.addEventListener('click', e => e.preventDefault());
+            video.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+
+            // Garante autoplay assim que metadados carregam
+            video.addEventListener('loadedmetadata', () => {
+                video.play().catch(() => {});
+            });
+        })();
+    </script>
 </body>
 </html>

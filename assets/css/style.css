@@ -238,14 +238,11 @@ h1, h2, h3, h4 {
 }
 
 .hero-content {
-    margin-top: 8px;
-    position: relative;
-    z-index: 10;
-    text-align: center;
-    color: var(--white);
-    max-width: 800px;
-    padding: 0 40px;
-    animation: fadeInUp 1s ease;
+    position: absolute !important;
+    top: 30% !important;
+    left: 45% !important;
+    transform: translate(-50%, -50%) !important;
+    text-align: center !important;
 }
 
 @keyframes fadeInUp {
@@ -274,6 +271,7 @@ h1, h2, h3, h4 {
     font-weight: 700;
     line-height: 1.1;
     margin-bottom: 30px;
+    color: white;
     animation: fadeInUp 1s ease 0.4s backwards;
     text-shadow: 2px 2px 20px rgba(0,0,0,0.5);
 }
