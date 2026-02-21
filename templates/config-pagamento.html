@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Pagamento — Spinassi Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/conta.css">
+    <style>
+        /* ── Seções colapsáveis ────────────────── */
+        .pay-section {
+            background: var(--white);
+            box-shadow: 0 4px 20px var(--shadow);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        .pay-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 28px;
+            cursor: pointer;
+            transition: background .2s;
+            border-left: 4px solid var(--gold);
+            user-select: none;
+        }
+        .pay-section-header:hover { background: #FFFDF7; }
+
+        .pay-section-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .pay-section-icon {
+            width: 42px; height: 42px;
+            border-radius: 50%;
+            background: var(--cream);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .pay-section-icon svg { width: 20px; height: 20px; color: var(--gold); }
+
+        .pay-section-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--chocolate-dark);
+        }
+        .pay-section-desc {
+            font-size: .72rem;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .pay-section-chevron {
+            color: var(--text-light);
+            transition: transform .25s;
+        }
+        .pay-section-chevron svg { width: 18px; height: 18px; }
+        .pay-section.open .pay-section-chevron { transform: rotate(180deg); }
+
+        .pay-section-body {
+            display: none;
+            padding: 28px;
+            border-top: 1px solid var(--gold-light);
+        }
+        .pay-section.open .pay-section-body { display: block; }
+
+        /* ── Status badge ──────────────────────── */
+        .pay-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            font-size: .68rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .pay-status-badge--on  { background:#D4EDDA; color:#155724; }
+        .pay-status-badge--off { background:#F8D7DA; color:#721C24; }
+        .pay-status-badge::before {
+            content: '';
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* ── Campo com reveal (API Keys) ───────── */
+        .secret-wrap { position: relative; }
+        .secret-wrap input { padding-right: 44px; font-family: monospace; }
+        .secret-eye {
+            position: absolute;
+            right: 12px; top: 50%;
+            transform: translateY(-50%);
+            background: none; border: none;
+            cursor: pointer; color: var(--text-light);
+            display: flex; align-items: center;
+            transition: color .2s;
+        }
+        .secret-eye:hover { color: var(--gold); }
+        .secret-eye svg { width: 16px; height: 16px; }
+
+        /* ── Info box ──────────────────────────── */
+        .info-box {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #EBF4FF;
+            border-left: 4px solid #2980B9;
+            font-size: .8rem;
+            color: #1A5276;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+        .info-box svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+        .warn-box {
+            display: flex;
+            gap: 12px;
+            padding: 14px 16px;
+            background: #FEF9E7;
+            border-left: 4px solid #F39C12;
+            font-size: .8rem;
+            color: #7D6608;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+        .warn-box svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; color: #F39C12; }
+
+        /* ── Santander brand bar ───────────────── */
+        .santander-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            background: #EC0000;
+            color: #fff;
+            margin-bottom: 24px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+        .santander-bar svg { width: 28px; height: 28px; }
+
+        /* ── Steps visuais ─────────────────────── */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .step {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .step-num {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: var(--chocolate-dark);
+            font-size: .7rem;
+            font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .step-text { font-size: .82rem; color: var(--text-dark); line-height: 1.6; }
+        .step-text a { color: var(--gold); text-decoration: underline; }
+
+        /* ── Ambiente selector ─────────────────── */
+        .env-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .env-option {
+            flex: 1;
+            border: 2px solid #E0D8D0;
+            padding: 16px;
+            cursor: pointer;
+            transition: all .2s;
+            text-align: center;
+        }
+        .env-option:hover { border-color: var(--gold); }
+        .env-option.selected { border-color: var(--gold); background: #FFFDF5; }
+        .env-option input { display: none; }
+        .env-option-name {
+            font-size: .9rem;
+            font-weight: 600;
+            color: var(--chocolate-dark);
+            margin-bottom: 4px;
+        }
+        .env-option-desc {
+            font-size: .72rem;
+            color: var(--text-light);
+        }
+        .env-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: .6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+        .env-badge--sandbox    { background: #FEF3CD; color: #856404; }
+        .env-badge--production { background: #D4EDDA; color: #155724; }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="acc-header">
+    <a href="index.html" class="acc-logo">Spinassi <span>Chocolate</span></a>
+    <a href="index.html" class="acc-back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar à loja
+    </a>
+</header>
+
+<div class="acc-layout">
+    <aside class="acc-sidebar" id="sidebarMount"></aside>
+
+    <main class="acc-main">
+        <h1 class="acc-page-title">Configurar Pagamento</h1>
+        <p class="acc-page-subtitle">Configure os métodos de recebimento para a loja</p>
+
+        <!-- Alerta global -->
+        <div class="acc-alert" id="payAlert"></div>
+
+        <!-- ── SEÇÃO 1: SANTANDER ─────────────────── -->
+        <div class="pay-section open" id="sec-santander">
+            <div class="pay-section-header" onclick="toggleSection('sec-santander')">
+                <div class="pay-section-left">
+                    <div class="pay-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="pay-section-name">Santander Getnet</div>
+                        <div class="pay-section-desc">API de pagamentos — Cartão, PIX e Boleto</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <span class="pay-status-badge pay-status-badge--off" id="badgeSantander">Desativado</span>
+                    <div class="pay-section-chevron">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pay-section-body">
+
+                <!-- Barra da marca -->
+                <div class="santander-bar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Integração com Santander Getnet API
+                </div>
+
+                <!-- Instruções -->
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-text">Acesse o portal Getnet em
+                            <a href="https://developers.getnet.com.br" target="_blank">developers.getnet.com.br</a>
+                            e crie sua conta de desenvolvedor.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-text">No painel Getnet, acesse <strong>Configurações → Aplicações</strong>
+                            e crie uma nova aplicação para obter o <em>Client ID</em> e <em>Client Secret</em>.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-text">Copie o <strong>Merchant ID</strong> (ID do estabelecimento)
+                            disponível em <strong>Configurações → Dados do Estabelecimento</strong>.
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-text">Preencha os campos abaixo, selecione o ambiente
+                            e clique em <strong>Salvar configurações</strong>.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warn-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span>Nunca compartilhe seu <strong>Client Secret</strong>. Ele é equivalente à senha da sua conta de pagamentos. Armazene-o com segurança.</span>
+                </div>
+
+                <!-- Ambiente -->
+                <div class="acc-field" style="margin-bottom:22px">
+                    <label>Ambiente de operação</label>
+                    <div class="env-selector">
+                        <label class="env-option" id="opt-sandbox" onclick="selecionarAmbiente('sandbox')">
+                            <input type="radio" name="ambiente" value="sandbox">
+                            <div class="env-option-name">Sandbox</div>
+                            <div class="env-option-desc">Testes e homologação</div>
+                            <span class="env-badge env-badge--sandbox">Teste</span>
+                        </label>
+                        <label class="env-option" id="opt-producao" onclick="selecionarAmbiente('producao')">
+                            <input type="radio" name="ambiente" value="producao">
+                            <div class="env-option-name">Produção</div>
+                            <div class="env-option-desc">Cobranças reais</div>
+                            <span class="env-badge env-badge--production">Live</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Campos da API -->
+                <div class="acc-form-grid">
+
+                    <div class="acc-field">
+                        <label>Merchant ID *</label>
+                        <div class="secret-wrap">
+                            <input type="text" id="sMerchantId" placeholder="ex: 9e7a…" autocomplete="off">
+                            <button type="button" class="secret-eye" onclick="toggleSecret('sMerchantId','eye-mid')">
+                                <svg id="eye-mid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="acc-field">
+                        <label>Client ID *</label>
+                        <div class="secret-wrap">
+                            <input type="text" id="sClientId" placeholder="ex: 7f3b…" autocomplete="off">
+                            <button type="button" class="secret-eye" onclick="toggleSecret('sClientId','eye-cid')">
+                                <svg id="eye-cid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="acc-field full">
+                        <label>Client Secret *</label>
+                        <div class="secret-wrap">
+                            <input type="password" id="sClientSecret" placeholder="•••••••••••••••••" autocomplete="off">
+                            <button type="button" class="secret-eye" onclick="toggleSecret('sClientSecret','eye-cs')">
+                                <svg id="eye-cs" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <span class="acc-field-hint">Obtido no Portal Getnet → Aplicações</span>
+                    </div>
+
+                    <div class="acc-field full">
+                        <label>Webhook URL (opcional)</label>
+                        <input type="url" id="sWebhook" placeholder="https://meusite.com.br/api/webhook/getnet">
+                        <span class="acc-field-hint">URL que receberá notificações de pagamento em tempo real (IPN)</span>
+                    </div>
+
+                    <div class="acc-field full" style="display:flex;align-items:center;gap:14px">
+                        <label class="toggle-wrap">
+                            <label class="toggle">
+                                <input type="checkbox" id="sSantanderAtivo" onchange="atualizarBadge()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">Ativar integração Santander Getnet</span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <div style="margin-top:8px;display:flex;gap:12px;flex-wrap:wrap">
+                    <button class="btn-gold" onclick="salvarSantander()"><span>Salvar configurações</span></button>
+                    <button class="btn-outline" onclick="testarConexao()">Testar conexão</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── SEÇÃO 2: PIX ───────────────────────── -->
+        <div class="pay-section" id="sec-pix">
+            <div class="pay-section-header" onclick="toggleSection('sec-pix')">
+                <div class="pay-section-left">
+                    <div class="pay-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="pay-section-name">PIX — Chave direta</div>
+                        <div class="pay-section-desc">Pagamento instantâneo via chave PIX</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px">
+                    <span class="pay-status-badge pay-status-badge--off" id="badgePix">Desativado</span>
+                    <div class="pay-section-chevron">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pay-section-body">
+                <div class="info-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span>Ao ativar, o cliente verá sua chave PIX durante o checkout e poderá realizar o pagamento diretamente. Ideal para negócios menores sem necessidade de automação de confirmação.</span>
+                </div>
+
+                <div class="acc-form-grid">
+
+                    <div class="acc-field">
+                        <label>Tipo de chave PIX</label>
+                        <select id="pixTipo">
+                            <option value="cpf">CPF</option>
+                            <option value="cnpj">CNPJ</option>
+                            <option value="email">E-mail</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="aleatoria">Chave aleatória</option>
+                        </select>
+                    </div>
+
+                    <div class="acc-field">
+                        <label>Chave PIX *</label>
+                        <input type="text" id="pixChave" placeholder="Digite sua chave PIX">
+                    </div>
+
+                    <div class="acc-field full" style="display:flex;align-items:center;gap:14px">
+                        <label class="toggle-wrap">
+                            <label class="toggle">
+                                <input type="checkbox" id="pixAtivo" onchange="atualizarBadgePix()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="toggle-label">Exibir PIX no checkout</span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <button class="btn-gold" onclick="salvarPix()"><span>Salvar PIX</span></button>
+            </div>
+        </div>
+
+        <!-- ── SEÇÃO 3: MÉTODOS GERAIS ────────────── -->
+        <div class="pay-section" id="sec-metodos">
+            <div class="pay-section-header" onclick="toggleSection('sec-metodos')">
+                <div class="pay-section-left">
+                    <div class="pay-section-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 11 12 14 22 4"/>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="pay-section-name">Métodos habilitados</div>
+                        <div class="pay-section-desc">Controle quais formas aparecem no checkout</div>
+                    </div>
+                </div>
+                <div class="pay-section-chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+
+            <div class="pay-section-body">
+                <div class="acc-form-grid">
+
+                    <div class="acc-field full" style="display:flex;flex-direction:column;gap:18px">
+
+                        <label class="toggle-wrap">
+                            <label class="toggle">
+                                <input type="checkbox" id="cartaoAtivo">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div>
+                                <span class="toggle-label">Cartão de Crédito / Débito</span>
+                                <div style="font-size:.72rem;color:var(--text-light);margin-top:2px">Requer Santander Getnet configurado e ativo</div>
+                            </div>
+                        </label>
+
+                        <label class="toggle-wrap">
+                            <label class="toggle">
+                                <input type="checkbox" id="boletoAtivo">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div>
+                                <span class="toggle-label">Boleto Bancário</span>
+                                <div style="font-size:.72rem;color:var(--text-light);margin-top:2px">Requer Santander Getnet configurado e ativo</div>
+                            </div>
+                        </label>
+
+                        <label class="toggle-wrap">
+                            <label class="toggle">
+                                <input type="checkbox" id="whatsappAtivo" checked disabled>
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <div>
+                                <span class="toggle-label">WhatsApp (manual)</span>
+                                <div style="font-size:.72rem;color:var(--text-light);margin-top:2px">Sempre ativo — pedidos enviados ao WhatsApp da loja</div>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <div style="margin-top:16px">
+                    <button class="btn-gold" onclick="salvarMetodos()"><span>Salvar métodos</span></button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script>
+/* ============================================================
+   CONFIG PAGAMENTO
+============================================================ */
+
+/* ── Guard admin ─────────────────────────────────────────── */
+(function(){
+    const u = SpinassiAPI.sessao.getUsuario();
+    if (!SpinassiAPI.sessao.estaLogado() || SpinassiAPI.sessao.tokenExpirado() || u?.tipo !== 'admin') {
+        SpinassiAPI.sessao.limpar();
+        window.location.href = 'index.html';
+    }
+})();
+renderSidebar('config-pagamento');
+
+/* ── Alerta global ───────────────────────────────────────── */
+function showAlert(msg, tipo) {
+    const el = document.getElementById('payAlert');
+    el.textContent = msg;
+    el.className = `acc-alert show ${tipo}`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => el.classList.remove('show'), 6000);
+}
+
+/* ── Seções colapsáveis ──────────────────────────────────── */
+function toggleSection(id) {
+    document.getElementById(id).classList.toggle('open');
+}
+
+/* ── Ambiente ────────────────────────────────────────────── */
+let ambienteSelecionado = 'sandbox';
+function selecionarAmbiente(val) {
+    ambienteSelecionado = val;
+    document.getElementById('opt-sandbox').classList.toggle('selected', val === 'sandbox');
+    document.getElementById('opt-producao').classList.toggle('selected', val === 'producao');
+}
+selecionarAmbiente('sandbox'); // padrão inicial
+
+/* ── Reveal secrets ──────────────────────────────────────── */
+function toggleSecret(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    icon.innerHTML = isPass
+        ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+           <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+           <line x1="1" y1="1" x2="23" y2="23"/>`
+        : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+           <circle cx="12" cy="12" r="3"/>`;
+}
+
+/* ── Carrega configurações salvas ────────────────────────── */
+async function carregarConfig() {
+    try {
+        const res  = await SpinassiAPI.get('/api/admin/config-pagamento', true);
+        const cfg  = res.data || {};
+
+        document.getElementById('sMerchantId').value   = cfg.santander_merchant_id   || '';
+        document.getElementById('sClientId').value     = cfg.santander_client_id     || '';
+        document.getElementById('sClientSecret').value = cfg.santander_client_secret || '';
+        document.getElementById('sWebhook').value      = cfg.santander_webhook_url   || '';
+        document.getElementById('pixTipo').value       = cfg.pix_tipo_chave          || 'cpf';
+        document.getElementById('pixChave').value      = cfg.pix_chave               || '';
+        document.getElementById('cartaoAtivo').checked = cfg.cartao_ativo             === '1';
+        document.getElementById('boletoAtivo').checked = cfg.boleto_ativo             === '1';
+
+        const sanAt = cfg.santander_ativo === '1';
+        document.getElementById('sSantanderAtivo').checked = sanAt;
+        atualizarBadge();
+
+        const pixAt = cfg.pix_chave && cfg.pix_tipo_chave;
+        document.getElementById('pixAtivo').checked = pixAt;
+        atualizarBadgePix();
+
+        const amb = cfg.santander_ambiente || 'sandbox';
+        selecionarAmbiente(amb);
+
+    } catch(e) {
+        showAlert('Não foi possível carregar as configurações: ' + e.message, 'error');
+    }
+}
+
+/* ── Atualiza badges de status ───────────────────────────── */
+function atualizarBadge() {
+    const ativo = document.getElementById('sSantanderAtivo').checked;
+    const badge = document.getElementById('badgeSantander');
+    badge.textContent = ativo ? 'Ativo' : 'Desativado';
+    badge.className   = `pay-status-badge pay-status-badge--${ativo ? 'on' : 'off'}`;
+}
+
+function atualizarBadgePix() {
+    const ativo = document.getElementById('pixAtivo').checked;
+    const badge = document.getElementById('badgePix');
+    badge.textContent = ativo ? 'Ativo' : 'Desativado';
+    badge.className   = `pay-status-badge pay-status-badge--${ativo ? 'on' : 'off'}`;
+}
+
+/* ── Salvar Santander ────────────────────────────────────── */
+async function salvarSantander() {
+    const merchantId = document.getElementById('sMerchantId').value.trim();
+    const clientId   = document.getElementById('sClientId').value.trim();
+    const secret     = document.getElementById('sClientSecret').value.trim();
+    const ativo      = document.getElementById('sSantanderAtivo').checked;
+
+    if (ativo && (!merchantId || !clientId || !secret)) {
+        showAlert('Para ativar, preencha Merchant ID, Client ID e Client Secret.', 'error');
+        return;
+    }
+
+    try {
+        await SpinassiAPI.put('/api/admin/config-pagamento', {
+            santander_merchant_id:   merchantId,
+            santander_client_id:     clientId,
+            santander_client_secret: secret,
+            santander_ambiente:      ambienteSelecionado,
+            santander_webhook_url:   document.getElementById('sWebhook').value.trim(),
+            santander_ativo:         ativo ? '1' : '0',
+        }, true);
+        atualizarBadge();
+        showAlert('Configurações do Santander Getnet salvas com sucesso!', 'success');
+    } catch(e) {
+        showAlert(e.message || 'Erro ao salvar.', 'error');
+    }
+}
+
+/* ── Testar conexão ──────────────────────────────────────── */
+async function testarConexao() {
+    showAlert('Testando conexão com a API Santander Getnet…', 'success');
+    /* 
+     * Em produção, implemente POST /api/admin/testar-getnet que tenta
+     * autenticar com as credenciais salvas e retorna o resultado.
+     * Por ora exibe orientação ao admin.
+     */
+    setTimeout(() => {
+        showAlert('Salve as configurações e faça um pedido de teste em modo Sandbox para validar a integração.', 'success');
+    }, 1500);
+}
+
+/* ── Salvar PIX ──────────────────────────────────────────── */
+async function salvarPix() {
+    const chave = document.getElementById('pixChave').value.trim();
+    const tipo  = document.getElementById('pixTipo').value;
+    const ativo = document.getElementById('pixAtivo').checked;
+
+    if (ativo && !chave) {
+        showAlert('Informe a chave PIX para ativar.', 'error');
+        return;
+    }
+    try {
+        await SpinassiAPI.put('/api/admin/config-pagamento', {
+            pix_chave:      chave,
+            pix_tipo_chave: tipo,
+        }, true);
+        atualizarBadgePix();
+        showAlert('Chave PIX salva com sucesso!', 'success');
+    } catch(e) {
+        showAlert(e.message || 'Erro ao salvar PIX.', 'error');
+    }
+}
+
+/* ── Salvar métodos habilitados ──────────────────────────── */
+async function salvarMetodos() {
+    try {
+        await SpinassiAPI.put('/api/admin/config-pagamento', {
+            cartao_ativo: document.getElementById('cartaoAtivo').checked ? '1' : '0',
+            boleto_ativo: document.getElementById('boletoAtivo').checked ? '1' : '0',
+        }, true);
+        showAlert('Métodos de pagamento atualizados!', 'success');
+    } catch(e) {
+        showAlert(e.message || 'Erro ao salvar.', 'error');
+    }
+}
+
+carregarConfig();
+</script>
+</body>
+</html>

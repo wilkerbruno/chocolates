@@ -355,7 +355,7 @@ CREATE TABLE IF NOT EXISTS configuracoes (
 """
 
 # ── 15. Log de atividades ────────────────────────────────────
-TABELAS["log_atividades"] = """
+TABELAS["log_atividades", "despesas"] = """
 CREATE TABLE IF NOT EXISTS log_atividades (
     id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
     usuario_id  INT UNSIGNED DEFAULT NULL,
@@ -367,6 +367,21 @@ CREATE TABLE IF NOT EXISTS log_atividades (
     INDEX idx_usuario (usuario_id),
     INDEX idx_criado  (criado_em)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+"""
+
+
+TABELAS["despesas"] = """
+CREATE TABLE IF NOT EXISTS despesas (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    descricao    VARCHAR(200)   NOT NULL,
+    categoria    ENUM('ingredientes','embalagem','marketing','aluguel','funcionarios',
+                      'equipamentos','impostos','logistica','outros')
+                 NOT NULL DEFAULT 'outros',
+    valor        DECIMAL(10,2)  NOT NULL,
+    data_despesa DATE           NOT NULL DEFAULT (CURDATE()),
+    observacao   TEXT,
+    criado_em    DATETIME       DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 """
 
 # ================================================================
@@ -655,7 +670,7 @@ def main():
             "categorias", "produtos", "produto_sabores",
             "produto_imagens", "cupons", "pedidos",
             "pedido_itens", "lista_desejos", "avaliacoes",
-            "contatos", "configuracoes", "log_atividades",
+            "contatos", "configuracoes", "log_atividades", "despesas",
         ]
 
         for t in tabelas_check:

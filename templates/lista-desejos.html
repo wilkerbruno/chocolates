@@ -28,50 +28,7 @@
 <div class="acc-layout">
 
     <!-- SIDEBAR -->
-    <aside class="acc-sidebar">
-        <div class="acc-sidebar-user">
-            <div class="acc-avatar-big" id="sidebarAvatar">?</div>
-            <div class="acc-sidebar-name" id="sidebarNome">Carregando…</div>
-            <div class="acc-sidebar-email" id="sidebarEmail"></div>
-        </div>
-
-        <span class="acc-nav-label">Minha conta</span>
-
-        <a href="minha-conta.html" class="acc-nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-            </svg>
-            Meus Dados
-        </a>
-
-        <a href="meus-pedidos.html" class="acc-nav-item">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-            </svg>
-            Meus Pedidos
-        </a>
-
-        <a href="lista-desejos.html" class="acc-nav-item active">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-            Lista de Desejos
-            <span class="acc-count-badge" id="badgeDesejos" style="display:none"></span>
-        </a>
-
-        <span class="acc-nav-label">Sessão</span>
-
-        <button class="acc-nav-item logout-item" onclick="fazerLogout()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-            Sair
-        </button>
-    </aside>
+    <aside class="acc-sidebar" id="sidebarMount"></aside>
 
     <!-- CONTEÚDO -->
     <main class="acc-main">
@@ -91,20 +48,11 @@
 </div>
 
 <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
 <script>
 /* ============================================================
    LISTA DE DESEJOS — lógica
 ============================================================ */
-
-if (!SpinassiAPI.sessao.estaLogado() || SpinassiAPI.sessao.tokenExpirado()) {
-    SpinassiAPI.sessao.limpar();
-    window.location.href = 'index.html';
-}
-
-const usuario = SpinassiAPI.sessao.getUsuario();
-document.getElementById('sidebarAvatar').textContent = (usuario.nome || '?').charAt(0).toUpperCase();
-document.getElementById('sidebarNome').textContent   = `${usuario.nome||''} ${usuario.sobrenome||''}`.trim();
-document.getElementById('sidebarEmail').textContent  = usuario.email || '';
 
 let desejos = []; // cache local
 
@@ -259,6 +207,7 @@ function fazerLogout() {
 }
 
 carregarDesejos();
+renderSidebar('lista-desejos');
 </script>
 </body>
 </html>

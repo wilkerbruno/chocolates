@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Financeira — Spinassi Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/conta.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        /* ── Abas de seção ─────────────────────── */
+        .fin-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--gold-light);
+            margin-bottom: 28px;
+        }
+        .fin-tab {
+            padding: 12px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all .2s;
+        }
+        .fin-tab.active {
+            color: var(--chocolate-dark);
+            border-bottom-color: var(--gold);
+        }
+        .fin-tab:hover { color: var(--chocolate-dark); }
+
+        .fin-panel { display: none; }
+        .fin-panel.active { display: block; }
+
+        /* ── Modal despesa ─────────────────────── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(4px);
+            z-index: 500;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            opacity: 0; visibility: hidden;
+            transition: opacity .25s, visibility .25s;
+        }
+        .modal-overlay.open { opacity: 1; visibility: visible; }
+        .modal-box {
+            background: var(--white);
+            width: 100%; max-width: 520px;
+            box-shadow: 0 24px 64px rgba(0,0,0,.3);
+            transform: translateY(20px);
+            transition: transform .28s;
+        }
+        .modal-overlay.open .modal-box { transform: translateY(0); }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 18px 24px;
+            background: var(--cream);
+            border-bottom: 2px solid var(--gold-light);
+        }
+        .modal-header h3 { font-size: 1.2rem; color: var(--chocolate-dark); }
+        .modal-close {
+            background: none; border: none;
+            font-size: 1.8rem; color: var(--text-light);
+            cursor: pointer; transition: color .2s; line-height: 1;
+        }
+        .modal-close:hover { color: var(--chocolate-dark); }
+        .modal-body { padding: 24px; }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="acc-header">
+    <a href="index.html" class="acc-logo">Spinassi <span>Chocolate</span></a>
+    <a href="index.html" class="acc-back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Voltar à loja
+    </a>
+</header>
+
+<div class="acc-layout">
+    <aside class="acc-sidebar" id="sidebarMount"></aside>
+
+    <main class="acc-main">
+        <h1 class="acc-page-title">Gestão Financeira</h1>
+        <p class="acc-page-subtitle">Acompanhe receitas, despesas e lucratividade</p>
+
+        <!-- FILTRO DE PERÍODO -->
+        <div class="date-filter">
+            <label>De</label>
+            <input type="date" id="dataIni">
+            <label>Até</label>
+            <input type="date" id="dataFim">
+            <button class="btn-gold" onclick="carregarDados()"><span>Filtrar</span></button>
+            <button class="btn-outline" onclick="limparFiltro()">Limpar</button>
+        </div>
+
+        <!-- ALERTA -->
+        <div class="acc-alert" id="finAlert"></div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid" id="kpiGrid">
+            <div class="acc-loading" style="grid-column:1/-1"><div class="spinner"></div> Carregando…</div>
+        </div>
+
+        <!-- ABAS -->
+        <div class="fin-tabs">
+            <button class="fin-tab active" onclick="switchTab('graficos',this)">Gráficos</button>
+            <button class="fin-tab"        onclick="switchTab('despesas',this)">Despesas</button>
+        </div>
+
+        <!-- PAINEL GRÁFICOS -->
+        <div class="fin-panel active" id="panel-graficos">
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-card-title">Receita × Despesa por mês</div>
+                    <div class="chart-wrap"><canvas id="chartLinha" height="220"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-title">Despesas por categoria</div>
+                    <div class="chart-wrap"><canvas id="chartPizza" height="220"></canvas></div>
+                </div>
+            </div>
+            <div class="acc-card">
+                <div class="acc-card-header">
+                    <h3>Receita por forma de pagamento</h3>
+                </div>
+                <div class="acc-card-body">
+                    <div class="chart-wrap"><canvas id="chartBarra" height="130"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DESPESAS -->
+        <div class="fin-panel" id="panel-despesas">
+            <div class="adm-toolbar">
+                <input class="adm-search" type="text" placeholder="Buscar despesa…"
+                       id="searchDesp" oninput="filtrarDespesas()">
+                <select class="adm-select" id="filterCatDesp" onchange="filtrarDespesas()">
+                    <option value="">Todas as categorias</option>
+                    <option value="ingredientes">Ingredientes</option>
+                    <option value="embalagem">Embalagem</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="aluguel">Aluguel</option>
+                    <option value="funcionarios">Funcionários</option>
+                    <option value="equipamentos">Equipamentos</option>
+                    <option value="impostos">Impostos</option>
+                    <option value="logistica">Logística</option>
+                    <option value="outros">Outros</option>
+                </select>
+                <button class="btn-gold" onclick="abrirModalDesp()"><span>+ Nova Despesa</span></button>
+            </div>
+
+            <div class="acc-card">
+                <div class="acc-card-body" style="padding:0">
+                    <div id="tabelaDespWrap">
+                        <div class="acc-loading"><div class="spinner"></div> Carregando…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- MODAL NOVA/EDITAR DESPESA -->
+<div class="modal-overlay" id="modalDesp">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalDespTitulo">Nova Despesa</h3>
+            <button class="modal-close" onclick="fecharModalDesp()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="acc-alert" id="dAlert"></div>
+            <form id="formDesp" onsubmit="salvarDespesa(event)">
+                <div class="acc-form-grid">
+
+                    <div class="acc-field full">
+                        <label>Descrição *</label>
+                        <input type="text" id="dDesc" maxlength="200" required>
+                    </div>
+
+                    <div class="acc-field">
+                        <label>Categoria</label>
+                        <select id="dCat">
+                            <option value="ingredientes">Ingredientes</option>
+                            <option value="embalagem">Embalagem</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="aluguel">Aluguel</option>
+                            <option value="funcionarios">Funcionários</option>
+                            <option value="equipamentos">Equipamentos</option>
+                            <option value="impostos">Impostos</option>
+                            <option value="logistica">Logística</option>
+                            <option value="outros" selected>Outros</option>
+                        </select>
+                    </div>
+
+                    <div class="acc-field">
+                        <label>Valor (R$) *</label>
+                        <input type="number" id="dValor" step="0.01" min="0.01" required>
+                    </div>
+
+                    <div class="acc-field full">
+                        <label>Data da despesa</label>
+                        <input type="date" id="dData">
+                    </div>
+
+                    <div class="acc-field full">
+                        <label>Observação</label>
+                        <textarea id="dObs" rows="3" style="resize:vertical"></textarea>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:12px;margin-top:20px">
+                    <button type="submit" class="btn-gold" id="btnSalvDesp"><span>Salvar</span></button>
+                    <button type="button" class="btn-outline" onclick="fecharModalDesp()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAR DELETE -->
+<div class="modal-overlay" id="modalDelDesp">
+    <div class="modal-box" style="max-width:420px">
+        <div class="modal-header">
+            <h3>Remover despesa</h3>
+            <button class="modal-close" onclick="fecharDelDesp()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="margin-bottom:20px;font-size:.9rem;">
+                Tem certeza que deseja remover <strong id="delDespNome"></strong>?
+            </p>
+            <div style="display:flex;gap:12px">
+                <button class="btn-gold" style="background:var(--danger);color:#fff"
+                        id="btnConfirmDelDesp"><span>Remover</span></button>
+                <button class="btn-outline" onclick="fecharDelDesp()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../assets/js/api.js"></script>
+<script src="../assets/js/sidebar.js"></script>
+<script>
+/* ============================================================
+   GESTÃO FINANCEIRA
+============================================================ */
+
+/* ── Guard admin ─────────────────────────────────────────── */
+(function(){
+    const u = SpinassiAPI.sessao.getUsuario();
+    if (!SpinassiAPI.sessao.estaLogado() || SpinassiAPI.sessao.tokenExpirado() || u?.tipo !== 'admin') {
+        SpinassiAPI.sessao.limpar();
+        window.location.href = 'index.html';
+    }
+})();
+renderSidebar('gestao-financeira');
+
+/* ── Estado ──────────────────────────────────────────────── */
+let todasDespesas = [];
+let editandoDespId = null;
+let deletandoDespId = null;
+let chartLinha = null, chartPizza = null, chartBarra = null;
+
+/* ── Helpers ─────────────────────────────────────────────── */
+const fmt = v => 'R$ ' + parseFloat(v || 0).toLocaleString('pt-BR', {minimumFractionDigits:2});
+const fmtData = d => d ? new Date(d+'T00:00:00').toLocaleDateString('pt-BR') : '—';
+const CAT_LABELS = {
+    ingredientes:'Ingredientes', embalagem:'Embalagem', marketing:'Marketing',
+    aluguel:'Aluguel', funcionarios:'Funcionários', equipamentos:'Equipamentos',
+    impostos:'Impostos', logistica:'Logística', outros:'Outros'
+};
+const FORMA_LABELS = {
+    cartao_credito:'Cartão Crédito', cartao_debito:'Cartão Débito',
+    pix:'PIX', boleto:'Boleto', whatsapp:'WhatsApp'
+};
+
+/* ── Filtro de período ───────────────────────────────────── */
+function getFiltro() {
+    const ini = document.getElementById('dataIni').value;
+    const fim = document.getElementById('dataFim').value;
+    const qs  = [];
+    if (ini) qs.push(`data_ini=${ini}`);
+    if (fim) qs.push(`data_fim=${fim}`);
+    return qs.length ? '?' + qs.join('&') : '';
+}
+
+function limparFiltro() {
+    document.getElementById('dataIni').value = '';
+    document.getElementById('dataFim').value = '';
+    carregarDados();
+}
+
+/* ── Inicializa com período padrão: último mês ───────────── */
+(function initDatas() {
+    const hoje = new Date();
+    const ini  = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 1);
+    document.getElementById('dataFim').value = hoje.toISOString().slice(0,10);
+    document.getElementById('dataIni').value = ini.toISOString().slice(0,10);
+})();
+
+/* ── Carrega tudo de uma vez ─────────────────────────────── */
+async function carregarDados() {
+    const qs = getFiltro();
+    await Promise.all([
+        carregarFinanceiro(qs),
+        carregarDespesas(qs)
+    ]);
+}
+
+/* ── Financeiro (KPIs + gráficos) ────────────────────────── */
+async function carregarFinanceiro(qs) {
+    try {
+        const res  = await SpinassiAPI.get('/api/admin/financeiro' + qs, true);
+        const data = res.data;
+        renderKpis(data.kpis);
+        renderCharts(data);
+    } catch(e) {
+        showAlert(e.message || 'Erro ao carregar dados financeiros.', 'error');
+    }
+}
+
+/* ── KPI cards ───────────────────────────────────────────── */
+function renderKpis(k) {
+    const lucroColor = k.lucro >= 0 ? '#155724' : '#721C24';
+    document.getElementById('kpiGrid').innerHTML = `
+        <div class="kpi-card kpi-card--revenue">
+            <div class="kpi-label">Receita total</div>
+            <div class="kpi-value">${fmt(k.receita)}</div>
+            <div class="kpi-sub">Pedidos aprovados no período</div>
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg></div>
+        </div>
+        <div class="kpi-card kpi-card--expense">
+            <div class="kpi-label">Total de despesas</div>
+            <div class="kpi-value" style="color:var(--danger)">${fmt(k.despesa)}</div>
+            <div class="kpi-sub">Custos registrados no período</div>
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+            </svg></div>
+        </div>
+        <div class="kpi-card kpi-card--profit">
+            <div class="kpi-label">Lucro líquido</div>
+            <div class="kpi-value" style="color:${lucroColor}">${fmt(k.lucro)}</div>
+            <div class="kpi-sub">${k.lucro >= 0 ? 'Positivo ✓' : 'Negativo — atenção!'}</div>
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+            </svg></div>
+        </div>
+        <div class="kpi-card kpi-card--orders">
+            <div class="kpi-label">Pedidos aprovados</div>
+            <div class="kpi-value">${k.total_pedidos}</div>
+            <div class="kpi-sub">Ticket médio: ${fmt(k.ticket_medio)}</div>
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg></div>
+        </div>`;
+}
+
+/* ── Paleta dourada Spinassi ─────────────────────────────── */
+const PALETA = ['#D4AF37','#8D6E63','#3E2723','#F4E5C2','#5D4037','#A1887F','#BCAAA4','#795548'];
+
+/* ── Gráficos ────────────────────────────────────────────── */
+function renderCharts(data) {
+    /* ── Merge meses receita + despesa ── */
+    const mesesSet = new Set([
+        ...(data.receita_mensal || []).map(r => r.mes),
+        ...(data.despesa_mensal || []).map(r => r.mes),
+    ]);
+    const meses = [...mesesSet].sort();
+    const mapRec  = Object.fromEntries((data.receita_mensal||[]).map(r=>[r.mes, parseFloat(r.receita)]));
+    const mapDesp = Object.fromEntries((data.despesa_mensal||[]).map(r=>[r.mes, parseFloat(r.despesa)]));
+
+    /* ── Linha: receita × despesa ── */
+    if (chartLinha) chartLinha.destroy();
+    chartLinha = new Chart(document.getElementById('chartLinha'), {
+        type: 'line',
+        data: {
+            labels: meses.map(m => {
+                const [y,mo] = m.split('-');
+                return new Date(+y,+mo-1,1).toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+            }),
+            datasets: [
+                { label:'Receita',  data: meses.map(m=>mapRec[m]||0),
+                  borderColor:'#D4AF37', backgroundColor:'rgba(212,175,55,.1)',
+                  tension:.35, fill:true, pointRadius:4, pointBackgroundColor:'#D4AF37' },
+                { label:'Despesa',  data: meses.map(m=>mapDesp[m]||0),
+                  borderColor:'#C0392B', backgroundColor:'rgba(192,57,43,.08)',
+                  tension:.35, fill:true, pointRadius:4, pointBackgroundColor:'#C0392B' },
+            ]
+        },
+        options: {
+            responsive:true, interaction:{ mode:'index', intersect:false },
+            plugins:{ legend:{ position:'top' } },
+            scales:{ y:{ ticks:{ callback: v=>'R$'+v.toLocaleString('pt-BR') } } }
+        }
+    });
+
+    /* ── Pizza: despesas por categoria ── */
+    if (chartPizza) chartPizza.destroy();
+    const cats   = (data.despesa_cat||[]);
+    if (cats.length) {
+        chartPizza = new Chart(document.getElementById('chartPizza'), {
+            type: 'doughnut',
+            data: {
+                labels: cats.map(c => CAT_LABELS[c.categoria]||c.categoria),
+                datasets: [{ data: cats.map(c=>parseFloat(c.total)),
+                             backgroundColor: PALETA, borderWidth:2, borderColor:'#fff' }]
+            },
+            options: {
+                responsive:true,
+                plugins:{ legend:{ position:'right', labels:{ font:{ size:11 } } } }
+            }
+        });
+    } else {
+        document.getElementById('chartPizza').parentElement.innerHTML =
+            '<p style="text-align:center;padding:40px;color:var(--text-light);font-size:.84rem">Sem despesas no período</p>';
+    }
+
+    /* ── Barras: receita por forma de pagamento ── */
+    if (chartBarra) chartBarra.destroy();
+    const formas = (data.receita_forma||[]);
+    if (formas.length) {
+        chartBarra = new Chart(document.getElementById('chartBarra'), {
+            type: 'bar',
+            data: {
+                labels: formas.map(f=>FORMA_LABELS[f.forma_pagamento]||f.forma_pagamento),
+                datasets: [{ label:'Receita',
+                             data: formas.map(f=>parseFloat(f.total)),
+                             backgroundColor: PALETA, borderRadius:2 }]
+            },
+            options: {
+                responsive:true, indexAxis:'y',
+                plugins:{ legend:{ display:false } },
+                scales:{ x:{ ticks:{ callback: v=>'R$'+v.toLocaleString('pt-BR') } } }
+            }
+        });
+    } else {
+        document.getElementById('chartBarra').parentElement.innerHTML =
+            '<p style="text-align:center;padding:30px;color:var(--text-light);font-size:.84rem">Sem receitas no período</p>';
+    }
+}
+
+/* ── Aba switcher ────────────────────────────────────────── */
+function switchTab(id, btn) {
+    document.querySelectorAll('.fin-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.fin-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-'+id).classList.add('active');
+}
+
+/* ── Despesas ────────────────────────────────────────────── */
+async function carregarDespesas(qs) {
+    try {
+        const res = await SpinassiAPI.get('/api/admin/despesas' + qs, true);
+        todasDespesas = res.data || [];
+        renderDespesas(todasDespesas);
+    } catch(e) {
+        document.getElementById('tabelaDespWrap').innerHTML =
+            `<p style="padding:20px;color:var(--danger)">${e.message}</p>`;
+    }
+}
+
+function renderDespesas(list) {
+    if (!list.length) {
+        document.getElementById('tabelaDespWrap').innerHTML = `
+            <div class="acc-empty" style="padding:50px">
+                <h3>Nenhuma despesa encontrada</h3>
+                <p>Registre sua primeira despesa clicando em "+ Nova Despesa".</p>
+            </div>`;
+        return;
+    }
+    const totalFiltrado = list.reduce((s,d)=>s+parseFloat(d.valor),0);
+    document.getElementById('tabelaDespWrap').innerHTML = `
+        <div style="padding:12px 20px;background:var(--cream);border-bottom:1px solid var(--gold-light);
+                    font-size:.78rem;color:var(--text-light);display:flex;justify-content:space-between">
+            <span>${list.length} despesa(s)</span>
+            <strong style="color:var(--danger)">${fmt(totalFiltrado)}</strong>
+        </div>
+        <div class="adm-table-wrap">
+        <table class="adm-table">
+            <thead>
+                <tr>
+                    <th>Data</th><th>Descrição</th><th>Categoria</th>
+                    <th>Valor</th><th>Obs.</th><th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${list.map(d=>`
+                <tr>
+                    <td style="white-space:nowrap">${fmtData(d.data_despesa)}</td>
+                    <td><strong>${d.descricao}</strong></td>
+                    <td><span class="expense-cat">${CAT_LABELS[d.categoria]||d.categoria}</span></td>
+                    <td class="expense-value">${fmt(d.valor)}</td>
+                    <td style="max-width:160px;font-size:.78rem;color:var(--text-light)">${d.observacao||'—'}</td>
+                    <td>
+                        <div class="adm-actions">
+                            <button class="btn-icon btn-icon--edit" onclick='editarDesp(${JSON.stringify(d)})' title="Editar">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                            <button class="btn-icon btn-icon--del"
+                                    onclick="confirmarDelDesp(${d.id},'${d.descricao.replace(/'/g,"\\'")}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                    <path d="M10 11v6M14 11v6"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`).join('')}
+            </tbody>
+        </table>
+        </div>`;
+}
+
+function filtrarDespesas() {
+    const busca = document.getElementById('searchDesp').value.toLowerCase();
+    const cat   = document.getElementById('filterCatDesp').value;
+    renderDespesas(todasDespesas.filter(d => {
+        const matchB = d.descricao.toLowerCase().includes(busca) ||
+                       (d.observacao||'').toLowerCase().includes(busca);
+        const matchC = !cat || d.categoria === cat;
+        return matchB && matchC;
+    }));
+}
+
+/* ── Modal despesa ───────────────────────────────────────── */
+function abrirModalDesp(d = null) {
+    editandoDespId = d ? d.id : null;
+    document.getElementById('modalDespTitulo').textContent = d ? 'Editar Despesa' : 'Nova Despesa';
+    document.getElementById('dAlert').className = 'acc-alert';
+    document.getElementById('formDesp').reset();
+    if (d) {
+        document.getElementById('dDesc').value  = d.descricao || '';
+        document.getElementById('dCat').value   = d.categoria || 'outros';
+        document.getElementById('dValor').value = d.valor || '';
+        document.getElementById('dData').value  = d.data_despesa || '';
+        document.getElementById('dObs').value   = d.observacao || '';
+    } else {
+        document.getElementById('dData').value  = new Date().toISOString().slice(0,10);
+    }
+    document.getElementById('modalDesp').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function editarDesp(d) { abrirModalDesp(d); }
+
+function fecharModalDesp() {
+    document.getElementById('modalDesp').classList.remove('open');
+    document.body.style.overflow = '';
+    editandoDespId = null;
+}
+
+async function salvarDespesa(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSalvDesp');
+    btn.disabled = true;
+    btn.querySelector('span').textContent = 'Salvando…';
+
+    const payload = {
+        descricao:    document.getElementById('dDesc').value.trim(),
+        categoria:    document.getElementById('dCat').value,
+        valor:        parseFloat(document.getElementById('dValor').value),
+        data_despesa: document.getElementById('dData').value,
+        observacao:   document.getElementById('dObs').value.trim() || null,
+    };
+
+    try {
+        if (editandoDespId) {
+            await SpinassiAPI.put(`/api/admin/despesas/${editandoDespId}`, payload, true);
+        } else {
+            await SpinassiAPI.post('/api/admin/despesas', payload, true);
+        }
+        fecharModalDesp();
+        const qs = getFiltro();
+        await Promise.all([carregarFinanceiro(qs), carregarDespesas(qs)]);
+    } catch(err) {
+        const al = document.getElementById('dAlert');
+        al.textContent = err.message || 'Erro ao salvar.';
+        al.className   = 'acc-alert show error';
+    } finally {
+        btn.disabled = false;
+        btn.querySelector('span').textContent = 'Salvar';
+    }
+}
+
+/* ── Delete despesa ──────────────────────────────────────── */
+function confirmarDelDesp(id, nome) {
+    deletandoDespId = id;
+    document.getElementById('delDespNome').textContent = '"'+nome+'"';
+    document.getElementById('modalDelDesp').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('btnConfirmDelDesp').onclick = async () => {
+        try {
+            await SpinassiAPI.delete(`/api/admin/despesas/${deletandoDespId}`, true);
+            fecharDelDesp();
+            const qs = getFiltro();
+            await Promise.all([carregarFinanceiro(qs), carregarDespesas(qs)]);
+        } catch(err) { alert(err.message); }
+    };
+}
+function fecharDelDesp() {
+    document.getElementById('modalDelDesp').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+/* ── Alert ───────────────────────────────────────────────── */
+function showAlert(msg, tipo) {
+    const el = document.getElementById('finAlert');
+    el.textContent = msg;
+    el.className = `acc-alert show ${tipo}`;
+    setTimeout(()=>el.classList.remove('show'), 6000);
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { fecharModalDesp(); fecharDelDesp(); }
+});
+[document.getElementById('modalDesp'), document.getElementById('modalDelDesp')].forEach(m=>{
+    m.addEventListener('click', e => { if(e.target===m) { fecharModalDesp(); fecharDelDesp(); } });
+});
+
+carregarDados();
+</script>
+</body>
+</html>

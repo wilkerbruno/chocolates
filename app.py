@@ -1153,6 +1153,220 @@ def admin_deletar_cupom(cid):
 #  INICIALIZAÇÃO
 # ============================================================
 
+
+# ============================================================
+#  DESPESAS — CRUD (admin)
+# ============================================================
+
+@app.route('/api/admin/despesas', methods=['GET'])
+@requer_admin
+def admin_listar_despesas():
+    data_ini = request.args.get('data_ini')
+    data_fim = request.args.get('data_fim')
+    where, params = [], []
+    if data_ini:
+        where.append('data_despesa >= %s'); params.append(data_ini)
+    if data_fim:
+        where.append('data_despesa <= %s'); params.append(data_fim)
+    clause = ('WHERE ' + ' AND '.join(where)) if where else ''
+    rows, _ = query(
+        f"SELECT * FROM despesas {clause} ORDER BY data_despesa DESC",
+        tuple(params)
+    )
+    for r in (rows or []):
+        r['valor']        = float(r['valor'])
+        r['data_despesa'] = str(r['data_despesa'])
+        r['criado_em']    = str(r['criado_em'])
+    return ok(rows)
+
+
+@app.route('/api/admin/despesas', methods=['POST'])
+@requer_admin
+def admin_criar_despesa():
+    d = request.get_json() or {}
+    if not d.get('descricao') or not d.get('valor'):
+        return err('Descricao e valor sao obrigatorios')
+    query(
+        """INSERT INTO despesas (descricao, categoria, valor, data_despesa, observacao)
+           VALUES (%s, %s, %s, %s, %s)""",
+        (d['descricao'], d.get('categoria', 'outros'),
+         d['valor'], d.get('data_despesa'), d.get('observacao')),
+        fetch='none'
+    )
+    return ok(msg='Despesa registrada!', code=201)
+
+
+@app.route('/api/admin/despesas/<int:did>', methods=['PUT'])
+@requer_admin
+def admin_atualizar_despesa(did):
+    d = request.get_json() or {}
+    query(
+        """UPDATE despesas SET descricao=%s, categoria=%s, valor=%s,
+           data_despesa=%s, observacao=%s WHERE id=%s""",
+        (d.get('descricao'), d.get('categoria'), d.get('valor'),
+         d.get('data_despesa'), d.get('observacao'), did),
+        fetch='none'
+    )
+    return ok(msg='Despesa atualizada!')
+
+
+@app.route('/api/admin/despesas/<int:did>', methods=['DELETE'])
+@requer_admin
+def admin_deletar_despesa(did):
+    query("DELETE FROM despesas WHERE id=%s", (did,), fetch='none')
+    return ok(msg='Despesa removida.')
+
+
+# ============================================================
+#  FINANCEIRO — resumo + graficos (admin)
+# ============================================================
+
+@app.route('/api/admin/financeiro', methods=['GET'])
+@requer_admin
+def admin_financeiro():
+    import decimal
+    data_ini = request.args.get('data_ini')
+    data_fim = request.args.get('data_fim')
+
+    filtro_ped, filtro_desp = "", ""
+    params_ped, params_desp = [], []
+
+    if data_ini:
+        filtro_ped  += " AND DATE(criado_em) >= %s";  params_ped.append(data_ini)
+        filtro_desp += " AND data_despesa   >= %s";   params_desp.append(data_ini)
+    if data_fim:
+        filtro_ped  += " AND DATE(criado_em) <= %s";  params_ped.append(data_fim)
+        filtro_desp += " AND data_despesa   <= %s";   params_desp.append(data_fim)
+
+    receita_row, _ = query(
+        f"SELECT COALESCE(SUM(total),0) AS v FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}",
+        tuple(params_ped), fetch='one'
+    )
+    receita = float(receita_row['v'] if receita_row else 0)
+
+    despesa_row, _ = query(
+        f"SELECT COALESCE(SUM(valor),0) AS v FROM despesas WHERE 1=1 {filtro_desp}",
+        tuple(params_desp), fetch='one'
+    )
+    despesa = float(despesa_row['v'] if despesa_row else 0)
+
+    pedidos_row, _ = query(
+        f"SELECT COUNT(*) AS n FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}",
+        tuple(params_ped), fetch='one'
+    )
+    total_pedidos = int(pedidos_row['n'] if pedidos_row else 0)
+    ticket_medio  = round(receita / total_pedidos, 2) if total_pedidos else 0
+
+    receita_mensal, _ = query(
+        f"""SELECT DATE_FORMAT(criado_em,'%%Y-%%m') AS mes,
+                   COALESCE(SUM(total),0)           AS receita,
+                   COUNT(*)                          AS pedidos
+            FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}
+            GROUP BY mes ORDER BY mes ASC LIMIT 24""",
+        tuple(params_ped)
+    )
+
+    despesa_mensal, _ = query(
+        f"""SELECT DATE_FORMAT(data_despesa,'%%Y-%%m') AS mes,
+                   COALESCE(SUM(valor),0)              AS despesa
+            FROM despesas WHERE 1=1 {filtro_desp}
+            GROUP BY mes ORDER BY mes ASC LIMIT 24""",
+        tuple(params_desp)
+    )
+
+    despesa_cat, _ = query(
+        f"""SELECT categoria, COALESCE(SUM(valor),0) AS total
+            FROM despesas WHERE 1=1 {filtro_desp}
+            GROUP BY categoria ORDER BY total DESC""",
+        tuple(params_desp)
+    )
+
+    receita_forma, _ = query(
+        f"""SELECT forma_pagamento, COALESCE(SUM(total),0) AS total
+            FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}
+            GROUP BY forma_pagamento ORDER BY total DESC""",
+        tuple(params_ped)
+    )
+
+    def serializar(rows):
+        if not rows: return []
+        result = []
+        for r in rows:
+            row = {}
+            for k, v in r.items():
+                if isinstance(v, decimal.Decimal): row[k] = float(v)
+                else: row[k] = str(v) if not isinstance(v, (int, float, str, type(None), bool)) else v
+            result.append(row)
+        return result
+
+    return ok({
+        'kpis': {
+            'receita':       receita,
+            'despesa':       despesa,
+            'lucro':         round(receita - despesa, 2),
+            'total_pedidos': total_pedidos,
+            'ticket_medio':  ticket_medio,
+        },
+        'receita_mensal': serializar(receita_mensal),
+        'despesa_mensal': serializar(despesa_mensal),
+        'despesa_cat':    serializar(despesa_cat),
+        'receita_forma':  serializar(receita_forma),
+    })
+
+
+# ============================================================
+#  SABORES DE PRODUTO (admin)
+# ============================================================
+
+@app.route('/api/admin/produtos/<int:pid>/sabores', methods=['GET'])
+@requer_admin
+def admin_listar_sabores(pid):
+    rows, _ = query(
+        "SELECT * FROM produto_sabores WHERE produto_id=%s AND ativo=1 ORDER BY ordem, id",
+        (pid,)
+    )
+    for r in (rows or []):
+        r['preco_adicional'] = float(r.get('preco_adicional') or 0)
+    return ok(rows)
+
+
+# ============================================================
+#  CONFIG PAGAMENTO SANTANDER (admin)
+# ============================================================
+
+PAYMENT_KEYS = [
+    'santander_merchant_id', 'santander_client_id', 'santander_client_secret',
+    'santander_ambiente',    'santander_webhook_url', 'santander_ativo',
+    'pix_chave',             'pix_tipo_chave',
+    'boleto_ativo',          'cartao_ativo',
+]
+
+@app.route('/api/admin/config-pagamento', methods=['GET'])
+@requer_admin
+def admin_get_config_pagamento():
+    placeholders = ','.join(['%s'] * len(PAYMENT_KEYS))
+    rows, _ = query(
+        f"SELECT chave, valor FROM configuracoes WHERE chave IN ({placeholders})",
+        tuple(PAYMENT_KEYS)
+    )
+    data = {r['chave']: r['valor'] for r in (rows or [])}
+    return ok(data)
+
+
+@app.route('/api/admin/config-pagamento', methods=['PUT'])
+@requer_admin
+def admin_set_config_pagamento():
+    d = request.get_json() or {}
+    for chave, valor in d.items():
+        if chave not in PAYMENT_KEYS:
+            continue
+        query(
+            "INSERT INTO configuracoes (chave, valor) VALUES (%s,%s) "
+            "ON DUPLICATE KEY UPDATE valor=%s",
+            (chave, valor, valor), fetch='none'
+        )
+    return ok(msg='Configuracoes de pagamento salvas!')
+
 if __name__ == '__main__':
     print('=' * 60)
     print('🍫  Spinassi Chocolates — API Backend')
