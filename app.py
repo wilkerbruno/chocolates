@@ -193,11 +193,16 @@ def log(usuario_id, acao, descricao='', ip=None):
 
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory('templates', 'index.html')
 
 
 @app.route('/<path:path>')
 def serve_static(path):
+    import os
+    # Tenta templates/ primeiro, depois raiz (para assets/)
+    templates_path = os.path.join('templates', path)
+    if os.path.exists(templates_path):
+        return send_from_directory('templates', path)
     return send_from_directory('.', path)
 
 # ============================================================

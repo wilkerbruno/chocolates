@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Desejos — Spinassi Chocolates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/conta.css">
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<header class="acc-header">
+    <a href="index.html" class="acc-logo">Spinassi <span>Chocolate</span></a>
+    <div class="acc-header-right">
+        <a href="index.html" class="acc-back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Voltar à loja
+        </a>
+    </div>
+</header>
+
+<!-- ── LAYOUT ─────────────────────────────────────────── -->
+<div class="acc-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="acc-sidebar">
+        <div class="acc-sidebar-user">
+            <div class="acc-avatar-big" id="sidebarAvatar">?</div>
+            <div class="acc-sidebar-name" id="sidebarNome">Carregando…</div>
+            <div class="acc-sidebar-email" id="sidebarEmail"></div>
+        </div>
+
+        <span class="acc-nav-label">Minha conta</span>
+
+        <a href="minha-conta.html" class="acc-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Meus Dados
+        </a>
+
+        <a href="meus-pedidos.html" class="acc-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Meus Pedidos
+        </a>
+
+        <a href="lista-desejos.html" class="acc-nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            Lista de Desejos
+            <span class="acc-count-badge" id="badgeDesejos" style="display:none"></span>
+        </a>
+
+        <span class="acc-nav-label">Sessão</span>
+
+        <button class="acc-nav-item logout-item" onclick="fazerLogout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sair
+        </button>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="acc-main">
+        <h1 class="acc-page-title">Lista de Desejos</h1>
+        <p class="acc-page-subtitle" id="subtitleDesejos">Carregando sua lista…</p>
+
+        <!-- Notificação de ação -->
+        <div class="acc-alert" id="alertDesejos"></div>
+
+        <div id="listaDesejos">
+            <div class="acc-loading">
+                <div class="spinner"></div>
+                Buscando seus produtos…
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="../assets/js/api.js"></script>
+<script>
+/* ============================================================
+   LISTA DE DESEJOS — lógica
+============================================================ */
+
+if (!SpinassiAPI.sessao.estaLogado() || SpinassiAPI.sessao.tokenExpirado()) {
+    SpinassiAPI.sessao.limpar();
+    window.location.href = 'index.html';
+}
+
+const usuario = SpinassiAPI.sessao.getUsuario();
+document.getElementById('sidebarAvatar').textContent = (usuario.nome || '?').charAt(0).toUpperCase();
+document.getElementById('sidebarNome').textContent   = `${usuario.nome||''} ${usuario.sobrenome||''}`.trim();
+document.getElementById('sidebarEmail').textContent  = usuario.email || '';
+
+let desejos = []; // cache local
+
+/* ── Formata preço ────────────────────────────────────── */
+function fmtMoeda(v) {
+    return 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',');
+}
+
+/* ── Carrega desejos ──────────────────────────────────── */
+async function carregarDesejos() {
+    try {
+        const res = await SpinassiAPI.desejos.listar();
+        desejos   = res.data || [];
+
+        const badge = document.getElementById('badgeDesejos');
+        if (desejos.length) { badge.textContent = desejos.length; badge.style.display = 'inline-flex'; }
+        else { badge.style.display = 'none'; }
+
+        document.getElementById('subtitleDesejos').textContent =
+            desejos.length
+                ? `${desejos.length} produto${desejos.length > 1 ? 's' : ''} na sua lista`
+                : 'Sua lista de desejos está vazia';
+
+        renderDesejos();
+
+    } catch (e) {
+        document.getElementById('listaDesejos').innerHTML = `
+            <div class="acc-empty">
+                <h3>Erro ao carregar lista</h3>
+                <p>${e.message || 'Tente novamente em instantes.'}</p>
+            </div>`;
+    }
+}
+
+/* ── Renderiza o grid ─────────────────────────────────── */
+function renderDesejos() {
+    if (!desejos.length) {
+        document.getElementById('listaDesejos').innerHTML = `
+            <div class="acc-empty">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <h3>Lista vazia</h3>
+                <p>Navegue por nossos produtos e salve os seus favoritos!</p>
+                <a href="index.html#produtos" class="btn-gold"><span>Explorar produtos</span></a>
+            </div>`;
+        return;
+    }
+
+    document.getElementById('listaDesejos').innerHTML =
+        `<div class="wish-grid">${desejos.map(renderWishCard).join('')}</div>`;
+}
+
+function renderWishCard(p) {
+    const badge = p.badge
+        ? `<div style="position:absolute;top:12px;right:12px;background:linear-gradient(45deg,#FFD700,#FFF8DC,#D4AF37);
+                       color:var(--chocolate-dark);padding:4px 12px;font-size:.7rem;font-weight:700;letter-spacing:1px;">
+               ${p.badge}</div>`
+        : '';
+    return `
+    <div class="wish-card" id="card-${p.id}">
+        <div style="position:relative;overflow:hidden;">
+            <img src="${p.imagem_principal || 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400'}"
+                 alt="${p.nome}" class="wish-card-img"
+                 onerror="this.src='https://images.unsplash.com/photo-1548907040-4baa42d10919?w=400'">
+            ${badge}
+        </div>
+        <div class="wish-card-info">
+            <div class="wish-card-cat">${p.slug?.split('-').slice(-1)[0] || 'Chocolate'}</div>
+            <div class="wish-card-name">${p.nome}</div>
+            <div class="wish-card-footer">
+                <span class="wish-card-price">${fmtMoeda(p.preco)}</span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-outline" style="font-size:.65rem;padding:7px 14px;"
+                            onclick="adicionarCarrinho(${p.id}, '${p.nome.replace(/'/g,"\\'")}', ${p.preco})">
+                        Adicionar ao carrinho
+                    </button>
+                    <button class="btn-danger" style="font-size:.65rem;padding:7px 12px;"
+                            onclick="removerDesejo(${p.id})" title="Remover da lista">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             style="width:14px;height:14px;">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            <path d="M10 11v6M14 11v6"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+/* ── Remove da lista ──────────────────────────────────── */
+async function removerDesejo(id) {
+    const card = document.getElementById(`card-${id}`);
+    if (card) { card.style.opacity = '.4'; card.style.pointerEvents = 'none'; }
+
+    try {
+        await SpinassiAPI.desejos.remover(id);
+        desejos = desejos.filter(d => d.id !== id);
+
+        const badge = document.getElementById('badgeDesejos');
+        if (desejos.length) {
+            badge.textContent = desejos.length;
+        } else {
+            badge.style.display = 'none';
+        }
+
+        document.getElementById('subtitleDesejos').textContent =
+            desejos.length
+                ? `${desejos.length} produto${desejos.length > 1 ? 's' : ''} na sua lista`
+                : 'Sua lista de desejos está vazia';
+
+        renderDesejos();
+        showAlert('Produto removido da lista de desejos.', 'success');
+    } catch (e) {
+        if (card) { card.style.opacity = '1'; card.style.pointerEvents = ''; }
+        showAlert(e.message || 'Erro ao remover produto.', 'error');
+    }
+}
+
+/* ── Adiciona ao carrinho (integra com script.js) ─────── */
+function adicionarCarrinho(id, nome, preco) {
+    try {
+        let carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
+        const idx    = carrinho.findIndex(i => i.id === id);
+        if (idx >= 0) {
+            carrinho[idx].quantidade++;
+        } else {
+            carrinho.push({ id, nome, preco, quantidade: 1,
+                imagem: document.querySelector(`#card-${id} img`)?.src || '' });
+        }
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        showAlert(`"${nome}" adicionado ao carrinho!`, 'success');
+    } catch (e) {
+        showAlert('Erro ao adicionar ao carrinho.', 'error');
+    }
+}
+
+/* ── Alert helper ─────────────────────────────────────── */
+function showAlert(msg, tipo) {
+    const el = document.getElementById('alertDesejos');
+    el.textContent = msg;
+    el.className   = `acc-alert show ${tipo}`;
+    clearTimeout(el._timer);
+    el._timer = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+function fazerLogout() {
+    SpinassiAPI.auth.logout();
+    window.location.href = 'index.html';
+}
+
+carregarDesejos();
+</script>
+</body>
+</html>

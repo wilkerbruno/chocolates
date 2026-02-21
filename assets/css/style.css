@@ -254,7 +254,7 @@ h1, h2, h3, h4 {
 .hero-content {
     position: absolute !important;
     top: 30% !important;
-    left: 35% !important;
+    left: 25% !important;
     transform: translate(-50%, -50%) !important;
     text-align: center !important;
 }

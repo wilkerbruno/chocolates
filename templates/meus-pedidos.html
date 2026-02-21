@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Pedidos — Spinassi Chocolates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/conta.css">
+    <style>
+        /* ── Modal de detalhe do pedido ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(4px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s, visibility .25s;
+        }
+        .modal-overlay.open { opacity: 1; visibility: visible; }
+
+        .modal-box {
+            background: var(--white);
+            width: 100%;
+            max-width: 620px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,.35);
+            transform: translateY(20px);
+            transition: transform .28s;
+        }
+        .modal-overlay.open .modal-box { transform: translateY(0); }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: var(--cream);
+            border-bottom: 2px solid var(--gold-light);
+            position: sticky;
+            top: 0;
+        }
+        .modal-header h3 { font-size: 1.3rem; color: var(--chocolate-dark); }
+
+        .modal-close {
+            background: none; border: none;
+            font-size: 1.8rem; line-height: 1;
+            color: var(--text-light); cursor: pointer;
+            transition: color .2s;
+        }
+        .modal-close:hover { color: var(--chocolate-dark); }
+
+        .modal-body { padding: 24px; }
+
+        .modal-section { margin-bottom: 24px; }
+        .modal-section-title {
+            font-size: .7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--gold-light);
+        }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: .84rem;
+            padding: 5px 0;
+            color: var(--text-dark);
+        }
+        .modal-row span:first-child { color: var(--text-light); }
+
+        .modal-item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #F5F0EA;
+            font-size: .84rem;
+        }
+        .modal-item-row:last-child { border-bottom: none; }
+        .modal-item-name { color: var(--text-dark); }
+        .modal-item-sabor { color: var(--text-light); font-size: .75rem; }
+        .modal-item-qty { color: var(--text-light); font-size: .8rem; margin-top:2px; }
+
+        .modal-total-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0 4px;
+            font-size: .84rem;
+            color: var(--text-light);
+        }
+        .modal-total-line.grand-total {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--chocolate-dark);
+            border-top: 2px solid var(--gold-light);
+            margin-top: 8px;
+            padding-top: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────── -->
+<header class="acc-header">
+    <a href="index.html" class="acc-logo">Spinassi <span>Chocolate</span></a>
+    <div class="acc-header-right">
+        <a href="index.html" class="acc-back-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            Voltar à loja
+        </a>
+    </div>
+</header>
+
+<!-- ── LAYOUT ─────────────────────────────────────────── -->
+<div class="acc-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="acc-sidebar">
+        <div class="acc-sidebar-user">
+            <div class="acc-avatar-big" id="sidebarAvatar">?</div>
+            <div class="acc-sidebar-name" id="sidebarNome">Carregando…</div>
+            <div class="acc-sidebar-email" id="sidebarEmail"></div>
+        </div>
+
+        <span class="acc-nav-label">Minha conta</span>
+
+        <a href="minha-conta.html" class="acc-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Meus Dados
+        </a>
+
+        <a href="meus-pedidos.html" class="acc-nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Meus Pedidos
+            <span class="acc-count-badge" id="badgePedidos" style="display:none"></span>
+        </a>
+
+        <a href="lista-desejos.html" class="acc-nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            Lista de Desejos
+        </a>
+
+        <span class="acc-nav-label">Sessão</span>
+
+        <button class="acc-nav-item logout-item" onclick="fazerLogout()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Sair
+        </button>
+    </aside>
+
+    <!-- CONTEÚDO -->
+    <main class="acc-main">
+        <h1 class="acc-page-title">Meus Pedidos</h1>
+        <p class="acc-page-subtitle" id="subtitlePedidos">Carregando seus pedidos…</p>
+
+        <div id="listaPedidos">
+            <div class="acc-loading">
+                <div class="spinner"></div>
+                Buscando seus pedidos…
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ── MODAL DETALHE ──────────────────────────────────── -->
+<div class="modal-overlay" id="modalPedido" onclick="fecharModal(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="modalTitulo">Detalhe do Pedido</h3>
+            <button class="modal-close" onclick="fecharModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
+</div>
+
+<script src="../assets/js/api.js"></script>
+<script>
+/* ============================================================
+   MEUS PEDIDOS — lógica
+============================================================ */
+
+if (!SpinassiAPI.sessao.estaLogado() || SpinassiAPI.sessao.tokenExpirado()) {
+    SpinassiAPI.sessao.limpar();
+    window.location.href = 'index.html';
+}
+
+const usuario = SpinassiAPI.sessao.getUsuario();
+document.getElementById('sidebarAvatar').textContent = (usuario.nome || '?').charAt(0).toUpperCase();
+document.getElementById('sidebarNome').textContent   = `${usuario.nome||''} ${usuario.sobrenome||''}`.trim();
+document.getElementById('sidebarEmail').textContent  = usuario.email || '';
+
+/* ── Status helpers ───────────────────────────────────── */
+const STATUS_LABELS = {
+    aguardando_pagamento: 'Aguardando pagamento',
+    confirmado:           'Confirmado',
+    em_separacao:         'Em separação',
+    enviado:              'Enviado',
+    entregue:             'Entregue',
+    cancelado:            'Cancelado',
+};
+const STATUS_PAG_LABELS = {
+    pendente:   'Pendente',
+    aprovado:   'Aprovado',
+    recusado:   'Recusado',
+    estornado:  'Estornado',
+};
+const FORMA_LABELS = {
+    cartao_credito: 'Cartão de Crédito',
+    cartao_debito:  'Cartão de Débito',
+    pix:            'PIX',
+    boleto:         'Boleto',
+    whatsapp:       'WhatsApp',
+};
+
+function badgeClass(status) {
+    return 'order-badge badge-' + (status || 'aguardando').replace('aguardando_pagamento','aguardando');
+}
+function fmtMoeda(v) {
+    return 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',');
+}
+function fmtData(dt) {
+    const d = new Date(dt);
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+/* ── Carrega lista de pedidos ─────────────────────────── */
+async function carregarPedidos() {
+    try {
+        const res    = await SpinassiAPI.pedidos.listar();
+        const pedidos = res.data || [];
+
+        const badge = document.getElementById('badgePedidos');
+        if (pedidos.length) { badge.textContent = pedidos.length; badge.style.display = 'inline-flex'; }
+
+        document.getElementById('subtitlePedidos').textContent =
+            pedidos.length
+                ? `Você tem ${pedidos.length} pedido${pedidos.length > 1 ? 's' : ''}`
+                : 'Você ainda não fez nenhum pedido';
+
+        if (!pedidos.length) {
+            document.getElementById('listaPedidos').innerHTML = `
+                <div class="acc-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <h3>Nenhum pedido ainda</h3>
+                    <p>Explore nossa coleção e faça seu primeiro pedido!</p>
+                    <a href="index.html#produtos" class="btn-gold"><span>Ver produtos</span></a>
+                </div>`;
+            return;
+        }
+
+        document.getElementById('listaPedidos').innerHTML =
+            `<div class="orders-list">${pedidos.map(renderPedidoCard).join('')}</div>`;
+
+    } catch (e) {
+        document.getElementById('listaPedidos').innerHTML = `
+            <div class="acc-empty">
+                <h3>Erro ao carregar pedidos</h3>
+                <p>${e.message || 'Tente novamente em instantes.'}</p>
+            </div>`;
+    }
+}
+
+function renderPedidoCard(p) {
+    return `
+    <div class="order-card">
+        <div class="order-card-header">
+            <div>
+                <div class="order-number">Pedido #${p.id}</div>
+                <div class="order-date">${fmtData(p.criado_em)}</div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <span class="${badgeClass(p.status)}">${STATUS_LABELS[p.status] || p.status}</span>
+                <span class="${badgeClass(p.status_pagamento)}">${STATUS_PAG_LABELS[p.status_pagamento] || p.status_pagamento}</span>
+            </div>
+        </div>
+        <div class="order-card-body">
+            <div class="order-items-preview">
+                <div class="order-item-row">
+                    <strong>${FORMA_LABELS[p.forma_pagamento] || p.forma_pagamento}</strong>
+                </div>
+                ${p.rastreamento
+                    ? `<div class="order-tracking">Rastreamento: <a href="#" target="_blank">${p.rastreamento}</a></div>`
+                    : ''}
+            </div>
+            <div class="order-total-line">
+                <span class="order-total-label">Total</span>
+                <div class="order-total-value">${fmtMoeda(p.total)}</div>
+                <button class="btn-outline" style="margin-top:10px;font-size:.7rem;"
+                        onclick="abrirDetalhe(${p.id})">
+                    Ver detalhes
+                </button>
+            </div>
+        </div>
+    </div>`;
+}
+
+/* ── Abre modal de detalhe ────────────────────────────── */
+async function abrirDetalhe(id) {
+    document.getElementById('modalTitulo').textContent = `Pedido #${id}`;
+    document.getElementById('modalBody').innerHTML = `
+        <div class="acc-loading"><div class="spinner"></div> Carregando…</div>`;
+    document.getElementById('modalPedido').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+        const res = await SpinassiAPI.pedidos.detalhe(id);
+        const p   = res.data;
+        renderModalBody(p);
+    } catch (e) {
+        document.getElementById('modalBody').innerHTML =
+            `<p style="padding:20px;color:var(--danger);">Erro: ${e.message}</p>`;
+    }
+}
+
+function renderModalBody(p) {
+    const itensHtml = (p.itens || []).map(it => `
+        <div class="modal-item-row">
+            <div>
+                <div class="modal-item-name">${it.nome_produto}</div>
+                ${it.nome_sabor ? `<div class="modal-item-sabor">Sabor: ${it.nome_sabor}</div>` : ''}
+                ${it.peso_gramas ? `<div class="modal-item-sabor">${it.peso_gramas}g</div>` : ''}
+                <div class="modal-item-qty">${it.quantidade}× ${fmtMoeda(it.preco_unit)}</div>
+            </div>
+            <strong>${fmtMoeda(it.subtotal)}</strong>
+        </div>`).join('');
+
+    const endHtml = p.logradouro
+        ? `${p.logradouro}, ${p.numero}${p.complemento ? ' – '+p.complemento : ''}<br>
+           ${p.bairro} – ${p.cidade}/${p.estado} – CEP ${p.cep}`
+        : '—';
+
+    document.getElementById('modalBody').innerHTML = `
+        <div class="modal-section">
+            <div class="modal-section-title">Status do pedido</div>
+            <div class="modal-row">
+                <span>Pedido</span>
+                <span class="${badgeClass(p.status)}">${STATUS_LABELS[p.status]||p.status}</span>
+            </div>
+            <div class="modal-row">
+                <span>Pagamento</span>
+                <span class="${badgeClass(p.status_pagamento)}">${STATUS_PAG_LABELS[p.status_pagamento]||p.status_pagamento}</span>
+            </div>
+            <div class="modal-row">
+                <span>Forma de pagamento</span>
+                <span>${FORMA_LABELS[p.forma_pagamento]||p.forma_pagamento}</span>
+            </div>
+            ${p.rastreamento
+                ? `<div class="modal-row"><span>Rastreamento</span><span>${p.rastreamento}</span></div>`
+                : ''}
+            <div class="modal-row">
+                <span>Data do pedido</span>
+                <span>${fmtData(p.criado_em)}</span>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Endereço de entrega</div>
+            <p style="font-size:.84rem;color:var(--text-dark);line-height:1.7;">${endHtml}</p>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Itens do pedido</div>
+            ${itensHtml || '<p style="font-size:.84rem;color:var(--text-light);">—</p>'}
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Resumo financeiro</div>
+            <div class="modal-total-line"><span>Subtotal</span><span>${fmtMoeda(p.subtotal)}</span></div>
+            ${parseFloat(p.desconto) > 0
+                ? `<div class="modal-total-line"><span>Desconto</span><span style="color:var(--success);">− ${fmtMoeda(p.desconto)}</span></div>`
+                : ''}
+            <div class="modal-total-line"><span>Frete</span>
+                <span>${parseFloat(p.frete)===0 ? '<span style="color:var(--success)">Grátis</span>' : fmtMoeda(p.frete)}</span>
+            </div>
+            <div class="modal-total-line grand-total"><span>Total</span><span>${fmtMoeda(p.total)}</span></div>
+        </div>
+
+        ${p.observacao
+            ? `<div class="modal-section">
+                   <div class="modal-section-title">Observação</div>
+                   <p style="font-size:.84rem;color:var(--text-dark);">${p.observacao}</p>
+               </div>`
+            : ''}
+    `;
+}
+
+function fecharModal(e) {
+    if (e && e.target !== document.getElementById('modalPedido') &&
+        !e.target.classList.contains('modal-close')) return;
+    document.getElementById('modalPedido').classList.remove('open');
+    document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal({}); });
+
+function fazerLogout() {
+    SpinassiAPI.auth.logout();
+    window.location.href = 'index.html';
+}
+
+carregarPedidos();
+</script>
+</body>
+</html>
