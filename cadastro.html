@@ -7,15 +7,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/pagamento.css">
     <link rel="stylesheet" href="assets/css/cadastro.css">
-    
 </head>
 <body>
 
 <div class="auth-layout">
 
-    <!-- ===== PAINEL ESQUERDO (decorativo) ===== -->
+    <!-- ===== PAINEL ESQUERDO ===== -->
     <div class="auth-panel-left">
         <div class="auth-circle auth-circle-1"></div>
         <div class="auth-circle auth-circle-2"></div>
@@ -28,7 +26,6 @@
             <span class="auth-promo-badge">Novo membro</span>
             <h2>Crie sua conta e desfrute de vantagens exclusivas</h2>
             <p>Junte-se à nossa comunidade de apreciadores de chocolate e tenha acesso a ofertas únicas, lançamentos em primeira mão e muito mais.</p>
-
             <ul class="auth-benefits">
                 <li>10% de desconto na primeira compra</li>
                 <li>Acesso antecipado a novas coleções</li>
@@ -39,7 +36,7 @@
         </div>
     </div>
 
-    <!-- ===== PAINEL DIREITO (formulário) ===== -->
+    <!-- ===== PAINEL DIREITO ===== -->
     <div class="auth-panel-right">
 
         <div class="auth-form-header">
@@ -50,29 +47,35 @@
                 Voltar à loja
             </a>
             <h2>Criar conta</h2>
-            <p>Já tem uma conta? <a href="index.html" onclick="return openLoginFromExternal()">Faça login</a></p>
+            <p>Já tem uma conta? <a href="index.html">Faça login</a></p>
         </div>
 
-        <!-- Formulário de cadastro -->
+        <!-- Alerta global (erros da API) -->
+        <div class="auth-api-alert" id="apiAlert" role="alert"></div>
+
+        <!-- Formulário -->
         <form class="auth-form" id="registerForm" onsubmit="submitRegister(event)" novalidate>
 
             <div class="auth-form-row">
                 <div class="auth-field" id="af-nome">
-                    <input type="text" id="regNome" placeholder=" " autocomplete="given-name">
+                    <input type="text" id="regNome" placeholder=" "
+                           autocomplete="given-name" maxlength="80">
                     <label for="regNome">Nome *</label>
                     <span class="auth-field-error">Informe seu nome</span>
                 </div>
                 <div class="auth-field" id="af-sobrenome">
-                    <input type="text" id="regSobrenome" placeholder=" " autocomplete="family-name">
+                    <input type="text" id="regSobrenome" placeholder=" "
+                           autocomplete="family-name" maxlength="80">
                     <label for="regSobrenome">Sobrenome *</label>
                     <span class="auth-field-error">Informe seu sobrenome</span>
                 </div>
             </div>
 
             <div class="auth-field" id="af-email">
-                <input type="email" id="regEmail" placeholder=" " autocomplete="email">
+                <input type="email" id="regEmail" placeholder=" "
+                       autocomplete="email" maxlength="150">
                 <label for="regEmail">E-mail *</label>
-                <span class="auth-field-error">E-mail inválido</span>
+                <span class="auth-field-error" id="emailError">E-mail inválido</span>
             </div>
 
             <div class="auth-form-row">
@@ -88,11 +91,15 @@
             </div>
 
             <div class="auth-field" id="af-senha">
-                <div class="auth-field--password" style="position:relative;">
-                    <input type="password" id="regSenha" placeholder=" " autocomplete="new-password">
+                <div class="auth-field--password">
+                    <input type="password" id="regSenha" placeholder=" "
+                           autocomplete="new-password">
                     <label for="regSenha">Senha *</label>
-                    <button type="button" class="auth-toggle-pass" onclick="toggleRegPass('regSenha','eyeReg1')">
-                        <svg id="eyeReg1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="auth-toggle-pass"
+                            onclick="toggleRegPass('regSenha','eyeReg1')"
+                            aria-label="Mostrar senha">
+                        <svg id="eyeReg1" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                             <circle cx="12" cy="12" r="3"/>
                         </svg>
@@ -106,11 +113,15 @@
             </div>
 
             <div class="auth-field" id="af-confirma">
-                <div class="auth-field--password" style="position:relative;">
-                    <input type="password" id="regConfirma" placeholder=" " autocomplete="new-password">
+                <div class="auth-field--password">
+                    <input type="password" id="regConfirma" placeholder=" "
+                           autocomplete="new-password">
                     <label for="regConfirma">Confirmar senha *</label>
-                    <button type="button" class="auth-toggle-pass" onclick="toggleRegPass('regConfirma','eyeReg2')">
-                        <svg id="eyeReg2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="auth-toggle-pass"
+                            onclick="toggleRegPass('regConfirma','eyeReg2')"
+                            aria-label="Mostrar senha">
+                        <svg id="eyeReg2" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                             <circle cx="12" cy="12" r="3"/>
                         </svg>
@@ -120,7 +131,7 @@
             </div>
 
             <div class="auth-field">
-                <select id="regGenero">
+                <select id="regGenero" onchange="this.classList.add('filled')">
                     <option value="" disabled selected></option>
                     <option value="M">Masculino</option>
                     <option value="F">Feminino</option>
@@ -131,7 +142,7 @@
             </div>
 
             <div class="auth-checkbox">
-                <input type="checkbox" id="chkTermos" required>
+                <input type="checkbox" id="chkTermos">
                 <label for="chkTermos">
                     Li e aceito os <a href="#">Termos de Uso</a> e a
                     <a href="#">Política de Privacidade</a> da Spinassi Chocolates. *
@@ -139,7 +150,7 @@
             </div>
 
             <div class="auth-checkbox">
-                <input type="checkbox" id="chkNews">
+                <input type="checkbox" id="chkNews" checked>
                 <label for="chkNews">
                     Quero receber novidades, lançamentos e promoções exclusivas por e-mail.
                 </label>
@@ -163,8 +174,11 @@
                 </svg>
             </div>
             <h3>Conta criada!</h3>
-            <p>Bem-vindo à família Spinassi Chocolates! Enviamos um e-mail de confirmação para você.</p>
-            <a href="index.html" class="btn-create-account" style="display:inline-block;text-decoration:none;text-align:center;width:auto;padding:16px 40px;">
+            <p id="successMsg">
+                Bem-vindo à família Spinassi Chocolates!<br>
+                Você já está logado e pode começar a explorar.
+            </p>
+            <a href="index.html" class="btn-create-account btn-success-link">
                 Começar a explorar
             </a>
         </div>
@@ -172,105 +186,235 @@
     </div>
 </div>
 
+<!-- API centralizada (deve vir antes) -->
+<script src="assets/js/api.js"></script>
+
 <script>
-    /* ---- Máscaras ---- */
-    document.getElementById('regCpf').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g,'');
-        if (v.length > 3)  v = v.slice(0,3) + '.' + v.slice(3);
-        if (v.length > 7)  v = v.slice(0,7) + '.' + v.slice(7);
-        if (v.length > 11) v = v.slice(0,11) + '-' + v.slice(11,13);
-        this.value = v.slice(0,14);
-    });
+/* ============================================================
+   CADASTRO — lógica com integração real à API
+============================================================ */
 
-    document.getElementById('regTel').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g,'');
-        if (v.length > 0)  v = '(' + v;
-        if (v.length > 3)  v = v.slice(0,3) + ') ' + v.slice(3);
-        if (v.length > 10) v = v.slice(0,10) + '-' + v.slice(10,15);
-        this.value = v;
-    });
+/* ---- Máscaras de input --------------------------------- */
+document.getElementById('regCpf').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 3)  v = v.slice(0, 3)  + '.' + v.slice(3);
+    if (v.length > 7)  v = v.slice(0, 7)  + '.' + v.slice(7);
+    if (v.length > 11) v = v.slice(0, 11) + '-' + v.slice(11, 13);
+    this.value = v.slice(0, 14);
+});
 
-    /* ---- Força da senha ---- */
-    document.getElementById('regSenha').addEventListener('input', function () {
-        const bar   = document.getElementById('strengthBar');
-        const label = document.getElementById('strengthLabel');
-        const val   = this.value;
-        let score   = 0;
+document.getElementById('regTel').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 0)  v = '(' + v;
+    if (v.length > 3)  v = v.slice(0, 3)  + ') ' + v.slice(3);
+    if (v.length > 10) v = v.slice(0, 10) + '-'  + v.slice(10, 15);
+    this.value = v;
+});
 
-        if (val.length >= 8)               score++;
-        if (/[A-Z]/.test(val))             score++;
-        if (/[0-9]/.test(val))             score++;
-        if (/[^A-Za-z0-9]/.test(val))      score++;
+/* ---- Indicador de força da senha ----------------------- */
+document.getElementById('regSenha').addEventListener('input', function () {
+    const bar   = document.getElementById('strengthBar');
+    const label = document.getElementById('strengthLabel');
+    const v     = this.value;
+    let score   = 0;
+    if (v.length >= 8)           score++;
+    if (/[A-Z]/.test(v))         score++;
+    if (/[0-9]/.test(v))         score++;
+    if (/[^A-Za-z0-9]/.test(v))  score++;
 
-        const levels = [
-            { w: '0%',   bg: '#E0D8D0', text: 'Mínimo de 8 caracteres' },
-            { w: '30%',  bg: '#E74C3C', text: 'Fraca' },
-            { w: '55%',  bg: '#F39C12', text: 'Média' },
-            { w: '80%',  bg: '#27AE60', text: 'Forte' },
-            { w: '100%', bg: '#D4AF37', text: 'Muito forte' },
-        ];
+    const levels = [
+        { w: '0%',   bg: '#E0D8D0', text: 'Mínimo de 8 caracteres' },
+        { w: '30%',  bg: '#E74C3C', text: 'Fraca'       },
+        { w: '55%',  bg: '#F39C12', text: 'Média'       },
+        { w: '80%',  bg: '#27AE60', text: 'Forte'       },
+        { w: '100%', bg: '#D4AF37', text: 'Muito forte'  },
+    ];
+    const lvl            = levels[v.length ? score : 0];
+    bar.style.width      = v.length ? lvl.w  : '0%';
+    bar.style.background = lvl.bg;
+    label.textContent    = v.length ? lvl.text : 'Mínimo de 8 caracteres';
+});
 
-        const lvl = levels[score] || levels[0];
-        bar.style.width      = val.length ? lvl.w : '0%';
-        bar.style.background = lvl.bg;
-        label.textContent    = val.length ? lvl.text : 'Mínimo de 8 caracteres';
-    });
+/* ---- Toggle de visibilidade da senha ------------------- */
+function toggleRegPass(inputId, iconId) {
+    const input  = document.getElementById(inputId);
+    const icon   = document.getElementById(iconId);
+    const isPass = input.type === 'password';
+    input.type   = isPass ? 'text' : 'password';
+    icon.innerHTML = isPass
+        ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+           <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+           <line x1="1" y1="1" x2="23" y2="23"/>`
+        : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+           <circle cx="12" cy="12" r="3"/>`;
+}
 
-    /* ---- Toggle senha ---- */
-    function toggleRegPass(inputId, iconId) {
-        const input = document.getElementById(inputId);
-        const icon  = document.getElementById(iconId);
-        const isPass = input.type === 'password';
-        input.type = isPass ? 'text' : 'password';
-        icon.innerHTML = isPass
-            ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-               <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-               <line x1="1" y1="1" x2="23" y2="23"/>`
-            : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-               <circle cx="12" cy="12" r="3"/>`;
+/* ---- Alerta de API ------------------------------------- */
+function setApiAlert(msg, tipo) {
+    const el = document.getElementById('apiAlert');
+    el.textContent = msg;
+    el.className   = `auth-api-alert auth-api-alert--${tipo}`;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearApiAlert() {
+    const el = document.getElementById('apiAlert');
+    el.textContent = '';
+    el.className   = 'auth-api-alert';
+}
+
+/* ---- Validação de campo -------------------------------- */
+function vField(id, ok, msgCustom) {
+    const el = document.getElementById(id);
+    if (!el) return true;
+    el.classList.toggle('error', !ok);
+    if (!ok && msgCustom) {
+        const errEl = el.querySelector('.auth-field-error');
+        if (errEl) errEl.textContent = msgCustom;
+    }
+    return ok;
+}
+
+/* ---- Validação de CPF (algoritmo real) ----------------- */
+function validarCPF(cpf) {
+    cpf = cpf.replace(/\D/g, '');
+    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+    let soma = 0, resto;
+    for (let i = 1; i <= 9; i++) soma += parseInt(cpf[i - 1]) * (11 - i);
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpf[9])) return false;
+    soma = 0;
+    for (let i = 1; i <= 10; i++) soma += parseInt(cpf[i - 1]) * (12 - i);
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    return resto === parseInt(cpf[10]);
+}
+
+/* ---- SUBMIT COM API REAL ------------------------------- */
+async function submitRegister(e) {
+    e.preventDefault();
+    clearApiAlert();
+
+    /* Coleta valores */
+    const nome      = document.getElementById('regNome').value.trim();
+    const sobrenome = document.getElementById('regSobrenome').value.trim();
+    const email     = document.getElementById('regEmail').value.trim().toLowerCase();
+    const cpf       = document.getElementById('regCpf').value.trim();
+    const telefone  = document.getElementById('regTel').value.trim();
+    const senha     = document.getElementById('regSenha').value;
+    const confirma  = document.getElementById('regConfirma').value;
+    const genero    = document.getElementById('regGenero').value || null;
+    const termos    = document.getElementById('chkTermos').checked;
+    const news      = document.getElementById('chkNews').checked;
+
+    /* Validação local */
+    let ok = true;
+    ok = vField('af-nome',     nome.length >= 2,
+                'Nome deve ter pelo menos 2 caracteres')         && ok;
+    ok = vField('af-sobrenome', sobrenome.length >= 2,
+                'Sobrenome deve ter pelo menos 2 caracteres')    && ok;
+    ok = vField('af-email',    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+                'Informe um e-mail válido')                       && ok;
+    ok = vField('af-cpf',      validarCPF(cpf),
+                'CPF inválido')                                   && ok;
+    ok = vField('af-senha',    senha.length >= 8,
+                'Mínimo de 8 caracteres')                         && ok;
+    ok = vField('af-confirma', senha === confirma,
+                'As senhas não coincidem')                        && ok;
+
+    if (!termos) {
+        setApiAlert('Você precisa aceitar os Termos de Uso para continuar.', 'error');
+        return;
+    }
+    if (!ok) {
+        const firstError = document.querySelector('.auth-field.error');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
     }
 
-    /* ---- Validação e submit ---- */
-    function vField(id, ok) {
-        const el = document.getElementById(id);
-        if (!el) return true;
-        el.classList.toggle('error', !ok);
-        return ok;
-    }
+    /* Estado de loading */
+    const btnEl = document.getElementById('btnCreateAccount');
+    btnEl.disabled    = true;
+    btnEl.textContent = 'Criando sua conta…';
 
-    function submitRegister(e) {
-        e.preventDefault();
-        const nome     = document.getElementById('regNome').value.trim();
-        const sobre    = document.getElementById('regSobrenome').value.trim();
-        const email    = document.getElementById('regEmail').value.trim();
-        const cpf      = document.getElementById('regCpf').value.trim();
-        const senha    = document.getElementById('regSenha').value;
-        const confirma = document.getElementById('regConfirma').value;
-        const termos   = document.getElementById('chkTermos').checked;
+    try {
+        /* Monta payload para a API */
+        const payload = {
+            nome,
+            sobrenome,
+            email,
+            senha,
+            cpf,
+            telefone: telefone || null,
+            genero,
+            aceita_news: news,
+        };
 
-        let ok = true;
-        ok = vField('af-nome',    nome.length >= 2)                          && ok;
-        ok = vField('af-sobrenome', sobre.length >= 2)                       && ok;
-        ok = vField('af-email',   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && ok;
-        ok = vField('af-cpf',     /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf)) && ok;
-        ok = vField('af-senha',   senha.length >= 8)                         && ok;
-        ok = vField('af-confirma', senha === confirma)                       && ok;
+        /* POST /api/auth/cadastro */
+        const res = await SpinassiAPI.auth.cadastro(payload);
 
-        if (!termos) {
-            alert('Você precisa aceitar os Termos de Uso para continuar.');
-            return;
+        /* Sucesso — mostra tela de confirmação */
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('registerSuccess').classList.add('visible');
+
+        /* Mensagem personalizada */
+        const nomeExibido = nome.charAt(0).toUpperCase() + nome.slice(1);
+        document.getElementById('successMsg').innerHTML =
+            `Bem-vindo, <strong>${nomeExibido}</strong>!<br>
+             Sua conta foi criada e você já está logado.`;
+
+    } catch (err) {
+        btnEl.disabled    = false;
+        btnEl.textContent = 'Criar minha conta';
+
+        /* Trata erros específicos da API */
+        const msg = err.message || 'Erro ao criar conta. Tente novamente.';
+
+        if (msg.toLowerCase().includes('e-mail') || msg.toLowerCase().includes('email')) {
+            setApiAlert(msg, 'error');
+            vField('af-email', false, msg);
+        } else {
+            setApiAlert(msg, 'error');
         }
-        if (!ok) return;
-
-        const btn = document.getElementById('btnCreateAccount');
-        btn.disabled = true;
-        btn.textContent = 'Criando sua conta...';
-
-        setTimeout(() => {
-            document.getElementById('registerForm').style.display    = 'none';
-            document.getElementById('registerSuccess').classList.add('visible');
-        }, 1400);
     }
+}
 </script>
+
+<!-- Estilo inline apenas para o alerta da API (inexistente no cadastro.css) -->
+<style>
+    .auth-api-alert {
+        display: none;
+        padding: 12px 16px;
+        font-size: 0.82rem;
+        font-family: 'Montserrat', sans-serif;
+        border-left: 4px solid;
+        margin-bottom: 20px;
+        border-radius: 0;
+    }
+    .auth-api-alert:not(:empty) { display: block; }
+
+    .auth-api-alert--error {
+        background: #FDE8E8;
+        color: #C0392B;
+        border-color: #C0392B;
+    }
+    .auth-api-alert--success {
+        background: #E8F8F0;
+        color: #1E8449;
+        border-color: #1E8449;
+    }
+
+    /* Botão com link no sucesso */
+    .btn-success-link {
+        display: inline-block;
+        text-decoration: none;
+        text-align: center;
+        width: auto;
+        padding: 16px 40px;
+        margin-top: 10px;
+    }
+</style>
+
 </body>
 </html>
