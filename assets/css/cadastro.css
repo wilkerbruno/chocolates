@@ -1,0 +1,572 @@
+/* =========================================================
+   cadastro.css — Spinassi Chocolates
+   Estilos exclusivos da página de cadastro
+========================================================= */
+
+/* ---------------------------------------------------------
+   VARIÁVEIS
+--------------------------------------------------------- */
+:root {
+    --chocolate-dark:   #3E2723;
+    --chocolate-medium: #5D4037;
+    --chocolate-light:  #8D6E63;
+    --cream:            #FFF8E7;
+    --gold:             #D4AF37;
+    --gold-light:       #F4E5C2;
+    --white:            #FFFFFF;
+    --text-dark:        #2C1810;
+    --text-light:       #6D5046;
+    --shadow:           rgba(62, 39, 35, 0.2);
+    --shadow-heavy:     rgba(62, 39, 35, 0.4);
+    --gold-gradient: linear-gradient(
+        90deg,
+        #FFD700 0%,
+        #FFF8DC 25%,
+        #FFFFFF 50%,
+        #D4AF37 75%,
+        #FFD700 100%
+    );
+}
+
+/* ---------------------------------------------------------
+   RESET / BASE
+--------------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-dark);
+    background-color: var(--cream);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* ---------------------------------------------------------
+   LAYOUT DUAS COLUNAS
+--------------------------------------------------------- */
+.auth-layout {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* ---------------------------------------------------------
+   PAINEL ESQUERDO (decorativo)
+--------------------------------------------------------- */
+.auth-panel-left {
+    background: var(--chocolate-dark);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 50px;
+    overflow: hidden;
+}
+
+.auth-panel-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.15) 0%, transparent 55%),
+        radial-gradient(circle at 80% 70%, rgba(212, 175, 55, 0.08) 0%, transparent 55%);
+}
+
+/* Círculos decorativos */
+.auth-circle {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(212, 175, 55, 0.12);
+}
+
+.auth-circle-1 { width: 300px; height: 300px; top: -80px;  right: -80px; }
+.auth-circle-2 { width: 200px; height: 200px; bottom: 20px; left: -60px; }
+.auth-circle-3 { width: 140px; height: 140px; bottom: 120px; right: 40px; }
+
+/* Logo */
+.auth-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    color: var(--cream);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.auth-logo span {
+    background: var(--gold-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    font-style: italic;
+}
+
+.auth-tagline {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 50px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Bloco promocional */
+.auth-promo {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 340px;
+}
+
+.auth-promo-badge {
+    display: inline-block;
+    background: var(--gold-gradient);
+    color: var(--chocolate-dark);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    margin-bottom: 20px;
+}
+
+.auth-promo h2 {
+    font-size: 2.2rem;
+    color: var(--cream);
+    margin-bottom: 16px;
+    line-height: 1.2;
+}
+
+.auth-promo p {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.7;
+    margin-bottom: 30px;
+}
+
+/* Lista de benefícios — checkmark via conteúdo Unicode */
+.auth-benefits {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.auth-benefits li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.auth-benefits li::before {
+    content: '✓';
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gold-gradient);
+    color: var(--chocolate-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ---------------------------------------------------------
+   PAINEL DIREITO (formulário)
+--------------------------------------------------------- */
+.auth-panel-right {
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 60px;
+    overflow-y: auto;
+}
+
+/* Cabeçalho do formulário */
+.auth-form-header {
+    margin-bottom: 34px;
+}
+
+.auth-form-header .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+}
+
+.auth-form-header .back-link:hover { color: var(--gold); }
+
+.auth-form-header .back-link svg {
+    width: 14px;
+    height: 14px;
+}
+
+.auth-form-header h2 {
+    font-size: 2.6rem;
+    color: var(--chocolate-dark);
+    margin-bottom: 8px;
+}
+
+.auth-form-header p {
+    font-size: 0.88rem;
+    color: var(--text-light);
+}
+
+.auth-form-header p a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------
+   FORMULÁRIO
+--------------------------------------------------------- */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* Campo individual */
+.auth-field {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.auth-field input,
+.auth-field select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #E0D8D0;
+    background: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.auth-field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%235D4037' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-color: var(--white);
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+.auth-field input:focus,
+.auth-field select:focus {
+    border-color: var(--gold);
+}
+
+/* Floating label */
+.auth-field label {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    pointer-events: none;
+    transition: all 0.25s ease;
+    background: transparent;
+}
+
+.auth-field input:focus + label,
+.auth-field input:not(:placeholder-shown) + label,
+.auth-field select:focus + label,
+.auth-field select.filled + label {
+    top: -10px;
+    left: 10px;
+    font-size: 0.7rem;
+    background: var(--cream);
+    padding: 0 5px;
+    color: var(--gold);
+}
+
+/* Label estático para select com valor */
+.auth-field .label-static {
+    top: -10px;
+    left: 10px;
+    font-size: 0.7rem;
+    background: var(--cream);
+    padding: 0 5px;
+    color: var(--gold);
+}
+
+/* Estado de erro */
+.auth-field.error input,
+.auth-field.error select {
+    border-color: #E74C3C;
+}
+
+.auth-field-error {
+    font-size: 0.72rem;
+    color: #E74C3C;
+    margin-top: 4px;
+    display: none;
+}
+
+.auth-field.error .auth-field-error {
+    display: block;
+}
+
+/* ---------------------------------------------------------
+   CAMPO DE SENHA COM TOGGLE
+--------------------------------------------------------- */
+.auth-field--password {
+    position: relative;
+}
+
+.auth-field--password input {
+    padding-right: 46px;
+}
+
+.auth-toggle-pass {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+    padding: 0;
+}
+
+.auth-toggle-pass:hover { color: var(--gold); }
+
+.auth-toggle-pass svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ---------------------------------------------------------
+   INDICADOR DE FORÇA DA SENHA
+--------------------------------------------------------- */
+.password-strength {
+    height: 3px;
+    background: #E0D8D0;
+    margin-top: 6px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    transition: width 0.4s ease, background 0.4s ease;
+}
+
+.strength-label {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+/* ---------------------------------------------------------
+   CHECKBOXES
+--------------------------------------------------------- */
+.auth-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.auth-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: var(--gold);
+    cursor: pointer;
+    margin-top: 2px;
+}
+
+.auth-checkbox label {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.auth-checkbox label a {
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.auth-checkbox label a:hover {
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   BOTÃO CRIAR CONTA
+--------------------------------------------------------- */
+.btn-create-account {
+    width: 100%;
+    padding: 17px;
+    background: var(--gold-gradient);
+    color: var(--chocolate-dark);
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.35s ease;
+    margin-bottom: 20px;
+}
+
+.btn-create-account:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--shadow-heavy);
+}
+
+.btn-create-account:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ---------------------------------------------------------
+   LINK "JÁ TEM CONTA"
+--------------------------------------------------------- */
+.auth-login-link {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-light);
+}
+
+.auth-login-link a {
+    color: var(--chocolate-dark);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 1px;
+    transition: color 0.2s;
+}
+
+.auth-login-link a:hover { color: var(--gold); }
+
+/* ---------------------------------------------------------
+   ESTADO DE SUCESSO
+--------------------------------------------------------- */
+.auth-success {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.auth-success.visible {
+    display: block;
+}
+
+.auth-success-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--gold-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.auth-success-icon svg {
+    width: 36px;
+    height: 36px;
+    color: var(--chocolate-dark);
+}
+
+.auth-success h3 {
+    font-size: 2rem;
+    color: var(--chocolate-dark);
+    margin-bottom: 12px;
+}
+
+.auth-success p {
+    color: var(--text-light);
+    font-size: 0.88rem;
+    margin-bottom: 28px;
+    line-height: 1.6;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVO
+--------------------------------------------------------- */
+@media (max-width: 900px) {
+    .auth-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-panel-left {
+        display: none;
+    }
+
+    .auth-panel-right {
+        padding: 100px 30px 60px;
+    }
+
+    .auth-form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-panel-right {
+        padding: 80px 20px 40px;
+    }
+
+    .auth-form-header h2 {
+        font-size: 2rem;
+    }
+}

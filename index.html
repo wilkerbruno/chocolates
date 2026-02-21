@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spinassi Chocolates - Chocolates Artesanais Premium</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -45,17 +46,35 @@
 </head>
 <body>
     <!-- WhatsApp Flutuante -->
-    <a href="https://wa.me/5583999999999?text=Olá! Gostaria de fazer um pedido." class="whatsapp-float" target="_blank" aria-label="WhatsApp">
-        <svg viewBox="0 0 32 32" fill="currentColor">
-            <path d="M16 0C7.164 0 0 7.163 0 16c0 2.816.736 5.464 2.025 7.76L0 32l8.448-2.218A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.455c-2.513 0-4.88-.69-6.91-1.895l-.496-.296-5.145 1.35 1.374-5.022-.324-.513A13.413 13.413 0 012.545 16c0-7.424 6.03-13.455 13.455-13.455S29.455 8.576 29.455 16 23.424 29.455 16 29.455zm7.394-10.096c-.406-.203-2.397-1.183-2.77-1.318-.372-.135-.642-.203-.913.203-.27.406-1.048 1.318-1.285 1.589-.237.27-.473.304-.88.101-.406-.203-1.713-.631-3.263-2.013-1.206-1.075-2.02-2.402-2.257-2.809-.237-.406-.025-.626.178-.828.183-.183.406-.473.61-.71.203-.237.27-.406.406-.677.135-.27.068-.507-.034-.71-.101-.203-.913-2.2-1.251-3.014-.33-.793-.666-.686-.913-.699-.237-.012-.507-.015-.777-.015s-.71.101-1.082.507c-.372.406-1.42 1.386-1.42 3.383s1.453 3.924 1.656 4.194c.203.27 2.858 4.366 6.927 6.123.968.418 1.724.668 2.313.855.972.309 1.856.265 2.555.161.78-.116 2.397-.98 2.735-1.927.338-.946.338-1.758.237-1.927-.101-.169-.372-.27-.78-.473z"/>
-        </svg>
-    </a>
+    <a href="https://wa.me/5583999999999?text=Olá! Gostaria de fazer um pedido." 
+   class="whatsapp-float" 
+   target="_blank" 
+   aria-label="WhatsApp">
+
+    <svg viewBox="0 0 32 32">
+        
+        <!-- DEFINIÇÃO DO GRADIENTE -->
+        <defs>
+            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FFD700"/>
+                <stop offset="30%" stop-color="#FFF8DC"/>
+                <stop offset="50%" stop-color="#FFFFFF"/>
+                <stop offset="70%" stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#FFD700"/>
+            </linearGradient>
+        </defs>
+
+        <!-- ÍCONE -->
+        <path fill="url(#goldGradient)" d="M16 0C7.164 0 0 7.163 0 16c0 2.816.736 5.464 2.025 7.76L0 32l8.448-2.218A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.455c-2.513 0-4.88-.69-6.91-1.895l-.496-.296-5.145 1.35 1.374-5.022-.324-.513A13.413 13.413 0 012.545 16c0-7.424 6.03-13.455 13.455-13.455S29.455 8.576 29.455 16 23.424 29.455 16 29.455zm7.394-10.096c-.406-.203-2.397-1.183-2.77-1.318-.372-.135-.642-.203-.913.203-.27.406-1.048 1.318-1.285 1.589-.237.27-.473.304-.88.101-.406-.203-1.713-.631-3.263-2.013-1.206-1.075-2.02-2.402-2.257-2.809-.237-.406-.025-.626.178-.828.183-.183.406-.473.61-.71.203-.237.27-.406.406-.677.135-.27.068-.507-.034-.71-.101-.203-.913-2.2-1.251-3.014-.33-.793-.666-.686-.913-.699-.237-.012-.507-.015-.777-.015s-.71.101-1.082.507c-.372.406-1.42 1.386-1.42 3.383s1.453 3.924 1.656 4.194c.203.27 2.858 4.366 6.927 6.123.968.418 1.724.668 2.313.855.972.309 1.856.265 2.555.161.78-.116 2.397-.98 2.735-1.927.338-.946.338-1.758.237-1.927-.101-.169-.372-.27-.78-.473z"/>
+    </svg>
+
+</a>
 
     <!-- Header Navigation -->
     <header class="header">
         <nav class="nav-container">
             <div class="logo">
-                <h1>Spinassi <span>Chocolate</span></h1>
+                <h1>Spinassi <span class="texto-dourado">Chocolate</span></h1>
             </div>
             <ul class="nav-menu">
                 <li><a href="#home" class="nav-link active">Início</a></li>
@@ -71,6 +90,53 @@
                 </svg>
                 <span class="cart-count" id="cartCount">0</span>
             </button>
+
+            <!-- Botão de Login -->
+            <div class="login-wrapper" id="loginWrapper">
+                <button class="login-btn" id="loginBtn" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span class="login-btn-label">Entrar</span>
+                </button>
+
+                <!-- Dropdown de Login -->
+                <div class="login-dropdown" id="loginDropdown">
+                    <div class="login-dropdown-inner">
+                        <div class="login-dropdown-header">
+                            <h3>Bem-vindo</h3>
+                            <p>Acesse sua conta Spinassi</p>
+                        </div>
+                        <form class="login-form" id="loginForm" onsubmit="submitLogin(event)">
+                            <div class="login-field">
+                                <input type="email" id="loginEmail" placeholder=" " autocomplete="email" required>
+                                <label for="loginEmail">E-mail</label>
+                            </div>
+                            <div class="login-field login-field--password">
+                                <input type="password" id="loginPassword" placeholder=" " autocomplete="current-password" required>
+                                <label for="loginPassword">Senha</label>
+                                <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Mostrar senha">
+                                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <a href="recuperar-senha.html" class="forgot-link">Esqueci minha senha</a>
+                            <button type="submit" class="btn-login-submit">Entrar</button>
+                        </form>
+                        <div class="login-divider"><span>ou</span></div>
+                        <a href="cadastro.html" class="btn-register">Cadastre-se grátis</a>
+                        <p class="login-terms">
+                            Ao entrar você concorda com nossos
+                            <a href="#">Termos de Uso</a> e <a href="#">Privacidade</a>.
+                        </p>
+                    </div>
+                </div>
+                <div class="login-backdrop" id="loginBackdrop"></div>
+            </div>
+
         </nav>
     </header>
 
@@ -87,7 +153,7 @@
         </div>
 
         <div class="hero-content">
-            <span class="hero-subtitle">Experiência Artesanal Premium</span>
+            <span class="hero-subtitle" >Experiência Artesanal Premium</span>
             <h2 class="hero-title">O Prazer do<br>Chocolate Perfeito</h2>
             <p class="hero-description">Criações únicas feitas à mão com cacau selecionado das melhores fazendas do mundo</p>
             <a href="#produtos" class="btn-primary">Descobrir Coleção</a>
@@ -234,7 +300,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-col">
-                    <h3>Spinassi Chocolates</h3>
+                    <h3 class="texto-dourado">Spinassi Chocolates</h3>
                     <p>Experiências únicas em cada mordida. Chocolates artesanais premium feitos com paixão.</p>
                 </div>
                 <div class="footer-col">
@@ -293,24 +359,17 @@
     </div>
 
     <script src="assets/js/script.js"></script>
+    <script src="assets/js/login.js"></script>
 
     <script>
         // Garante que o vídeo principal nunca pare de rodar
         (function () {
             const video = document.getElementById('heroMainVideo');
             if (!video) return;
-
-            // Força play se o vídeo pausar por qualquer motivo
             video.addEventListener('pause', () => video.play());
-
-            // Remove controles e interação por clique/toque
             video.addEventListener('click', e => e.preventDefault());
             video.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-
-            // Garante autoplay assim que metadados carregam
-            video.addEventListener('loadedmetadata', () => {
-                video.play().catch(() => {});
-            });
+            video.addEventListener('loadedmetadata', () => { video.play().catch(() => {}); });
         })();
     </script>
 </body>

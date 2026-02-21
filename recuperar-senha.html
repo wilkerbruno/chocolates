@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Spinassi Chocolates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pagamento.css">
+    <style>
+        /* ---- Layout centrado de página única ---- */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--chocolate-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Fundo decorativo */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(212,175,55,.1) 0%, transparent 45%),
+                radial-gradient(circle at 85% 20%, rgba(212,175,55,.07) 0%, transparent 45%),
+                radial-gradient(circle at 50% 90%, rgba(212,175,55,.05) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Círculos decorativos */
+        .bg-circle {
+            position: fixed;
+            border-radius: 50%;
+            border: 1px solid rgba(212,175,55,.1);
+            pointer-events: none;
+        }
+
+        .bg-circle-1 { width: 500px; height: 500px; top: -200px; right: -100px; }
+        .bg-circle-2 { width: 350px; height: 350px; bottom: -120px; left: -80px; }
+        .bg-circle-3 { width: 200px; height: 200px; top: 40%;  left: 5%; }
+
+        /* Container central */
+        .recovery-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .recovery-card {
+            background: var(--white);
+            width: 100%;
+            max-width: 460px;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,.35);
+            overflow: hidden;
+        }
+
+        /* Faixa dourada topo */
+        .recovery-card::before {
+            content: '';
+            display: block;
+            height: 5px;
+            background: var(--gold-gradient);
+        }
+
+        .recovery-card-inner {
+            padding: 40px 44px 36px;
+        }
+
+        /* Logo */
+        .recovery-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .recovery-logo a {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            color: var(--chocolate-dark);
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .recovery-logo span {
+            background: var(--gold-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            font-style: italic;
+        }
+
+        /* Ícone de cadeado */
+        .recovery-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--cream);
+            border: 3px solid var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .recovery-icon svg {
+            width: 30px;
+            height: 30px;
+            color: var(--gold);
+        }
+
+        /* Título e descrição */
+        .recovery-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .recovery-header h2 {
+            font-size: 2rem;
+            color: var(--chocolate-dark);
+            margin-bottom: 10px;
+        }
+
+        .recovery-header p {
+            font-size: 0.84rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Etapas */
+        .recovery-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 30px;
+        }
+
+        .rec-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rec-step-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 2px solid #E0D8D0;
+            color: var(--text-light);
+            transition: all 0.3s;
+        }
+
+        .rec-step.active .rec-step-dot {
+            background: var(--gold-gradient);
+            border-color: var(--gold);
+            color: var(--chocolate-dark);
+        }
+
+        .rec-step.done .rec-step-dot {
+            background: var(--chocolate-dark);
+            border-color: var(--chocolate-dark);
+            color: var(--gold);
+        }
+
+        .rec-step-label {
+            font-size: 0.62rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .rec-step.active .rec-step-label { color: var(--chocolate-dark); font-weight: 600; }
+
+        .rec-step-line {
+            width: 50px;
+            height: 2px;
+            background: var(--gold-light);
+            margin: 0 6px;
+            margin-bottom: 20px;
+        }
+
+        /* Campos */
+        .rec-field {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .rec-field input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #E0D8D0;
+            background: var(--cream);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.88rem;
+            color: var(--text-dark);
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .rec-field input:focus { border-color: var(--gold); }
+
+        .rec-field label {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            pointer-events: none;
+            transition: all 0.25s;
+            background: transparent;
+        }
+
+        .rec-field input:focus + label,
+        .rec-field input:not(:placeholder-shown) + label {
+            top: -10px;
+            left: 10px;
+            font-size: 0.7rem;
+            background: var(--white);
+            padding: 0 5px;
+            color: var(--gold);
+        }
+
+        .rec-field.error input { border-color: #E74C3C; }
+
+        .rec-field-error {
+            font-size: 0.72rem;
+            color: #E74C3C;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .rec-field.error .rec-field-error { display: block; }
+
+        /* Código OTP */
+        .otp-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .otp-input {
+            width: 52px;
+            height: 58px;
+            border: 2px solid #E0D8D0;
+            background: var(--cream);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--chocolate-dark);
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .otp-input:focus { border-color: var(--gold); }
+
+        /* Toggle senha */
+        .rec-field--password input { padding-right: 46px; }
+
+        .rec-toggle-pass {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .rec-toggle-pass:hover { color: var(--gold); }
+        .rec-toggle-pass svg { width: 18px; height: 18px; }
+
+        /* Botão principal */
+        .btn-recovery {
+            width: 100%;
+            padding: 16px;
+            background: var(--gold-gradient);
+            color: var(--chocolate-dark);
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 16px;
+        }
+
+        .btn-recovery:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--shadow-heavy);
+        }
+
+        .btn-recovery:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Link voltar */
+        .recovery-back {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .recovery-back:hover { color: var(--gold); }
+        .recovery-back svg { width: 14px; height: 14px; }
+
+        /* Reenviar código */
+        .resend-row {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .resend-row p { font-size: 0.8rem; color: var(--text-light); }
+
+        .btn-resend {
+            background: none;
+            border: none;
+            color: var(--gold);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .btn-resend:hover { color: var(--chocolate-dark); text-decoration: underline; }
+        .btn-resend:disabled { color: var(--text-light); cursor: default; text-decoration: none; }
+
+        #resendTimer { font-size: 0.78rem; color: var(--text-light); }
+
+        /* Painéis de etapa */
+        .rec-panel { display: none; }
+        .rec-panel.active { display: block; }
+
+        /* Sucesso final */
+        .rec-success {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .rec-success-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gold-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: popIn 0.5s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .rec-success-icon svg { width: 36px; height: 36px; color: var(--chocolate-dark); }
+        .rec-success h3 { font-size: 2rem; color: var(--chocolate-dark); margin-bottom: 12px; }
+        .rec-success p  { font-size: 0.84rem; color: var(--text-light); margin-bottom: 28px; line-height: 1.6; }
+
+        /* Força da senha */
+        .password-strength {
+            height: 3px;
+            background: #E0D8D0;
+            margin-top: 6px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 2px;
+            transition: width 0.4s, background 0.4s;
+        }
+
+        .strength-label {
+            font-size: 0.68rem;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Responsivo */
+        @media (max-width: 520px) {
+            .recovery-card-inner { padding: 32px 24px 28px; }
+            .otp-input { width: 42px; height: 50px; font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-circle bg-circle-1"></div>
+<div class="bg-circle bg-circle-2"></div>
+<div class="bg-circle bg-circle-3"></div>
+
+<div class="recovery-wrapper">
+    <div class="recovery-card">
+        <div class="recovery-card-inner">
+
+            <!-- Logo -->
+            <div class="recovery-logo">
+                <a href="index.html">Spinassi <span>Chocolate</span></a>
+            </div>
+
+            <!-- Ícone -->
+            <div class="recovery-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+            </div>
+
+            <!-- Progresso -->
+            <div class="recovery-steps">
+                <div class="rec-step active" id="rs1">
+                    <div class="rec-step-dot">1</div>
+                    <span class="rec-step-label">E-mail</span>
+                </div>
+                <div class="rec-step-line"></div>
+                <div class="rec-step" id="rs2">
+                    <div class="rec-step-dot">2</div>
+                    <span class="rec-step-label">Código</span>
+                </div>
+                <div class="rec-step-line"></div>
+                <div class="rec-step" id="rs3">
+                    <div class="rec-step-dot">3</div>
+                    <span class="rec-step-label">Nova senha</span>
+                </div>
+            </div>
+
+            <!-- ===== ETAPA 1: E-mail ===== -->
+            <div class="rec-panel active" id="panel1">
+                <div class="recovery-header">
+                    <h2>Recuperar senha</h2>
+                    <p>Digite seu e-mail cadastrado e enviaremos um código de verificação.</p>
+                </div>
+
+                <div class="rec-field" id="rf-email">
+                    <input type="email" id="recEmail" placeholder=" " autocomplete="email">
+                    <label for="recEmail">E-mail cadastrado *</label>
+                    <span class="rec-field-error">E-mail inválido</span>
+                </div>
+
+                <button class="btn-recovery" onclick="sendCode()">
+                    Enviar código de verificação
+                </button>
+                <a href="index.html" class="recovery-back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                    Voltar ao login
+                </a>
+            </div>
+
+            <!-- ===== ETAPA 2: Código OTP ===== -->
+            <div class="rec-panel" id="panel2">
+                <div class="recovery-header">
+                    <h2>Verificar código</h2>
+                    <p>Enviamos um código de 6 dígitos para <strong id="emailSentTo"></strong>. Verifique sua caixa de entrada.</p>
+                </div>
+
+                <div class="otp-group" id="otpGroup">
+                    <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                    <input class="otp-input" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                </div>
+
+                <button class="btn-recovery" onclick="verifyCode()">Verificar código</button>
+
+                <div class="resend-row">
+                    <p>Não recebeu? <button class="btn-resend" id="btnResend" onclick="resendCode()" disabled>Reenviar</button></p>
+                    <span id="resendTimer">Aguarde <strong id="resendCountdown">60</strong>s</span>
+                </div>
+
+                <a href="#" class="recovery-back" onclick="goStep(1); return false;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                    </svg>
+                    Alterar e-mail
+                </a>
+            </div>
+
+            <!-- ===== ETAPA 3: Nova senha ===== -->
+            <div class="rec-panel" id="panel3">
+                <div class="recovery-header">
+                    <h2>Nova senha</h2>
+                    <p>Escolha uma senha segura para a sua conta.</p>
+                </div>
+
+                <div class="rec-field rec-field--password" id="rf-nova">
+                    <input type="password" id="novaSenha" placeholder=" " autocomplete="new-password">
+                    <label for="novaSenha">Nova senha *</label>
+                    <button type="button" class="rec-toggle-pass" onclick="toggleRecPass('novaSenha','eyeRec1')">
+                        <svg id="eyeRec1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="recStrengthBar"></div>
+                    </div>
+                    <span class="strength-label" id="recStrengthLabel">Mínimo de 8 caracteres</span>
+                    <span class="rec-field-error">A senha deve ter ao menos 8 caracteres</span>
+                </div>
+
+                <div class="rec-field rec-field--password" id="rf-confirma">
+                    <input type="password" id="confirmaSenha" placeholder=" " autocomplete="new-password">
+                    <label for="confirmaSenha">Confirmar nova senha *</label>
+                    <button type="button" class="rec-toggle-pass" onclick="toggleRecPass('confirmaSenha','eyeRec2')">
+                        <svg id="eyeRec2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                    <span class="rec-field-error">As senhas não coincidem</span>
+                </div>
+
+                <button class="btn-recovery" onclick="resetPassword()">Redefinir senha</button>
+            </div>
+
+            <!-- ===== SUCESSO ===== -->
+            <div class="rec-panel" id="panel4">
+                <div class="rec-success">
+                    <div class="rec-success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+                    <h3>Senha redefinida!</h3>
+                    <p>Sua senha foi alterada com sucesso. Você já pode entrar na sua conta com a nova senha.</p>
+                    <a href="index.html" class="btn-recovery" style="display:inline-block;text-decoration:none;text-align:center;width:auto;padding:16px 40px;">
+                        Ir para o login
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    let resendInterval = null;
+
+    /* -------------------------------------------------------
+       NAVEGAÇÃO ENTRE ETAPAS
+    ------------------------------------------------------- */
+    function goStep(n) {
+        // Painel
+        document.querySelectorAll('.rec-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel' + n).classList.add('active');
+
+        // Steps
+        for (let i = 1; i <= 3; i++) {
+            const s = document.getElementById('rs' + i);
+            if (!s) continue;
+            s.classList.remove('active', 'done');
+            if (i < n)  s.classList.add('done');
+            if (i === n) s.classList.add('active');
+        }
+
+        currentStep = n;
+    }
+
+    /* -------------------------------------------------------
+       ETAPA 1: enviar código
+    ------------------------------------------------------- */
+    function sendCode() {
+        const email = document.getElementById('recEmail').value.trim();
+        const field = document.getElementById('rf-email');
+        field.classList.remove('error');
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            field.classList.add('error');
+            return;
+        }
+
+        document.getElementById('emailSentTo').textContent = email;
+        goStep(2);
+        startResendTimer();
+
+        // Foca o primeiro campo OTP
+        setTimeout(() => {
+            const first = document.querySelector('.otp-input');
+            if (first) first.focus();
+        }, 300);
+    }
+
+    /* -------------------------------------------------------
+       OTP — navegação automática entre campos
+    ------------------------------------------------------- */
+    document.querySelectorAll('.otp-input').forEach((input, idx, all) => {
+        input.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(-1);
+            if (this.value && idx < all.length - 1) all[idx + 1].focus();
+        });
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace' && !this.value && idx > 0) all[idx - 1].focus();
+        });
+        input.addEventListener('paste', function (e) {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g,'').slice(0, 6);
+            paste.split('').forEach((ch, i) => { if (all[i]) all[i].value = ch; });
+            const last = Math.min(paste.length, all.length - 1);
+            all[last].focus();
+        });
+    });
+
+    /* -------------------------------------------------------
+       ETAPA 2: verificar código (simulação)
+    ------------------------------------------------------- */
+    function verifyCode() {
+        const code = Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
+        if (code.length < 6) {
+            alert('Por favor, insira os 6 dígitos do código.');
+            return;
+        }
+        // Simulação: qualquer código de 6 dígitos é aceito
+        goStep(3);
+        clearInterval(resendInterval);
+    }
+
+    /* -------------------------------------------------------
+       TIMER de reenvio
+    ------------------------------------------------------- */
+    function startResendTimer() {
+        let secs = 60;
+        const btnResend    = document.getElementById('btnResend');
+        const countdown    = document.getElementById('resendCountdown');
+        const timerDisplay = document.getElementById('resendTimer');
+
+        btnResend.disabled = true;
+        timerDisplay.style.display = 'inline';
+        countdown.textContent = secs;
+
+        clearInterval(resendInterval);
+        resendInterval = setInterval(() => {
+            secs--;
+            countdown.textContent = secs;
+            if (secs <= 0) {
+                clearInterval(resendInterval);
+                btnResend.disabled = false;
+                timerDisplay.style.display = 'none';
+            }
+        }, 1000);
+    }
+
+    function resendCode() {
+        // Limpa campos OTP
+        document.querySelectorAll('.otp-input').forEach(i => { i.value = ''; });
+        document.querySelector('.otp-input').focus();
+        startResendTimer();
+    }
+
+    /* -------------------------------------------------------
+       ETAPA 3: nova senha
+    ------------------------------------------------------- */
+    document.getElementById('novaSenha').addEventListener('input', function () {
+        const bar   = document.getElementById('recStrengthBar');
+        const label = document.getElementById('recStrengthLabel');
+        const val   = this.value;
+        let score   = 0;
+        if (val.length >= 8)           score++;
+        if (/[A-Z]/.test(val))         score++;
+        if (/[0-9]/.test(val))         score++;
+        if (/[^A-Za-z0-9]/.test(val))  score++;
+
+        const levels = [
+            { w: '0%',   bg: '#E0D8D0', t: 'Mínimo de 8 caracteres' },
+            { w: '30%',  bg: '#E74C3C', t: 'Fraca' },
+            { w: '55%',  bg: '#F39C12', t: 'Média' },
+            { w: '80%',  bg: '#27AE60', t: 'Forte' },
+            { w: '100%', bg: '#D4AF37', t: 'Muito forte' },
+        ];
+
+        const lvl = levels[score] || levels[0];
+        bar.style.width      = val.length ? lvl.w : '0%';
+        bar.style.background = lvl.bg;
+        label.textContent    = val.length ? lvl.t : 'Mínimo de 8 caracteres';
+    });
+
+    function toggleRecPass(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        icon.innerHTML = isPass
+            ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+               <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+               <line x1="1" y1="1" x2="23" y2="23"/>`
+            : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+               <circle cx="12" cy="12" r="3"/>`;
+    }
+
+    function resetPassword() {
+        const senha    = document.getElementById('novaSenha').value;
+        const confirma = document.getElementById('confirmaSenha').value;
+
+        const fNova     = document.getElementById('rf-nova');
+        const fConfirma = document.getElementById('rf-confirma');
+        fNova.classList.remove('error');
+        fConfirma.classList.remove('error');
+
+        let ok = true;
+        if (senha.length < 8) { fNova.classList.add('error');     ok = false; }
+        if (senha !== confirma) { fConfirma.classList.add('error'); ok = false; }
+        if (!ok) return;
+
+        goStep(4);
+    }
+</script>
+</body>
+</html>

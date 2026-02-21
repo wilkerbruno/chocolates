@@ -1,0 +1,504 @@
+/* =========================================================
+   login.css — Spinassi Chocolates
+   Estilos do botão de login e dropdown do header
+========================================================= */
+
+/* ---------------------------------------------------------
+   WRAPPER — posicionamento relativo para o dropdown
+--------------------------------------------------------- */
+.login-wrapper {
+    position: relative;
+}
+
+/* ---------------------------------------------------------
+   BOTÃO ENTRAR
+--------------------------------------------------------- */
+.login-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    color: var(--cream);
+    padding: 10px 18px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1001;
+}
+
+.login-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: stroke 0.3s;
+}
+
+.login-btn:hover,
+.login-btn.active {
+    background: var(--gold-gradient);
+    border-color: transparent;
+    color: var(--chocolate-dark);
+}
+
+.login-btn:hover svg,
+.login-btn.active svg {
+    stroke: var(--chocolate-dark);
+}
+
+.login-btn-label {
+    display: inline-block;
+}
+
+/* Estado logado: mostra nome do usuário */
+.login-btn.logged-in {
+    background: var(--gold-gradient);
+    border-color: transparent;
+    color: var(--chocolate-dark);
+}
+
+.login-btn.logged-in svg {
+    stroke: var(--chocolate-dark);
+}
+
+/* ---------------------------------------------------------
+   BACKDROP (fecha ao clicar fora)
+--------------------------------------------------------- */
+.login-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    display: none;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(2px);
+    animation: fadeInBackdrop 0.25s ease;
+}
+
+.login-backdrop.active {
+    display: block;
+}
+
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ---------------------------------------------------------
+   DROPDOWN PANEL
+--------------------------------------------------------- */
+.login-dropdown {
+    position: absolute;
+    top: calc(100% + 16px);
+    right: 0;
+    width: 320px;
+    background: var(--white);
+    box-shadow:
+        0 20px 60px rgba(62, 39, 35, 0.3),
+        0 4px 16px rgba(62, 39, 35, 0.15);
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-12px) scale(0.97);
+    transform-origin: top right;
+    transition:
+        opacity 0.28s ease,
+        transform 0.28s ease,
+        visibility 0.28s;
+    overflow: hidden;
+}
+
+/* Faixa dourada decorativa no topo */
+.login-dropdown::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: var(--gold-gradient);
+}
+
+/* Seta apontando para o botão */
+.login-dropdown::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 22px;
+    width: 12px;
+    height: 12px;
+    background: var(--white);
+    transform: translateY(-50%) rotate(45deg);
+    box-shadow: -2px -2px 4px rgba(62, 39, 35, 0.06);
+}
+
+.login-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.login-dropdown-inner {
+    padding: 28px 28px 22px;
+}
+
+/* ---------------------------------------------------------
+   CABEÇALHO DO DROPDOWN
+--------------------------------------------------------- */
+.login-dropdown-header {
+    margin-bottom: 22px;
+}
+
+.login-dropdown-header h3 {
+    font-size: 1.6rem;
+    color: var(--chocolate-dark);
+    margin-bottom: 4px;
+}
+
+.login-dropdown-header p {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    letter-spacing: 0.3px;
+}
+
+/* ---------------------------------------------------------
+   CAMPOS DO FORMULÁRIO
+--------------------------------------------------------- */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.login-field {
+    position: relative;
+    margin-bottom: 18px;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 14px 14px 14px 14px;
+    border: 2px solid #E0D8D0;
+    background: transparent;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text-dark);
+    transition: border-color 0.3s;
+    outline: none;
+    border-radius: 0;
+}
+
+.login-field input:focus {
+    border-color: var(--gold);
+}
+
+.login-field label {
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    pointer-events: none;
+    transition: all 0.25s ease;
+    background: transparent;
+}
+
+.login-field input:focus + label,
+.login-field input:not(:placeholder-shown) + label {
+    top: -9px;
+    left: 10px;
+    font-size: 0.7rem;
+    background: var(--white);
+    padding: 0 4px;
+    color: var(--gold);
+}
+
+/* Campo de senha com botão olho */
+.login-field--password input {
+    padding-right: 44px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+.toggle-password:hover {
+    color: var(--gold);
+}
+
+.toggle-password svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ---------------------------------------------------------
+   LINK "ESQUECI MINHA SENHA"
+--------------------------------------------------------- */
+.forgot-link {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-decoration: none;
+    margin-bottom: 18px;
+    margin-top: -6px;
+    transition: color 0.2s;
+    align-self: flex-end;
+}
+
+.forgot-link:hover {
+    color: var(--gold);
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   BOTÃO ENTRAR (submit)
+--------------------------------------------------------- */
+.btn-login-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--chocolate-dark);
+    color: var(--gold);
+    border: none;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-login-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold-gradient);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.btn-login-submit:hover::before {
+    opacity: 1;
+}
+
+.btn-login-submit:hover {
+    color: var(--chocolate-dark);
+}
+
+.btn-login-submit span {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------------------------------------------------------
+   DIVISOR "ou"
+--------------------------------------------------------- */
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gold-light);
+}
+
+.login-divider span {
+    font-size: 0.72rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+/* ---------------------------------------------------------
+   BOTÃO CADASTRE-SE
+--------------------------------------------------------- */
+.btn-register {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--chocolate-dark);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    margin-bottom: 18px;
+}
+
+.btn-register:hover {
+    background: var(--gold-gradient);
+    border-color: transparent;
+    color: var(--chocolate-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px var(--shadow);
+}
+
+/* ---------------------------------------------------------
+   TERMOS
+--------------------------------------------------------- */
+.login-terms {
+    font-size: 0.68rem;
+    color: var(--text-light);
+    text-align: center;
+    line-height: 1.5;
+}
+
+.login-terms a {
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login-terms a:hover {
+    text-decoration: underline;
+}
+
+/* ---------------------------------------------------------
+   MENSAGEM DE ERRO / SUCESSO no dropdown
+--------------------------------------------------------- */
+.login-alert {
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    margin-bottom: 14px;
+    display: none;
+    border-left: 3px solid;
+}
+
+.login-alert.error {
+    background: #FDE8E8;
+    color: #C0392B;
+    border-color: #C0392B;
+    display: block;
+}
+
+.login-alert.success {
+    background: #E8F8F0;
+    color: #1E8449;
+    border-color: #1E8449;
+    display: block;
+}
+
+/* ---------------------------------------------------------
+   ESTADO LOGADO — avatar no botão
+--------------------------------------------------------- */
+.user-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--chocolate-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+
+/* Menu pós-login no dropdown */
+.logged-menu {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.logged-menu.visible {
+    display: flex;
+}
+
+.logged-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    text-align: left;
+}
+
+.logged-menu-item:hover {
+    background: var(--cream);
+    color: var(--chocolate-dark);
+}
+
+.logged-menu-item svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+
+.logged-menu-item.logout {
+    color: #C0392B;
+    border-top: 1px solid var(--gold-light);
+    margin-top: 8px;
+}
+
+.logged-menu-item.logout svg {
+    color: #C0392B;
+}
+
+/* ---------------------------------------------------------
+   RESPONSIVO
+--------------------------------------------------------- */
+@media (max-width: 768px) {
+    .login-btn-label {
+        display: none;
+    }
+
+    .login-btn {
+        padding: 10px 12px;
+    }
+
+    .login-dropdown {
+        width: 290px;
+        right: -10px;
+    }
+
+    .login-dropdown-inner {
+        padding: 22px 20px 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-dropdown {
+        position: fixed;
+        top: 72px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+    }
+}

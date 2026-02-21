@@ -83,7 +83,7 @@ function renderProdutos() {
                 <div class="produto-footer">
                     <span class="produto-preco">R$ ${produto.preco.toFixed(2).replace('.', ',')}</span>
                     <button class="btn-add-cart" onclick="addToCart(${produto.id})">
-                        Adicionar
+                        <span class="texto-dourado">Adicionar</span>
                     </button>
                 </div>
             </div>
@@ -200,16 +200,23 @@ function setupEventListeners() {
         }
     });
     
-    // Checkout
+    // Checkout — redireciona para página de pagamento
     document.getElementById('checkoutBtn').addEventListener('click', () => {
         if (carrinho.length === 0) {
             showNotification('Adicione produtos ao carrinho primeiro!', 'error');
             return;
         }
-        
-        const mensagem = criarMensagemPedido();
-        const whatsappUrl = `https://wa.me/5583999999999?text=${encodeURIComponent(mensagem)}`;
-        window.open(whatsappUrl, '_blank');
+
+        // Salva o carrinho (já está no localStorage) e vai para pagamento
+        saveCart();
+
+        // Fecha o modal do carrinho antes de redirecionar
+        document.getElementById('cartModal').classList.remove('active');
+
+        // Pequeno delay para o modal fechar suavemente
+        setTimeout(() => {
+            window.location.href = 'pagamento.html';
+        }, 250);
     });
     
     // Formulário de contato

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Spinassi Chocolates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/pagamento.css">
+    <link rel="stylesheet" href="assets/css/cadastro.css">
+    
+</head>
+<body>
+
+<div class="auth-layout">
+
+    <!-- ===== PAINEL ESQUERDO (decorativo) ===== -->
+    <div class="auth-panel-left">
+        <div class="auth-circle auth-circle-1"></div>
+        <div class="auth-circle auth-circle-2"></div>
+        <div class="auth-circle auth-circle-3"></div>
+
+        <div class="auth-logo">Spinassi <span>Chocolate</span></div>
+        <div class="auth-tagline">Chocolates Artesanais Premium</div>
+
+        <div class="auth-promo">
+            <span class="auth-promo-badge">Novo membro</span>
+            <h2>Crie sua conta e desfrute de vantagens exclusivas</h2>
+            <p>Junte-se à nossa comunidade de apreciadores de chocolate e tenha acesso a ofertas únicas, lançamentos em primeira mão e muito mais.</p>
+
+            <ul class="auth-benefits">
+                <li>10% de desconto na primeira compra</li>
+                <li>Acesso antecipado a novas coleções</li>
+                <li>Acompanhe seus pedidos em tempo real</li>
+                <li>Salve seus chocolates favoritos</li>
+                <li>Frete grátis acima de R$ 150</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== PAINEL DIREITO (formulário) ===== -->
+    <div class="auth-panel-right">
+
+        <div class="auth-form-header">
+            <a href="index.html" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+                Voltar à loja
+            </a>
+            <h2>Criar conta</h2>
+            <p>Já tem uma conta? <a href="index.html" onclick="return openLoginFromExternal()">Faça login</a></p>
+        </div>
+
+        <!-- Formulário de cadastro -->
+        <form class="auth-form" id="registerForm" onsubmit="submitRegister(event)" novalidate>
+
+            <div class="auth-form-row">
+                <div class="auth-field" id="af-nome">
+                    <input type="text" id="regNome" placeholder=" " autocomplete="given-name">
+                    <label for="regNome">Nome *</label>
+                    <span class="auth-field-error">Informe seu nome</span>
+                </div>
+                <div class="auth-field" id="af-sobrenome">
+                    <input type="text" id="regSobrenome" placeholder=" " autocomplete="family-name">
+                    <label for="regSobrenome">Sobrenome *</label>
+                    <span class="auth-field-error">Informe seu sobrenome</span>
+                </div>
+            </div>
+
+            <div class="auth-field" id="af-email">
+                <input type="email" id="regEmail" placeholder=" " autocomplete="email">
+                <label for="regEmail">E-mail *</label>
+                <span class="auth-field-error">E-mail inválido</span>
+            </div>
+
+            <div class="auth-form-row">
+                <div class="auth-field" id="af-cpf">
+                    <input type="text" id="regCpf" placeholder=" " maxlength="14">
+                    <label for="regCpf">CPF *</label>
+                    <span class="auth-field-error">CPF inválido</span>
+                </div>
+                <div class="auth-field">
+                    <input type="tel" id="regTel" placeholder=" " autocomplete="tel">
+                    <label for="regTel">Telefone</label>
+                </div>
+            </div>
+
+            <div class="auth-field" id="af-senha">
+                <div class="auth-field--password" style="position:relative;">
+                    <input type="password" id="regSenha" placeholder=" " autocomplete="new-password">
+                    <label for="regSenha">Senha *</label>
+                    <button type="button" class="auth-toggle-pass" onclick="toggleRegPass('regSenha','eyeReg1')">
+                        <svg id="eyeReg1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+                <span class="strength-label" id="strengthLabel">Mínimo de 8 caracteres</span>
+                <span class="auth-field-error">A senha deve ter ao menos 8 caracteres</span>
+            </div>
+
+            <div class="auth-field" id="af-confirma">
+                <div class="auth-field--password" style="position:relative;">
+                    <input type="password" id="regConfirma" placeholder=" " autocomplete="new-password">
+                    <label for="regConfirma">Confirmar senha *</label>
+                    <button type="button" class="auth-toggle-pass" onclick="toggleRegPass('regConfirma','eyeReg2')">
+                        <svg id="eyeReg2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+                <span class="auth-field-error">As senhas não coincidem</span>
+            </div>
+
+            <div class="auth-field">
+                <select id="regGenero">
+                    <option value="" disabled selected></option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Feminino</option>
+                    <option value="NB">Não-binário</option>
+                    <option value="ND">Prefiro não informar</option>
+                </select>
+                <label for="regGenero" class="label-static">Gênero (opcional)</label>
+            </div>
+
+            <div class="auth-checkbox">
+                <input type="checkbox" id="chkTermos" required>
+                <label for="chkTermos">
+                    Li e aceito os <a href="#">Termos de Uso</a> e a
+                    <a href="#">Política de Privacidade</a> da Spinassi Chocolates. *
+                </label>
+            </div>
+
+            <div class="auth-checkbox">
+                <input type="checkbox" id="chkNews">
+                <label for="chkNews">
+                    Quero receber novidades, lançamentos e promoções exclusivas por e-mail.
+                </label>
+            </div>
+
+            <button type="submit" class="btn-create-account" id="btnCreateAccount">
+                Criar minha conta
+            </button>
+
+            <p class="auth-login-link">
+                Já tem uma conta? <a href="index.html">Faça login</a>
+            </p>
+
+        </form>
+
+        <!-- Estado de sucesso -->
+        <div class="auth-success" id="registerSuccess">
+            <div class="auth-success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <h3>Conta criada!</h3>
+            <p>Bem-vindo à família Spinassi Chocolates! Enviamos um e-mail de confirmação para você.</p>
+            <a href="index.html" class="btn-create-account" style="display:inline-block;text-decoration:none;text-align:center;width:auto;padding:16px 40px;">
+                Começar a explorar
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    /* ---- Máscaras ---- */
+    document.getElementById('regCpf').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g,'');
+        if (v.length > 3)  v = v.slice(0,3) + '.' + v.slice(3);
+        if (v.length > 7)  v = v.slice(0,7) + '.' + v.slice(7);
+        if (v.length > 11) v = v.slice(0,11) + '-' + v.slice(11,13);
+        this.value = v.slice(0,14);
+    });
+
+    document.getElementById('regTel').addEventListener('input', function () {
+        let v = this.value.replace(/\D/g,'');
+        if (v.length > 0)  v = '(' + v;
+        if (v.length > 3)  v = v.slice(0,3) + ') ' + v.slice(3);
+        if (v.length > 10) v = v.slice(0,10) + '-' + v.slice(10,15);
+        this.value = v;
+    });
+
+    /* ---- Força da senha ---- */
+    document.getElementById('regSenha').addEventListener('input', function () {
+        const bar   = document.getElementById('strengthBar');
+        const label = document.getElementById('strengthLabel');
+        const val   = this.value;
+        let score   = 0;
+
+        if (val.length >= 8)               score++;
+        if (/[A-Z]/.test(val))             score++;
+        if (/[0-9]/.test(val))             score++;
+        if (/[^A-Za-z0-9]/.test(val))      score++;
+
+        const levels = [
+            { w: '0%',   bg: '#E0D8D0', text: 'Mínimo de 8 caracteres' },
+            { w: '30%',  bg: '#E74C3C', text: 'Fraca' },
+            { w: '55%',  bg: '#F39C12', text: 'Média' },
+            { w: '80%',  bg: '#27AE60', text: 'Forte' },
+            { w: '100%', bg: '#D4AF37', text: 'Muito forte' },
+        ];
+
+        const lvl = levels[score] || levels[0];
+        bar.style.width      = val.length ? lvl.w : '0%';
+        bar.style.background = lvl.bg;
+        label.textContent    = val.length ? lvl.text : 'Mínimo de 8 caracteres';
+    });
+
+    /* ---- Toggle senha ---- */
+    function toggleRegPass(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon  = document.getElementById(iconId);
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        icon.innerHTML = isPass
+            ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+               <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+               <line x1="1" y1="1" x2="23" y2="23"/>`
+            : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+               <circle cx="12" cy="12" r="3"/>`;
+    }
+
+    /* ---- Validação e submit ---- */
+    function vField(id, ok) {
+        const el = document.getElementById(id);
+        if (!el) return true;
+        el.classList.toggle('error', !ok);
+        return ok;
+    }
+
+    function submitRegister(e) {
+        e.preventDefault();
+        const nome     = document.getElementById('regNome').value.trim();
+        const sobre    = document.getElementById('regSobrenome').value.trim();
+        const email    = document.getElementById('regEmail').value.trim();
+        const cpf      = document.getElementById('regCpf').value.trim();
+        const senha    = document.getElementById('regSenha').value;
+        const confirma = document.getElementById('regConfirma').value;
+        const termos   = document.getElementById('chkTermos').checked;
+
+        let ok = true;
+        ok = vField('af-nome',    nome.length >= 2)                          && ok;
+        ok = vField('af-sobrenome', sobre.length >= 2)                       && ok;
+        ok = vField('af-email',   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && ok;
+        ok = vField('af-cpf',     /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf)) && ok;
+        ok = vField('af-senha',   senha.length >= 8)                         && ok;
+        ok = vField('af-confirma', senha === confirma)                       && ok;
+
+        if (!termos) {
+            alert('Você precisa aceitar os Termos de Uso para continuar.');
+            return;
+        }
+        if (!ok) return;
+
+        const btn = document.getElementById('btnCreateAccount');
+        btn.disabled = true;
+        btn.textContent = 'Criando sua conta...';
+
+        setTimeout(() => {
+            document.getElementById('registerForm').style.display    = 'none';
+            document.getElementById('registerSuccess').classList.add('visible');
+        }, 1400);
+    }
+</script>
+</body>
+</html>
