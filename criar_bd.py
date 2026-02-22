@@ -384,6 +384,25 @@ CREATE TABLE IF NOT EXISTS despesas (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 """
 
+
+
+
+TABELAS["despesas"] = """
+CREATE TABLE IF NOT EXISTS despesas (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    descricao    VARCHAR(200)   NOT NULL,
+    categoria    ENUM('ingredientes','embalagem','marketing','aluguel','funcionarios',
+                      'equipamentos','impostos','logistica','outros')
+                 NOT NULL DEFAULT 'outros',
+    valor        DECIMAL(10,2)  NOT NULL,
+    data_despesa DATE           NOT NULL DEFAULT (CURDATE()),
+    observacao   TEXT,
+    criado_em    DATETIME       DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+"""
+
+
+
 # ================================================================
 #  DADOS INICIAIS
 # ================================================================

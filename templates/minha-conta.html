@@ -172,9 +172,6 @@
 
 /* Redireciona se não estiver logado */
 
-/* ── Preenche sidebar ───────────────────────────────────── */
-    (usuario.nome || '?').charAt(0).toUpperCase();
-    `${usuario.nome || ''} ${usuario.sobrenome || ''}`.trim();
 
 /* ── Carrega perfil da API ──────────────────────────────── */
 async function carregarPerfil() {
@@ -301,10 +298,6 @@ function scrollTo(id) {
     document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function fazerLogout() {
-    SpinassiAPI.auth.logout();
-    window.location.href = 'index.html';
-}
 
 /* Inicia */
 carregarPerfil();
