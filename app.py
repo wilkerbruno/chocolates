@@ -104,17 +104,25 @@ def gerar_token(usuario_id, tipo):
     if not JWT_DISPONIVEL:
         return None
     payload = {
-        'sub':  usuario_id,
+        'sub':  str(usuario_id),  # PyJWT 2.x exige string
         'tipo': tipo,
         'exp':  datetime.utcnow() + timedelta(hours=JWT_EXPIRES),
         'iat':  datetime.utcnow(),
     }
-    return jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+    token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+    # PyJWT < 2.0 retorna bytes; >= 2.0 retorna str — normaliza para str
+    if isinstance(token, bytes):
+        token = token.decode('utf-8')
+    return token
 
 
 def verificar_token(token):
     if not JWT_DISPONIVEL:
         return None
+    if not token or not isinstance(token, str):
+        return None
+    # Remove prefixo "Bearer " caso venha duplicado
+    token = token.replace('Bearer ', '').strip()
     try:
         return jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
@@ -127,13 +135,16 @@ def requer_login(f):
     """Decorator: rota só acessível com token válido."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization', '').replace('Bearer ', '')
+        token = request.headers.get('Authorization', '').replace('Bearer ', '').strip()
+
         if not token:
             return err('Token não fornecido', 401)
+
         payload = verificar_token(token)
         if not payload:
             return err('Token inválido ou expirado', 401)
-        request.usuario_id   = payload['sub']
+
+        request.usuario_id   = int(payload['sub'])  # sub é string no JWT
         request.usuario_tipo = payload['tipo']
         return f(*args, **kwargs)
     return decorated
@@ -151,7 +162,7 @@ def requer_admin(f):
             return err('Token inválido ou expirado', 401)
         if payload.get('tipo') != 'admin':
             return err('Acesso restrito a administradores', 403)
-        request.usuario_id   = payload['sub']
+        request.usuario_id   = int(payload['sub'])  # sub é string no JWT
         request.usuario_tipo = payload['tipo']
         return f(*args, **kwargs)
     return decorated
@@ -393,19 +404,31 @@ def atualizar_perfil():
     nome      = (d.get('nome')      or '').strip()
     sobrenome = (d.get('sobrenome') or '').strip()
     telefone  = (d.get('telefone')  or '').strip() or None
+    cpf       = (d.get('cpf')       or '').strip() or None
     genero    = d.get('genero') or None
     news      = 1 if d.get('aceita_news') else 0
 
     if not nome or not sobrenome:
         return err('Nome e sobrenome são obrigatórios')
 
+    # Se CPF foi informado, verifica se já pertence a outro usuário
+    if cpf:
+        row, _ = query(
+            "SELECT id FROM usuarios WHERE cpf=%s AND id!=%s",
+            (cpf, request.usuario_id), fetch='one'
+        )
+        if row:
+            return err('Este CPF já está cadastrado em outra conta')
+
     query(
         """UPDATE usuarios
-           SET nome=%s, sobrenome=%s, telefone=%s, genero=%s, aceita_news=%s
+           SET nome=%s, sobrenome=%s, telefone=%s, cpf=%s,
+               genero=%s, aceita_news=%s
            WHERE id=%s""",
-        (nome, sobrenome, telefone, genero, news, request.usuario_id),
+        (nome, sobrenome, telefone, cpf, genero, news, request.usuario_id),
         fetch='none'
     )
+    log(request.usuario_id, 'atualizar_perfil', f'Campos: nome, sobrenome, telefone, cpf, genero, news')
     return ok(msg='Perfil atualizado!')
 
 
@@ -575,7 +598,7 @@ def criar_avaliacao(pid):
     # Usuário logado (token opcional aqui)
     token = request.headers.get('Authorization', '').replace('Bearer ', '')
     payload = verificar_token(token) if token else None
-    uid = payload['sub'] if payload else None
+    uid = int(payload['sub']) if payload else None  # sub é string no JWT
 
     if not nota or int(nota) not in range(1, 6):
         return err('Nota inválida (1 a 5)')
@@ -695,7 +718,7 @@ def criar_pedido():
     # Usuário logado?
     token = request.headers.get('Authorization', '').replace('Bearer ', '')
     payload = verificar_token(token) if token else None
-    uid = payload['sub'] if payload else None
+    uid = int(payload['sub']) if payload else None  # sub é string no JWT
 
     # Recalcula valores no servidor (nunca confie no frontend)
     subtotal = 0.0

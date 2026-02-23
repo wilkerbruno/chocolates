@@ -54,8 +54,12 @@
         const token = getToken();
         if (!token) return true;
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            return Date.now() / 1000 > payload.exp;
+            // JWT tem 3 partes separadas por "." — valida estrutura antes de decodificar
+            const partes = token.split('.');
+            if (partes.length !== 3) return true;
+            const payload = JSON.parse(atob(partes[1]));
+            // Considera expirado 5 minutos antes do prazo real (margem de segurança)
+            return Date.now() / 1000 > (payload.exp - 300);
         } catch (_) {
             return true;
         }

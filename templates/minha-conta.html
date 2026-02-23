@@ -39,20 +39,33 @@
         <div class="acc-card">
             <div class="acc-card-header">
                 <h3>Dados Pessoais</h3>
+                <span class="acc-member-since" id="memberSince"></span>
             </div>
             <div class="acc-card-body">
                 <div class="acc-alert" id="alertPerfil"></div>
 
-                <form id="formPerfil" onsubmit="salvarPerfil(event)">
+                <!-- Skeleton de carregamento -->
+                <div id="perfilSkeleton" class="acc-skeleton-wrap">
+                    <div class="acc-skeleton-grid">
+                        <div class="acc-skeleton-field"><div class="skel-label"></div><div class="skel-input"></div></div>
+                        <div class="acc-skeleton-field"><div class="skel-label"></div><div class="skel-input"></div></div>
+                        <div class="acc-skeleton-field full"><div class="skel-label"></div><div class="skel-input"></div></div>
+                        <div class="acc-skeleton-field"><div class="skel-label"></div><div class="skel-input"></div></div>
+                        <div class="acc-skeleton-field"><div class="skel-label"></div><div class="skel-input"></div></div>
+                        <div class="acc-skeleton-field"><div class="skel-label"></div><div class="skel-input"></div></div>
+                    </div>
+                </div>
+
+                <form id="formPerfil" onsubmit="salvarPerfil(event)" style="display:none;">
                     <div class="acc-form-grid">
 
                         <div class="acc-field">
-                            <label for="fNome">Nome</label>
+                            <label for="fNome">Nome <span class="req">*</span></label>
                             <input type="text" id="fNome" maxlength="80" required>
                         </div>
 
                         <div class="acc-field">
-                            <label for="fSobrenome">Sobrenome</label>
+                            <label for="fSobrenome">Sobrenome <span class="req">*</span></label>
                             <input type="text" id="fSobrenome" maxlength="80" required>
                         </div>
 
@@ -64,7 +77,13 @@
 
                         <div class="acc-field">
                             <label for="fTelefone">Telefone</label>
-                            <input type="tel" id="fTelefone" maxlength="20">
+                            <input type="tel" id="fTelefone" maxlength="20" placeholder="(00) 00000-0000">
+                        </div>
+
+                        <div class="acc-field">
+                            <label for="fCpf">CPF</label>
+                            <input type="text" id="fCpf" maxlength="14" placeholder="000.000.000-00">
+                            <span class="acc-field-hint">Usado para emissão de notas fiscais.</span>
                         </div>
 
                         <div class="acc-field">
@@ -87,9 +106,12 @@
 
                     </div>
 
-                    <div style="margin-top:24px;">
+                    <div style="margin-top:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
                         <button type="submit" class="btn-gold" id="btnSalvarPerfil">
                             <span>Salvar alterações</span>
+                        </button>
+                        <button type="button" class="btn-outline" id="btnCancelar" onclick="cancelarEdicao()" style="display:none;">
+                            Cancelar
                         </button>
                     </div>
                 </form>
@@ -164,54 +186,172 @@
 </div>
 
 <script src="../assets/js/api.js"></script>
-    <script src="../assets/js/sidebar.js"></script>
+<script src="../assets/js/sidebar.js"></script>
 <script>
 /* ============================================================
-   MINHA CONTA — lógica
+   MINHA CONTA — lógica completa
 ============================================================ */
 
-/* Redireciona se não estiver logado */
+/* ── Guard: redireciona se não houver token ─────────────── */
+(function () {
+    if (!SpinassiAPI.sessao.getToken()) {
+        window.location.replace('login.html');
+    }
+})();
 
+/* ── Estado original do formulário (para detectar mudanças) */
+let _perfilOriginal = null;
 
-/* ── Carrega perfil da API ──────────────────────────────── */
+/* ── Preenche os campos com qualquer objeto de dados ────── */
+function preencherFormulario(p) {
+    document.getElementById('fNome').value      = p.nome      || '';
+    document.getElementById('fSobrenome').value = p.sobrenome || '';
+    document.getElementById('fEmail').value     = p.email     || '';
+    document.getElementById('fTelefone').value  = p.telefone  || '';
+    document.getElementById('fCpf').value       = p.cpf       || '';
+    document.getElementById('fGenero').value    = p.genero    || '';
+    document.getElementById('fNews').checked    = !!p.aceita_news;
+
+    /* Exibe data de membro */
+    if (p.criado_em) {
+        const dt  = new Date(p.criado_em);
+        const fmt = dt.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        document.getElementById('memberSince').textContent = `Membro desde ${fmt}`;
+    }
+
+    /* Guarda cópia para comparação ao salvar */
+    _perfilOriginal = {
+        nome:        p.nome      || '',
+        sobrenome:   p.sobrenome || '',
+        telefone:    p.telefone  || '',
+        cpf:         p.cpf       || '',
+        genero:      p.genero    || '',
+        aceita_news: !!p.aceita_news,
+    };
+}
+
+/* ── Carrega perfil: cache instantâneo + banco de dados ─── */
 async function carregarPerfil() {
+    const skeleton = document.getElementById('perfilSkeleton');
+    const form     = document.getElementById('formPerfil');
+
+    /* 1. Preenche instantaneamente com o cache do localStorage
+          (dados salvos no login — nome, email, tipo)
+          para o formulário aparecer preenchido sem esperar a API */
+    const cache = SpinassiAPI.sessao.getUsuario();
+    if (cache) {
+        preencherFormulario(cache);
+        skeleton.style.display = 'none';
+        form.style.display     = 'block';
+    }
+
+    /* 2. Busca os dados COMPLETOS do banco de dados
+          (cpf, telefone, genero, aceita_news, criado_em…)
+          e atualiza os campos com a informação mais atual */
     try {
         const res = await SpinassiAPI.auth.perfil();
         const p   = res.data;
-        document.getElementById('fNome').value      = p.nome      || '';
-        document.getElementById('fSobrenome').value = p.sobrenome || '';
-        document.getElementById('fEmail').value     = p.email     || '';
-        document.getElementById('fTelefone').value  = p.telefone  || '';
-        document.getElementById('fNews').checked    = !!p.aceita_news;
-        if (p.genero) document.getElementById('fGenero').value = p.genero;
+
+        preencherFormulario(p);
+
+        skeleton.style.display = 'none';
+        form.style.display     = 'block';
+
+        /* Atualiza o cache do localStorage com os dados completos */
+        const usuarioAtualizado = { ...(cache || {}), ...p };
+        localStorage.setItem('sc_user', JSON.stringify(usuarioAtualizado));
+
+        /* Registra listener para mostrar botão Cancelar ao editar */
+        form.querySelectorAll('input:not([disabled]), select').forEach(el => {
+            el.addEventListener('input',  mostrarBotaoCancelar);
+            el.addEventListener('change', mostrarBotaoCancelar);
+        });
+
     } catch (e) {
-        showAlert('alertPerfil', 'Não foi possível carregar seus dados.', 'error');
+        skeleton.style.display = 'none';
+        form.style.display     = 'block';
+        if (!cache) {
+            /* Só mostra erro se nem o cache estava disponível */
+            showAlert('alertPerfil', 'Não foi possível carregar seus dados. Tente recarregar a página.', 'error');
+        }
     }
 }
 
-/* ── Salva perfil ───────────────────────────────────────── */
+/* ── Mostra/esconde botão Cancelar ──────────────────────── */
+function mostrarBotaoCancelar() {
+    document.getElementById('btnCancelar').style.display = 'inline-flex';
+}
+
+/* ── Restaura valores originais ─────────────────────────── */
+function cancelarEdicao() {
+    if (!_perfilOriginal) return;
+    document.getElementById('fNome').value      = _perfilOriginal.nome;
+    document.getElementById('fSobrenome').value = _perfilOriginal.sobrenome;
+    document.getElementById('fTelefone').value  = _perfilOriginal.telefone;
+    document.getElementById('fCpf').value       = _perfilOriginal.cpf;
+    document.getElementById('fGenero').value    = _perfilOriginal.genero;
+    document.getElementById('fNews').checked    = _perfilOriginal.aceita_news;
+    document.getElementById('btnCancelar').style.display = 'none';
+    showAlert('alertPerfil', 'Alterações descartadas.', 'info');
+}
+
+/* ── Salva perfil no banco de dados ─────────────────────── */
 async function salvarPerfil(e) {
     e.preventDefault();
+
+    const novosDados = {
+        nome:        document.getElementById('fNome').value.trim(),
+        sobrenome:   document.getElementById('fSobrenome').value.trim(),
+        telefone:    document.getElementById('fTelefone').value.trim() || null,
+        cpf:         document.getElementById('fCpf').value.trim() || null,
+        genero:      document.getElementById('fGenero').value || null,
+        aceita_news: document.getElementById('fNews').checked,
+    };
+
+    /* Descobre quais campos foram alterados */
+    const alterados = Object.keys(novosDados).filter(k => {
+        const orig = _perfilOriginal?.[k] ?? '';
+        const novo = novosDados[k] ?? '';
+        return String(orig) !== String(novo);
+    });
+
+    if (alterados.length === 0) {
+        showAlert('alertPerfil', 'Nenhuma alteração detectada.', 'info');
+        return;
+    }
+
     const btn = document.getElementById('btnSalvarPerfil');
     btn.disabled = true;
     btn.querySelector('span').textContent = 'Salvando…';
 
     try {
-        await SpinassiAPI.auth.atualizarPerfil({
-            nome:       document.getElementById('fNome').value.trim(),
-            sobrenome:  document.getElementById('fSobrenome').value.trim(),
-            telefone:   document.getElementById('fTelefone').value.trim() || null,
-            genero:     document.getElementById('fGenero').value || null,
-            aceita_news: document.getElementById('fNews').checked,
-        });
-        showAlert('alertPerfil', 'Dados atualizados com sucesso!', 'success');
-        /* Atualiza sessão local */
+        await SpinassiAPI.auth.atualizarPerfil(novosDados);
+
+        /* Nomes legíveis dos campos alterados */
+        const labels = {
+            nome: 'Nome', sobrenome: 'Sobrenome', telefone: 'Telefone',
+            cpf: 'CPF', genero: 'Gênero', aceita_news: 'Newsletter',
+        };
+        const lista = alterados.map(k => labels[k] || k).join(', ');
+        showAlert('alertPerfil', `Salvo com sucesso! Campos atualizados: ${lista}.`, 'success');
+
+        /* Atualiza sessão local com os novos dados */
         const u = SpinassiAPI.sessao.getUsuario();
-        u.nome      = document.getElementById('fNome').value.trim();
-        u.sobrenome = document.getElementById('fSobrenome').value.trim();
-        localStorage.setItem('sc_user', JSON.stringify(u));
-                    } catch (err) {
-        showAlert('alertPerfil', err.message || 'Erro ao salvar.', 'error');
+        if (u) {
+            Object.assign(u, novosDados);
+            localStorage.setItem('sc_user', JSON.stringify(u));
+        }
+
+        /* Atualiza estado original e esconde Cancelar */
+        _perfilOriginal = { ...novosDados,
+            telefone: novosDados.telefone || '',
+            cpf:      novosDados.cpf      || '',
+            genero:   novosDados.genero   || '',
+        };
+        document.getElementById('btnCancelar').style.display = 'none';
+
+    } catch (err) {
+        showAlert('alertPerfil', err.message || 'Erro ao salvar. Tente novamente.', 'error');
     } finally {
         btn.disabled = false;
         btn.querySelector('span').textContent = 'Salvar alterações';
@@ -252,13 +392,13 @@ async function alterarSenha(e) {
     }
 }
 
-/* ── Helpers ────────────────────────────────────────────── */
+/* ── Helpers visuais ────────────────────────────────────── */
 function showAlert(id, msg, tipo) {
     const el = document.getElementById(id);
     el.textContent = msg;
     el.className   = `acc-alert show ${tipo}`;
     el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    setTimeout(() => el.classList.remove('show'), 6000);
+    if (tipo !== 'error') setTimeout(() => el.classList.remove('show'), 6000);
 }
 
 function toggleEye(inputId, iconId) {
@@ -276,30 +416,25 @@ function toggleEye(inputId, iconId) {
 
 function calcStrength(v) {
     let s = 0;
-    if (v.length >= 8) s++;
-    if (/[A-Z]/.test(v)) s++;
-    if (/[0-9]/.test(v)) s++;
+    if (v.length >= 8)          s++;
+    if (/[A-Z]/.test(v))        s++;
+    if (/[0-9]/.test(v))        s++;
     if (/[^A-Za-z0-9]/.test(v)) s++;
     const lvls = [
-        { w:'0%',   bg:'#E0D8D0', t:'Mínimo 8 caracteres' },
-        { w:'30%',  bg:'#E74C3C', t:'Fraca'       },
-        { w:'55%',  bg:'#F39C12', t:'Média'       },
-        { w:'80%',  bg:'#27AE60', t:'Forte'       },
-        { w:'100%', bg:'#D4AF37', t:'Muito forte'  },
+        { w: '0%',   bg: '#E0D8D0', t: 'Mínimo 8 caracteres' },
+        { w: '30%',  bg: '#E74C3C', t: 'Fraca'                },
+        { w: '55%',  bg: '#F39C12', t: 'Média'                },
+        { w: '80%',  bg: '#27AE60', t: 'Forte'                },
+        { w: '100%', bg: '#D4AF37', t: 'Muito forte'          },
     ];
-    const l = v.length ? lvls[s] : lvls[0];
+    const l    = v.length ? lvls[s] : lvls[0];
     const fill = document.getElementById('strengthFill');
-    fill.style.width      = v.length ? l.w  : '0%';
+    fill.style.width      = v.length ? l.w : '0%';
     fill.style.background = l.bg;
     document.getElementById('strengthText').textContent = v.length ? l.t : 'Mínimo 8 caracteres';
 }
 
-function scrollTo(id) {
-    document.querySelector(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-
-/* Inicia */
+/* ── Inicia ─────────────────────────────────────────────── */
 carregarPerfil();
 renderSidebar('minha-conta');
 </script>
