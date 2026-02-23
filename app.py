@@ -16,6 +16,8 @@ import secrets
 import string
 from datetime import datetime, timedelta
 from functools import wraps
+import uuid
+from werkzeug.utils import secure_filename
 
 # ── JWT opcional (instale: pip install PyJWT) ──────────────
 try:
@@ -837,6 +839,40 @@ def detalhe_pedido(pid):
     ped['itens'] = itens
     return ok(ped)
 
+
+# ============================================================
+#  UPLOAD DE IMAGEM DE PRODUTO
+# ============================================================
+UPLOAD_FOLDER   = os.path.join(os.path.dirname(__file__), 'assets', 'img_produtos')
+ALLOWED_EXT     = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXT
+
+@app.route('/api/upload/produto-imagem', methods=['POST'])
+@requer_admin
+def upload_produto_imagem():
+    """Recebe uma imagem, salva em assets/img_produtos/ e retorna a URL."""
+    if 'imagem' not in request.files:
+        return err('Nenhum arquivo enviado')
+    file = request.files['imagem']
+    if file.filename == '':
+        return err('Nome de arquivo vazio')
+    if not allowed_file(file.filename):
+        return err('Formato não permitido. Use PNG, JPG, JPEG, GIF ou WEBP.')
+
+    # Cria pasta se não existir
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+    # Nome único para evitar conflitos
+    ext      = file.filename.rsplit('.', 1)[1].lower()
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    filepath = os.path.join(UPLOAD_FOLDER, filename)
+    file.save(filepath)
+
+    url = f'/assets/img_produtos/{filename}'
+    return ok({'url': url}, 'Imagem enviada com sucesso!')
+
 # ============================================================
 #  CONTATO (formulário)
 # ============================================================
@@ -1261,11 +1297,18 @@ def admin_financeiro():
         filtro_ped  += " AND DATE(criado_em) <= %s";  params_ped.append(data_fim)
         filtro_desp += " AND data_despesa   <= %s";   params_desp.append(data_fim)
 
+    # Receita confirmada (aprovado) e prevista (todos os pedidos)
     receita_row, _ = query(
         f"SELECT COALESCE(SUM(total),0) AS v FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}",
         tuple(params_ped), fetch='one'
     )
     receita = float(receita_row['v'] if receita_row else 0)
+
+    receita_prev_row, _ = query(
+        f"SELECT COALESCE(SUM(total),0) AS v FROM pedidos WHERE status NOT IN ('cancelado','estornado') {filtro_ped}",
+        tuple(params_ped), fetch='one'
+    )
+    receita_prevista = float(receita_prev_row['v'] if receita_prev_row else 0)
 
     despesa_row, _ = query(
         f"SELECT COALESCE(SUM(valor),0) AS v FROM despesas WHERE 1=1 {filtro_desp}",
@@ -1273,18 +1316,19 @@ def admin_financeiro():
     )
     despesa = float(despesa_row['v'] if despesa_row else 0)
 
+    # Total de pedidos (todos exceto cancelados)
     pedidos_row, _ = query(
-        f"SELECT COUNT(*) AS n FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}",
+        f"SELECT COUNT(*) AS n FROM pedidos WHERE status NOT IN ('cancelado','estornado') {filtro_ped}",
         tuple(params_ped), fetch='one'
     )
     total_pedidos = int(pedidos_row['n'] if pedidos_row else 0)
-    ticket_medio  = round(receita / total_pedidos, 2) if total_pedidos else 0
+    ticket_medio  = round(receita_prevista / total_pedidos, 2) if total_pedidos else 0
 
     receita_mensal, _ = query(
         f"""SELECT DATE_FORMAT(criado_em,'%%Y-%%m') AS mes,
                    COALESCE(SUM(total),0)           AS receita,
                    COUNT(*)                          AS pedidos
-            FROM pedidos WHERE status_pagamento='aprovado' {filtro_ped}
+            FROM pedidos WHERE status NOT IN ('cancelado','estornado') {filtro_ped}
             GROUP BY mes ORDER BY mes ASC LIMIT 24""",
         tuple(params_ped)
     )
@@ -1324,11 +1368,13 @@ def admin_financeiro():
 
     return ok({
         'kpis': {
-            'receita':       receita,
-            'despesa':       despesa,
-            'lucro':         round(receita - despesa, 2),
-            'total_pedidos': total_pedidos,
-            'ticket_medio':  ticket_medio,
+            'receita':          receita,
+            'receita_prevista': receita_prevista,
+            'despesa':          despesa,
+            'lucro':            round(receita - despesa, 2),
+            'lucro_previsto':   round(receita_prevista - despesa, 2),
+            'total_pedidos':    total_pedidos,
+            'ticket_medio':     ticket_medio,
         },
         'receita_mensal': serializar(receita_mensal),
         'despesa_mensal': serializar(despesa_mensal),

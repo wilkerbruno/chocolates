@@ -156,7 +156,7 @@
 </div>
 
 <script src="../assets/js/api.js"></script>
-<script src="../assets/js/sidebar.js"></script>
+    <script src="../assets/js/sidebar.js"></script>
 <script>
 /* ============================================================
    MEUS PEDIDOS — lógica
@@ -252,10 +252,14 @@ function renderPedidoCard(p) {
         <div class="order-card-body">
             <div class="order-items-preview">
                 <div class="order-item-row">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;vertical-align:middle">
+                        <rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
+                        <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+                    </svg>
                     <strong>${FORMA_LABELS[p.forma_pagamento] || p.forma_pagamento}</strong>
                 </div>
                 ${p.rastreamento
-                    ? `<div class="order-tracking">Rastreamento: <a href="#" target="_blank">${p.rastreamento}</a></div>`
+                    ? `<div class="order-tracking">🚚 Rastreamento: <a href="#" target="_blank">${p.rastreamento}</a></div>`
                     : ''}
             </div>
             <div class="order-total-line">
@@ -292,7 +296,7 @@ function renderModalBody(p) {
     const itensHtml = (p.itens || []).map(it => `
         <div class="modal-item-row">
             <div>
-                <div class="modal-item-name">${it.nome_produto}</div>
+                <div class="modal-item-name">${it.nome || it.nome_produto}</div>
                 ${it.nome_sabor ? `<div class="modal-item-sabor">Sabor: ${it.nome_sabor}</div>` : ''}
                 ${it.peso_gramas ? `<div class="modal-item-sabor">${it.peso_gramas}g</div>` : ''}
                 <div class="modal-item-qty">${it.quantidade}× ${fmtMoeda(it.preco_unit)}</div>

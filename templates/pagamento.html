@@ -435,6 +435,7 @@
 </div>
 
 <!-- ========== JAVASCRIPT ========== -->
+<script src="assets/js/api.js"></script>
 <script>
     /* -------------------------------------------------------
        1. CARRINHO
@@ -649,7 +650,7 @@
         return ok;
     }
 
-    function processarPagamento() {
+    async function processarPagamento() {
         const nome  = document.getElementById('nome').value.trim();
         const email = document.getElementById('email').value.trim();
         const cpf   = document.getElementById('cpf').value.trim();
@@ -657,17 +658,17 @@
         const cep   = document.getElementById('cep').value.trim();
         let valid   = true;
 
-        valid = validateField('nome',  nome.length >= 3)                        && valid;
+        valid = validateField('nome',  nome.length >= 3)                         && valid;
         valid = validateField('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && valid;
-        valid = validateField('cpf',   /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf)) && valid;
-        valid = validateField('rua',   rua.length >= 3)                         && valid;
-        valid = validateField('cep',   /^\d{5}-\d{3}$/.test(cep))              && valid;
+        valid = validateField('cpf',   /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf))  && valid;
+        valid = validateField('rua',   rua.length >= 3)                          && valid;
+        valid = validateField('cep',   /^\d{5}-\d{3}$/.test(cep))               && valid;
 
         if (currentMethod === 'card') {
             const num = document.getElementById('cardNum').value.replace(/\s/g, '');
-            valid = validateField('cardnum', num.length === 16)                                   && valid;
+            valid = validateField('cardnum', num.length === 16)                                                   && valid;
             valid = validateField('cardexp', /^\d{2}\/\d{2}$/.test(document.getElementById('cardExp').value)) && valid;
-            valid = validateField('cardcvv', document.getElementById('cardCvv').value.length >= 3)            && valid;
+            valid = validateField('cardcvv', document.getElementById('cardCvv').value.length >= 3)               && valid;
         }
 
         if (!valid) {
@@ -688,11 +689,44 @@
                 Processando pagamento...
             </span>`;
 
-        setTimeout(() => {
-            localStorage.removeItem('carrinho');
+        /* ── Monta payload para a API ─────────────────────── */
+        const bairro = document.getElementById('bairro')?.value.trim() || '';
+        const cidade = document.getElementById('cidade')?.value.trim() || '';
+        const estado = document.getElementById('estado')?.value.trim() || '';
+        const numero = document.getElementById('numero')?.value.trim() || '';
+        const compl  = document.getElementById('complemento')?.value.trim() || '';
+
+        const payload = {
+            carrinho: carrinho.map(i => ({ id: i.id, quantidade: i.quantidade })),
+            cliente:  { nome, email, telefone: cpf },
+            entrega:  { cep, logradouro: rua, numero, complemento: compl,
+                        bairro, cidade, estado },
+            forma_pagamento: currentMethod === 'card'  ? 'cartao'  :
+                             currentMethod === 'pix'   ? 'pix'     : 'boleto',
+            observacao: ''
+        };
+
+        try {
+            /* Envia pedido para o banco de dados */
+            const res = await SpinassiAPI.pedidos.criar(payload);
+            const pedidoId = res.data?.pedido_id || '---';
+
+            /* Atualiza número do pedido na tela de sucesso */
+            document.getElementById('successOrderNum').textContent = pedidoId;
+            document.getElementById('orderNum').textContent        = pedidoId;
+
             stopPixTimer();
+            localStorage.removeItem('carrinho');
             document.getElementById('successOverlay').classList.add('active');
-        }, 2200);
+
+        } catch (e) {
+            showToast(e.message || 'Erro ao processar pedido. Tente novamente.', 'error');
+            btn.disabled  = false;
+            btn.innerHTML = `<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg> Confirmar Pagamento`;
+        }
     }
 
     /* -------------------------------------------------------

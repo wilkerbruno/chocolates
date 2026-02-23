@@ -333,14 +333,23 @@ async function carregarFinanceiro(qs) {
 
 /* ── KPI cards ───────────────────────────────────────────── */
 function renderKpis(k) {
-    const lucroColor = k.lucro >= 0 ? '#155724' : '#721C24';
+    const lucroColor     = k.lucro          >= 0 ? '#155724' : '#721C24';
+    const lucroPrevColor = k.lucro_previsto >= 0 ? '#155724' : '#721C24';
     document.getElementById('kpiGrid').innerHTML = `
         <div class="kpi-card kpi-card--revenue">
-            <div class="kpi-label">Receita total</div>
+            <div class="kpi-label">Receita confirmada</div>
             <div class="kpi-value">${fmt(k.receita)}</div>
-            <div class="kpi-sub">Pedidos aprovados no período</div>
+            <div class="kpi-sub">Pagamentos aprovados</div>
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg></div>
+        </div>
+        <div class="kpi-card" style="border-top:3px solid #f39c12;background:linear-gradient(135deg,#fff8e7,#fff)">
+            <div class="kpi-label">Receita prevista</div>
+            <div class="kpi-value" style="color:#e67e22">${fmt(k.receita_prevista ?? k.receita)}</div>
+            <div class="kpi-sub">Todos os pedidos ativos · ${k.total_pedidos} pedido${k.total_pedidos !== 1 ? 's' : ''}</div>
+            <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg></div>
         </div>
         <div class="kpi-card kpi-card--expense">
@@ -354,13 +363,13 @@ function renderKpis(k) {
         <div class="kpi-card kpi-card--profit">
             <div class="kpi-label">Lucro líquido</div>
             <div class="kpi-value" style="color:${lucroColor}">${fmt(k.lucro)}</div>
-            <div class="kpi-sub">${k.lucro >= 0 ? 'Positivo ✓' : 'Negativo — atenção!'}</div>
+            <div class="kpi-sub">${k.lucro >= 0 ? 'Confirmado ✓' : 'Negativo — atenção!'} · Previsto: <span style="color:${lucroPrevColor}">${fmt(k.lucro_previsto ?? k.lucro)}</span></div>
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
             </svg></div>
         </div>
-        <div class="kpi-card kpi-card--orders">
-            <div class="kpi-label">Pedidos aprovados</div>
+        <div class="kpi-card kpi-card--orders" style="grid-column:span 2">
+            <div class="kpi-label">Total de pedidos no período</div>
             <div class="kpi-value">${k.total_pedidos}</div>
             <div class="kpi-sub">Ticket médio: ${fmt(k.ticket_medio)}</div>
             <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">

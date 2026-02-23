@@ -1,70 +1,106 @@
-// Dados dos produtos
-const produtos = [
-    {
-        id: 1,
-        nome: 'Trufa Belga Premium',
-        categoria: 'Trufas',
-        descricao: 'Trufas artesanais com cacau 70% e ganache de champagne',
-        preco: 89.90,
-        imagem: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600',
-        badge: 'Bestseller'
-    },
-    {
-        id: 2,
-        nome: 'Barra Ouro Negro',
-        categoria: 'Barras',
-        descricao: 'Chocolate amargo 85% com nibs de cacau torrado',
-        preco: 45.90,
-        imagem: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600',
-        badge: 'Novo'
-    },
-    {
-        id: 3,
-        nome: 'Bombons Sortidos Luxo',
-        categoria: 'Bombons',
-        descricao: 'Caixa com 12 bombons de sabores exclusivos',
-        preco: 129.90,
-        imagem: 'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=600',
-        badge: 'Premium'
-    },
-    {
-        id: 4,
-        nome: 'Chocolate ao Leite Artesanal',
-        categoria: 'Barras',
-        descricao: 'Chocolate ao leite 45% com caramelo salgado',
-        preco: 42.90,
-        imagem: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=600',
-        badge: ''
-    },
-    {
-        id: 5,
-        nome: 'Trufas de Pistache',
-        categoria: 'Trufas',
-        descricao: 'Trufas cremosas com pistache siciliano',
-        preco: 95.90,
-        imagem: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=600',
-        badge: 'Exclusivo'
-    },
-    {
-        id: 6,
-        nome: 'Caixa Degustação',
-        categoria: 'Kits',
-        descricao: 'Kit degustação com 6 tipos de chocolates',
-        preco: 159.90,
-        imagem: 'https://images.unsplash.com/photo-1481391243133-f96216dcb5d2?w=600',
-        badge: 'Gift'
+// Produtos — carregados dinamicamente do banco de dados
+let produtos = [];
+
+async function carregarProdutos() {
+    const grid = document.getElementById('produtosGrid');
+    if (!grid) return;
+
+    // Skeleton loading
+    grid.innerHTML = Array(6).fill(0).map(() => `
+        <div class="produto-card" style="pointer-events:none">
+            <div class="produto-image" style="background:#f0ece4;height:350px;animation:shimmer 1.4s infinite linear;
+                 background:linear-gradient(90deg,#f0ece4 25%,#e8e3da 50%,#f0ece4 75%);
+                 background-size:600px 100%"></div>
+            <div class="produto-info" style="padding:30px">
+                <div style="height:12px;background:#eee;border-radius:4px;width:60%;margin-bottom:12px;
+                     animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,#eee 25%,#e3e3e3 50%,#eee 75%);background-size:600px 100%"></div>
+                <div style="height:20px;background:#eee;border-radius:4px;width:85%;margin-bottom:10px;
+                     animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,#eee 25%,#e3e3e3 50%,#eee 75%);background-size:600px 100%"></div>
+                <div style="height:14px;background:#eee;border-radius:4px;width:100%;margin-bottom:6px;
+                     animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,#eee 25%,#e3e3e3 50%,#eee 75%);background-size:600px 100%"></div>
+            </div>
+        </div>`).join('');
+
+    try {
+        const res = await fetch('/api/produtos?limite=6&destaque=1');
+        const json = await res.json();
+        let lista = json.data || [];
+
+        // Se não houver produtos em destaque, busca os 6 mais recentes
+        if (!lista.length) {
+            const res2 = await fetch('/api/produtos?limite=6');
+            const j2   = await res2.json();
+            lista = j2.data || [];
+        }
+
+        produtos = lista;
+        await carregarDesejos(); // garante desejos antes de renderizar
+        renderProdutos();
+
+        // Mostra/esconde botão "Ver mais"
+        const btnVerMais = document.getElementById('btnVerMaisProdutos');
+        if (btnVerMais) btnVerMais.style.display = 'inline-block';
+
+    } catch(e) {
+        grid.innerHTML = '<p style="text-align:center;color:#888;padding:40px">Não foi possível carregar os produtos.</p>';
     }
-];
+}
+
 
 // Carrinho
 let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
+// Lista de desejos — IDs dos produtos favoritados pelo usuário logado
+let desejosSet = new Set();
+
+/* Carrega IDs de desejos do usuário logado */
+async function carregarDesejos() {
+    if (!window.SpinassiAPI?.sessao?.getToken()) return;
+    try {
+        const res = await SpinassiAPI.desejos.listar();
+        desejosSet = new Set((res.data || []).map(d => d.id));
+        // Atualiza ícones que já estão na tela
+        document.querySelectorAll('.btn-desejo').forEach(btn => {
+            const id = parseInt(btn.dataset.id);
+            btn.classList.toggle('ativo', desejosSet.has(id));
+            btn.title = desejosSet.has(id) ? 'Remover dos favoritos' : 'Salvar nos favoritos';
+        });
+    } catch (_) {}
+}
+
+/* Alterna favorito */
+async function toggleDesejo(id, btn) {
+    if (!window.SpinassiAPI?.sessao?.getToken()) {
+        showNotification('Faça login para salvar favoritos!', 'error');
+        return;
+    }
+    const ativo = desejosSet.has(id);
+    // Feedback visual imediato
+    btn.classList.toggle('ativo', !ativo);
+    try {
+        if (ativo) {
+            await SpinassiAPI.desejos.remover(id);
+            desejosSet.delete(id);
+            showNotification('Removido dos favoritos.');
+        } else {
+            await SpinassiAPI.desejos.adicionar(id);
+            desejosSet.add(id);
+            showNotification('Salvo nos favoritos! ❤️');
+        }
+        btn.title = desejosSet.has(id) ? 'Remover dos favoritos' : 'Salvar nos favoritos';
+    } catch (e) {
+        // Reverte o visual se falhar
+        btn.classList.toggle('ativo', ativo);
+        showNotification('Erro ao atualizar favoritos.', 'error');
+    }
+}
+
 // Inicializar página
 document.addEventListener('DOMContentLoaded', () => {
-    renderProdutos();
     updateCartCount();
     setupEventListeners();
     setupScrollEffects();
+    carregarProdutos(); // busca produtos do banco + desejos
 });
 
 // Renderizar produtos
@@ -75,6 +111,17 @@ function renderProdutos() {
             <div class="produto-image">
                 <img src="${produto.imagem}" alt="${produto.nome}">
                 ${produto.badge ? `<span class="produto-badge">${produto.badge}</span>` : ''}
+                <button class="btn-desejo ${desejosSet.has(produto.id) ? 'ativo' : ''}"
+                        data-id="${produto.id}"
+                        title="${desejosSet.has(produto.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'}"
+                        onclick="toggleDesejo(${produto.id}, this); event.stopPropagation();">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                                 a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                                 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
             </div>
             <div class="produto-info">
                 <div class="produto-categoria">${produto.categoria}</div>

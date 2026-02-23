@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos — Spinassi Chocolates</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+   
+    
+    <style>
+        /* ── Hero da página de produtos ─────────────────────── */
+        .produtos-hero {
+            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+            padding: 160px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .produtos-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .produtos-hero h2 {
+            font-size: 3.8rem;
+            color: var(--cream);
+            margin-bottom: 16px;
+            font-weight: 700;
+            position: relative;
+        }
+        .produtos-hero p {
+            color: rgba(255,248,231,.75);
+            font-size: 1.1rem;
+            max-width: 520px;
+            margin: 0 auto 32px;
+            position: relative;
+        }
+
+        /* ── Barra de busca e filtros ────────────────────────── */
+        .produtos-controls {
+            background: #fff;
+            border-bottom: 2px solid var(--gold-light);
+            position: sticky;
+            top: 70px;
+            z-index: 900;
+            box-shadow: 0 2px 12px rgba(62,39,35,.08);
+        }
+        .produtos-controls-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .produtos-controls-inner::-webkit-scrollbar { display:none; }
+
+        /* Busca */
+        .produtos-search-wrap {
+            position: relative;
+            flex-shrink: 0;
+            border-right: 1px solid #eee;
+            padding-right: 20px;
+            margin-right: 4px;
+        }
+        .produtos-search-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #b0a090;
+            width: 16px;
+            height: 16px;
+        }
+        .produtos-search {
+            border: none;
+            outline: none;
+            padding: 18px 16px 18px 38px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .88rem;
+            background: transparent;
+            min-width: 200px;
+            color: var(--text-dark);
+        }
+        .produtos-search::placeholder { color: #b0a090; }
+
+        /* Tabs de categoria */
+        .cat-tabs {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            flex: 1;
+        }
+        .cat-tab {
+            padding: 18px 22px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .82rem;
+            font-weight: 500;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            color: var(--text-light);
+            white-space: nowrap;
+            transition: all .25s;
+            position: relative;
+        }
+        .cat-tab:hover { color: var(--chocolate-dark); }
+        .cat-tab.active {
+            color: var(--chocolate-dark);
+            border-bottom-color: var(--gold);
+            font-weight: 600;
+        }
+        .cat-tab .cat-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gold-light);
+            color: var(--chocolate-dark);
+            font-size: .68rem;
+            font-weight: 600;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            padding: 0 5px;
+            margin-left: 6px;
+        }
+        .cat-tab.active .cat-count {
+            background: var(--gold);
+        }
+
+        /* Contador de resultados */
+        .result-count {
+            flex-shrink: 0;
+            font-size: .8rem;
+            color: #b0a090;
+            padding-left: 20px;
+            border-left: 1px solid #eee;
+            white-space: nowrap;
+        }
+
+        /* ── Área de produtos ────────────────────────────────── */
+        .produtos-page-section {
+            background: var(--cream);
+            min-height: 60vh;
+            padding: 60px 0 100px;
+        }
+        .produtos-page-section .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Título de categoria */
+        .cat-section-title {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin: 48px 0 28px;
+        }
+        .cat-section-title:first-child { margin-top: 0; }
+        .cat-section-title h3 {
+            font-size: 1.8rem;
+            color: var(--chocolate-dark);
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .cat-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+        .cat-section-badge {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            background: var(--gold-light);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        /* Grid de produtos (igual ao index mas sem min-height fixo na img) */
+        .produtos-page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        /* Estado vazio */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        .empty-state h3 {
+            color: var(--chocolate-dark);
+            margin-bottom: 8px;
+            font-size: 1.5rem;
+        }
+        .empty-state p { color: var(--text-light); }
+
+        /* Loading skeleton */
+        @keyframes shimmer {
+            0%   { background-position: -600px 0; }
+            100% { background-position:  600px 0; }
+        }
+        .skel {
+            background: linear-gradient(90deg, #f0ece4 25%, #e8e3da 50%, #f0ece4 75%);
+            background-size: 600px 100%;
+            animation: shimmer 1.4s infinite linear;
+            border-radius: 4px;
+        }
+
+        /* ── Ordenação ───────────────────────────────────────── */
+        .sort-select {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: .8rem;
+            color: var(--text-dark);
+            background: #fff;
+            cursor: pointer;
+            outline: none;
+            flex-shrink: 0;
+        }
+
+        /* ── Responsivo ──────────────────────────────────────── */
+        @media(max-width: 768px) {
+            .produtos-hero h2 { font-size: 2.6rem; }
+            .produtos-controls-inner { padding: 0 16px; }
+            .produtos-page-section .container { padding: 0 16px; }
+            .produtos-page-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        }
+        @media(max-width: 480px) {
+            .produtos-page-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
+            .cat-tab { padding: 14px 14px; font-size: .75rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- WhatsApp Flutuante -->
+<a href="https://wa.me/5583999999999?text=Olá! Gostaria de fazer um pedido."
+   class="whatsapp-float" target="_blank" aria-label="WhatsApp">
+    <svg viewBox="0 0 32 32">
+        <defs>
+            <linearGradient id="goldGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FFD700"/>
+                <stop offset="30%" stop-color="#FFF8DC"/>
+                <stop offset="50%" stop-color="#FFFFFF"/>
+                <stop offset="70%" stop-color="#D4AF37"/>
+                <stop offset="100%" stop-color="#FFD700"/>
+            </linearGradient>
+        </defs>
+        <path fill="url(#goldGradient2)" d="M16 0C7.164 0 0 7.163 0 16c0 2.816.736 5.464 2.025 7.76L0 32l8.448-2.218A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.455c-2.513 0-4.88-.69-6.91-1.895l-.496-.296-5.145 1.35 1.374-5.022-.324-.513A13.413 13.413 0 012.545 16c0-7.424 6.03-13.455 13.455-13.455S29.455 8.576 29.455 16 23.424 29.455 16 29.455zm7.394-10.096c-.406-.203-2.397-1.183-2.77-1.318-.372-.135-.642-.203-.913.203-.27.406-1.048 1.318-1.285 1.589-.237.27-.473.304-.88.101-.406-.203-1.713-.631-3.263-2.013-1.206-1.075-2.02-2.402-2.257-2.809-.237-.406-.025-.626.178-.828.183-.183.406-.473.61-.71.203-.237.27-.406.406-.677.135-.27.068-.507-.034-.71-.101-.203-.913-2.2-1.251-3.014-.33-.793-.666-.686-.913-.699-.237-.012-.507-.015-.777-.015s-.71.101-1.082.507c-.372.406-1.42 1.386-1.42 3.383s1.453 3.924 1.656 4.194c.203.27 2.858 4.366 6.927 6.123.968.418 1.724.668 2.313.855.972.309 1.856.265 2.555.161.78-.116 2.397-.98 2.735-1.927.338-.946.338-1.758.237-1.927-.101-.169-.372-.27-.78-.473z"/>
+    </svg>
+</a>
+
+<header class="header">
+        <nav class="nav-container">
+            <div class="logo">
+                <h1>Spinassi <span class="texto-dourado">Chocolate</span></h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link active">Início</a></li>
+                <li><a href="#produtos" class="nav-link">Produtos</a></li>
+                <li><a href="#sobre" class="nav-link">Sobre</a></li>
+                <li><a href="#contato" class="nav-link">Contato</a></li>
+            </ul>
+            <button class="cart-btn" id="cartBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="9" cy="21" r="1"></circle>
+                    <circle cx="20" cy="21" r="1"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                </svg>
+                <span class="cart-count" id="cartCount">0</span>
+            </button>
+
+            <!-- Botão de Login -->
+            <div class="login-wrapper" id="loginWrapper">
+                <button class="login-btn" id="loginBtn" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span class="login-btn-label">Entrar</span>
+                </button>
+
+                <!-- Dropdown de Login -->
+                <div class="login-dropdown" id="loginDropdown">
+                    <div class="login-dropdown-inner">
+                        <div class="login-dropdown-header">
+                            <h3>Bem-vindo</h3>
+                            <p>Acesse sua conta Spinassi</p>
+                        </div>
+                        <form class="login-form" id="loginForm" onsubmit="submitLogin(event)">
+                            <div class="login-field">
+                                <input type="email" id="loginEmail" placeholder=" " autocomplete="email" required>
+                                <label for="loginEmail">E-mail</label>
+                            </div>
+                            <div class="login-field login-field--password">
+                                <input type="password" id="loginPassword" placeholder=" " autocomplete="current-password" required>
+                                <label for="loginPassword">Senha</label>
+                                <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Mostrar senha">
+                                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <a href="recuperar-senha.html" class="forgot-link">Esqueci minha senha</a>
+                            <button type="submit" class="btn-login-submit">Entrar</button>
+                        </form>
+                        <div class="login-divider"><span>ou</span></div>
+                        <a href="cadastro.html" class="btn-register">Cadastre-se grátis</a>
+                        <p class="login-terms">
+                            Ao entrar você concorda com nossos
+                            <a href="#">Termos de Uso</a> e <a href="#">Privacidade</a>.
+                        </p>
+                    </div>
+                </div>
+                <div class="login-backdrop" id="loginBackdrop"></div>
+            </div>
+
+        </nav>
+    </header>
+
+<!-- Hero -->
+<section class="produtos-hero">
+    <div class="container">
+        <span class="hero-subtitle" style="font-size:.85rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;display:block;
+              background:linear-gradient(90deg,#FFD700,#FFF8DC,#D4AF37);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+            Nossa Coleção Completa
+        </span>
+        <h2>Chocolates Artesanais</h2>
+        <p>Cada peça é uma obra-prima elaborada com cacau selecionado das melhores fazendas do mundo</p>
+    </div>
+</section>
+
+<!-- Controles: busca + filtro por categoria -->
+<div class="produtos-controls">
+    <div class="produtos-controls-inner">
+        <!-- Busca -->
+        <div class="produtos-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input class="produtos-search" type="text" id="searchInput"
+                   placeholder="Buscar produto…" oninput="filtrar()">
+        </div>
+
+        <!-- Tabs de categoria -->
+        <div class="cat-tabs" id="catTabs">
+            <button class="cat-tab active" data-cat="todos" onclick="selecionarCat('todos', this)">
+                Todos <span class="cat-count" id="cnt-todos">—</span>
+            </button>
+            <!-- Categorias dinâmicas serão inseridas aqui -->
+        </div>
+
+        <!-- Ordenação -->
+        <select class="sort-select" id="sortSelect" onchange="filtrar()">
+            <option value="padrao">Ordenar: Padrão</option>
+            <option value="menor">Menor preço</option>
+            <option value="maior">Maior preço</option>
+            <option value="az">A → Z</option>
+        </select>
+    </div>
+</div>
+
+<!-- Área principal de produtos -->
+<section class="produtos-page-section">
+    <div class="container">
+        <div id="produtosContainer">
+            <!-- Skeleton loading inicial -->
+            <div class="produtos-page-grid">
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="produto-card">
+                    <div class="produto-image skel" style="height:280px"></div>
+                    <div class="produto-info" style="padding:24px">
+                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
+                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
+                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
+                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <div class="skel" style="height:24px;width:80px"></div>
+                            <div class="skel" style="height:36px;width:100px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Modal Carrinho (igual ao index) -->
+<div class="cart-modal" id="cartModal">
+    <div class="cart-modal-content">
+        <div class="cart-header">
+            <h3>Seu Carrinho</h3>
+            <button class="close-cart" id="closeCart">&times;</button>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal">R$ 0,00</span>
+            </div>
+            <button class="btn-primary btn-checkout" id="checkoutBtn">Finalizar Pedido</button>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-col">
+                <h3 class="texto-dourado">Spinassi Chocolates</h3>
+                <p>Experiências únicas em cada mordida. Chocolates artesanais premium feitos com paixão.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="index.html#home">Início</a></li>
+                    <li><a href="produtos.html">Produtos</a></li>
+                    <li><a href="index.html#sobre">Sobre</a></li>
+                    <li><a href="index.html#contato">Contato</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Horário</h4>
+                <p>Segunda - Sexta: 9h - 18h<br>Sábado: 10h - 16h<br>Domingo: Fechado</p>
+            </div>
+            <div class="footer-col">
+                <h4>Redes Sociais</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    <a href="#" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Spinassi Chocolates. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="assets/js/api.js"></script>
+<script>
+/* ============================================================
+   PRODUTOS.HTML — Catálogo completo
+============================================================ */
+
+/* ── Carrinho (igual ao script.js) ───────────────────────── */
+let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+let desejosSet = new Set();
+let todosOsProdutos = [];  // todos do banco
+let catAtiva = 'todos';
+let searchTerm = '';
+
+function updateCartCount() {
+    const count = carrinho.reduce((t, i) => t + i.quantidade, 0);
+    document.getElementById('cartCount').textContent = count;
+}
+function saveCart() { localStorage.setItem('carrinho', JSON.stringify(carrinho)); }
+
+function addToCart(produtoId) {
+    const p = todosOsProdutos.find(x => x.id === produtoId);
+    if (!p) return;
+    const item = carrinho.find(i => i.id === produtoId);
+    if (item) item.quantidade++;
+    else carrinho.push({ ...p, quantidade: 1 });
+    saveCart();
+    updateCartCount();
+    showToast('Produto adicionado ao carrinho! 🍫');
+}
+
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;top:90px;right:20px;background:${type==='success'?'#2ECC71':'#E74C3C'};
+        color:#fff;padding:14px 24px;font-weight:500;z-index:3000;font-family:Montserrat,sans-serif;
+        font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.25);
+        animation:slideInRight .3s ease;`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3000);
+}
+
+/* ── Desejos ─────────────────────────────────────────────── */
+async function carregarDesejos() {
+    if (!window.SpinassiAPI?.sessao?.getToken()) return;
+    try {
+        const res = await SpinassiAPI.desejos.listar();
+        desejosSet = new Set((res.data || []).map(d => d.id));
+        document.querySelectorAll('.btn-desejo').forEach(btn => {
+            const id = parseInt(btn.dataset.id);
+            btn.classList.toggle('ativo', desejosSet.has(id));
+        });
+    } catch(_) {}
+}
+
+async function toggleDesejo(id, btn) {
+    if (!window.SpinassiAPI?.sessao?.getToken()) {
+        showToast('Faça login para salvar favoritos!', 'error'); return;
+    }
+    const ativo = desejosSet.has(id);
+    btn.classList.toggle('ativo', !ativo);
+    try {
+        if (ativo) { await SpinassiAPI.desejos.remover(id); desejosSet.delete(id); showToast('Removido dos favoritos.'); }
+        else        { await SpinassiAPI.desejos.adicionar(id); desejosSet.add(id);   showToast('Salvo nos favoritos! ❤️'); }
+    } catch(e) { btn.classList.toggle('ativo', ativo); showToast('Erro.', 'error'); }
+}
+
+/* ── Renderiza card de produto ───────────────────────────── */
+function renderCard(p) {
+    const preco    = parseFloat(p.preco).toFixed(2).replace('.', ',');
+    const imgSrc   = p.imagem_principal || p.imagem || 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';
+    const ativo    = desejosSet.has(p.id);
+    return `
+    <div class="produto-card" data-id="${p.id}">
+        <div class="produto-image">
+            <img src="${imgSrc}" alt="${p.nome}" loading="lazy">
+            ${p.badge ? `<span class="produto-badge">${p.badge}</span>` : ''}
+            <button class="btn-desejo ${ativo ? 'ativo' : ''}" data-id="${p.id}"
+                    title="${ativo ? 'Remover dos favoritos' : 'Salvar nos favoritos'}"
+                    onclick="toggleDesejo(${p.id}, this); event.stopPropagation();">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                             a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                             1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="produto-info">
+            <div class="produto-categoria">${p.categoria_nome || ''}</div>
+            <h3 class="produto-nome">${p.nome}</h3>
+            <p class="produto-descricao">${p.descricao_curta || p.descricao || ''}</p>
+            <div class="produto-footer">
+                <span class="produto-preco">R$ ${preco}</span>
+                <button class="btn-add-cart" onclick="addToCart(${p.id})">
+                    <span class="texto-dourado">Adicionar</span>
+                </button>
+            </div>
+        </div>
+    </div>`;
+}
+
+/* ── Filtra e renderiza ──────────────────────────────────── */
+function filtrar() {
+    searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const sort  = document.getElementById('sortSelect').value;
+
+    let lista = todosOsProdutos.filter(p => {
+        const matchCat = catAtiva === 'todos' || (p.categoria_slug === catAtiva || p.categoria_nome === catAtiva);
+        const matchQ   = !searchTerm ||
+                         p.nome.toLowerCase().includes(searchTerm) ||
+                         (p.descricao_curta||'').toLowerCase().includes(searchTerm) ||
+                         (p.categoria_nome||'').toLowerCase().includes(searchTerm);
+        return matchCat && matchQ;
+    });
+
+    // Ordenação
+    if (sort === 'menor') lista.sort((a,b) => a.preco - b.preco);
+    else if (sort === 'maior') lista.sort((a,b) => b.preco - a.preco);
+    else if (sort === 'az')    lista.sort((a,b) => a.nome.localeCompare(b.nome));
+
+    renderLista(lista);
+}
+
+function renderLista(lista) {
+    const container = document.getElementById('produtosContainer');
+
+    if (!lista.length) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <h3>Nenhum produto encontrado</h3>
+                <p>Tente outros termos ou selecione uma categoria diferente.</p>
+            </div>`;
+        return;
+    }
+
+    // Agrupa por categoria (quando mostra "todos" e sem busca, exibe títulos de categoria)
+    if (catAtiva === 'todos' && !searchTerm) {
+        const grupos = {};
+        lista.forEach(p => {
+            const cat = p.categoria_nome || 'Outros';
+            if (!grupos[cat]) grupos[cat] = [];
+            grupos[cat].push(p);
+        });
+
+        let html = '';
+        for (const [cat, prods] of Object.entries(grupos)) {
+            html += `
+                <div class="cat-section-title">
+                    <h3>${cat}</h3>
+                    <span class="cat-section-badge">${prods.length} produto${prods.length !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="produtos-page-grid">${prods.map(renderCard).join('')}</div>`;
+        }
+        container.innerHTML = html;
+    } else {
+        container.innerHTML = `<div class="produtos-page-grid">${lista.map(renderCard).join('')}</div>`;
+    }
+
+    // Atualiza contador de resultados
+    const cnt = document.getElementById('resultCount');
+    if (cnt) cnt.textContent = `${lista.length} produto${lista.length !== 1 ? 's' : ''}`;
+}
+
+/* ── Seleciona categoria ─────────────────────────────────── */
+function selecionarCat(slug, btn) {
+    catAtiva = slug;
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    filtrar();
+}
+
+/* ── Carrega dados da API ────────────────────────────────── */
+async function init() {
+    try {
+        // Carrega categorias e produtos em paralelo
+        const [resCats, resPrds] = await Promise.all([
+            fetch('/api/categorias').then(r => r.json()),
+            fetch('/api/produtos?limite=200').then(r => r.json())
+        ]);
+
+        const categorias = resCats.data  || [];
+        const produtos   = resPrds.data  || [];
+        todosOsProdutos  = produtos;
+
+        // Conta por categoria
+        const contagens = {};
+        produtos.forEach(p => {
+            const slug = p.categoria_slug || p.categoria_nome || 'outros';
+            contagens[slug] = (contagens[slug] || 0) + 1;
+        });
+
+        // Atualiza total
+        document.getElementById('cnt-todos').textContent = produtos.length;
+
+        // Monta tabs de categoria
+        const tabsEl = document.getElementById('catTabs');
+        categorias.forEach(cat => {
+            const n = contagens[cat.slug] || 0;
+            if (!n) return;
+            const btn = document.createElement('button');
+            btn.className = 'cat-tab';
+            btn.dataset.cat = cat.slug;
+            btn.innerHTML = `${cat.nome} <span class="cat-count">${n}</span>`;
+            btn.onclick = () => selecionarCat(cat.slug, btn);
+            tabsEl.appendChild(btn);
+        });
+
+        // Adiciona contador de resultados na barra
+        const inner = document.querySelector('.produtos-controls-inner');
+        const cnt   = document.createElement('div');
+        cnt.className = 'result-count';
+        cnt.id = 'resultCount';
+        cnt.textContent = `${produtos.length} produto${produtos.length !== 1 ? 's' : ''}`;
+        inner.appendChild(cnt);
+
+        // Carrega desejos e renderiza
+        await carregarDesejos();
+        renderLista(todosOsProdutos);
+
+    } catch(e) {
+        document.getElementById('produtosContainer').innerHTML = `
+            <div class="empty-state">
+                <h3>Erro ao carregar produtos</h3>
+                <p>${e.message || 'Tente recarregar a página.'}</p>
+            </div>`;
+    }
+}
+
+/* ── Carrinho modal ──────────────────────────────────────── */
+function renderCart() {
+    const el = document.getElementById('cartItems');
+    if (!carrinho.length) {
+        el.innerHTML = `<div class="cart-empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg><p>Seu carrinho está vazio</p></div>`;
+        document.getElementById('cartTotal').textContent = 'R$ 0,00';
+        return;
+    }
+    el.innerHTML = carrinho.map(item => `
+        <div class="cart-item">
+            <img src="${item.imagem_principal||item.imagem||''}" alt="${item.nome}" class="cart-item-image">
+            <div class="cart-item-info">
+                <h4 class="cart-item-name">${item.nome}</h4>
+                <p class="cart-item-price">R$ ${parseFloat(item.preco).toFixed(2).replace('.', ',')}</p>
+                <div class="cart-item-controls">
+                    <button class="qty-btn" onclick="updateQty(${item.id},-1)">−</button>
+                    <span class="cart-item-qty">${item.quantidade}</span>
+                    <button class="qty-btn" onclick="updateQty(${item.id},1)">+</button>
+                    <button class="remove-item" onclick="removeItem(${item.id})">Remover</button>
+                </div>
+            </div>
+        </div>`).join('');
+    const total = carrinho.reduce((s,i) => s + parseFloat(i.preco)*i.quantidade, 0);
+    document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+}
+
+function updateQty(id, delta) {
+    const i = carrinho.find(x => x.id === id);
+    if (!i) return;
+    i.quantidade += delta;
+    if (i.quantidade <= 0) { carrinho = carrinho.filter(x => x.id !== id); }
+    saveCart(); updateCartCount(); renderCart();
+}
+function removeItem(id) { carrinho = carrinho.filter(x => x.id !== id); saveCart(); updateCartCount(); renderCart(); }
+
+document.getElementById('cartBtn').addEventListener('click', () => {
+    document.getElementById('cartModal').classList.add('active');
+    renderCart();
+});
+document.getElementById('closeCart').addEventListener('click', () => {
+    document.getElementById('cartModal').classList.remove('active');
+});
+document.getElementById('cartModal').addEventListener('click', e => {
+    if (e.target.id === 'cartModal') document.getElementById('cartModal').classList.remove('active');
+});
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+    if (!carrinho.length) { showToast('Adicione produtos ao carrinho primeiro!', 'error'); return; }
+    saveCart();
+    document.getElementById('cartModal').classList.remove('active');
+    setTimeout(() => window.location.href = 'pagamento.html', 250);
+});
+
+/* Scroll effect no header */
+window.addEventListener('scroll', () => {
+    const h = document.querySelector('.header');
+    if (window.scrollY > 100) {
+        h.style.padding = '15px 0';
+        h.style.background = 'rgba(62,39,35,.98)';
+    } else {
+        h.style.padding = '20px 0';
+        h.style.background = 'linear-gradient(180deg,rgba(62,39,35,.95) 0%,rgba(62,39,35,.85) 100%)';
+    }
+});
+
+/* Animação do card de entrada */
+const style = document.createElement('style');
+style.textContent = `
+@keyframes slideInRight{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.produto-card{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.produto-card.visible{opacity:1;transform:translateY(0)}`;
+document.head.appendChild(style);
+
+// IntersectionObserver para animação de entrada dos cards
+const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+
+const cardObserver = new MutationObserver(() => {
+    document.querySelectorAll('.produto-card:not(.visible)').forEach(c => io.observe(c));
+});
+cardObserver.observe(document.getElementById('produtosContainer'), { childList: true, subtree: true });
+
+updateCartCount();
+init();
+</script>
+</body>
+</html>

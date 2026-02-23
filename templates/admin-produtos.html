@@ -98,8 +98,28 @@
                     </div>
 
                     <div class="acc-field full">
-                        <label>URL da imagem principal</label>
-                        <input type="url" id="pImagem" placeholder="https://…">
+                        <label>Imagem do produto</label>
+                        <!-- Input oculto que armazena a URL final -->
+                        <input type="hidden" id="pImagem">
+                        <!-- Zona de upload -->
+                        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                            <div class="upload-zone-preview" id="uploadPreview" style="display:none">
+                                <img id="previewImg" src="" alt="Preview">
+                                <button type="button" class="upload-remove" onclick="removerImagem(event)" title="Remover imagem">✕</button>
+                            </div>
+                            <div class="upload-zone-placeholder" id="uploadPlaceholder">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#b0a090" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                </svg>
+                                <p><strong>Clique para selecionar</strong> ou arraste a imagem aqui</p>
+                                <span>PNG, JPG, JPEG, WEBP — máx. 5 MB</span>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/png,image/jpeg,image/gif,image/webp"
+                               style="display:none" onchange="handleFileSelect(event)">
+                        <div id="uploadStatus" style="margin-top:6px;font-size:.8rem;color:#888"></div>
                     </div>
 
                     <div class="acc-field full">
@@ -326,7 +346,7 @@ function abrirModal(prod = null) {
         document.getElementById('pPrecoPromo').value= prod.preco_promocional || '';
         document.getElementById('pEstoque').value   = prod.estoque   ?? 0;
         document.getElementById('pPeso').value      = prod.peso_gramas || '';
-        document.getElementById('pImagem').value    = prod.imagem_principal || '';
+        carregarPreviewImagem(prod.imagem_principal || null);
         document.getElementById('pDescCurta').value = prod.descricao_curta || '';
         document.getElementById('pDesc').value      = prod.descricao || '';
         document.getElementById('pAtivo').checked   = !!prod.ativo;
@@ -475,6 +495,85 @@ document.getElementById('modalProd').addEventListener('click', e => { if(e.targe
 document.getElementById('modalDel').addEventListener('click',  e => { if(e.target===e.currentTarget) fecharModalDel(); });
 
 init();
+
+/* ── Upload de imagem de produto ─────────────────────────── */
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    enviarImagem(file);
+}
+
+// Drag & drop
+(function() {
+    const zone = document.getElementById('uploadZone');
+    if (!zone) return;
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragging'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('dragging'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('dragging');
+        const file = e.dataTransfer.files[0];
+        if (file) enviarImagem(file);
+    });
+})();
+
+async function enviarImagem(file) {
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Imagem muito grande. Máximo 5 MB.'); return;
+    }
+    const status = document.getElementById('uploadStatus');
+    status.textContent = '⏳ Enviando imagem…';
+
+    const formData = new FormData();
+    formData.append('imagem', file);
+
+    try {
+        const token = SpinassiAPI.sessao.getToken();
+        const res   = await fetch('/api/upload/produto-imagem', {
+            method: 'POST',
+            headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+            body: formData
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error(json.message);
+
+        // Preenche o campo oculto com a URL retornada
+        document.getElementById('pImagem').value = json.data.url;
+        mostrarPreview(json.data.url);
+        status.textContent = '✅ Imagem enviada com sucesso!';
+        setTimeout(() => { status.textContent = ''; }, 3000);
+
+    } catch(e) {
+        status.textContent = '❌ Erro: ' + e.message;
+    }
+}
+
+function mostrarPreview(url) {
+    document.getElementById('previewImg').src = url;
+    document.getElementById('uploadPreview').style.display = 'block';
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+}
+
+function removerImagem(e) {
+    e.stopPropagation();
+    document.getElementById('pImagem').value = '';
+    document.getElementById('previewImg').src = '';
+    document.getElementById('uploadPreview').style.display = 'none';
+    document.getElementById('uploadPlaceholder').style.display = 'flex';
+    document.getElementById('fileInput').value = '';
+    document.getElementById('uploadStatus').textContent = '';
+}
+
+/* Quando editar produto existente, mostra preview da imagem atual */
+function carregarPreviewImagem(url) {
+    if (url) {
+        document.getElementById('pImagem').value = url;
+        mostrarPreview(url);
+    } else {
+        removerImagem({ stopPropagation: () => {} });
+    }
+}
+
 </script>
 </body>
 </html>
