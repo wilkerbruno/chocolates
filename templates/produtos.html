@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Produtos — Spinassi Chocolates</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/login.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-   
-    
     <style>
         /* ── Hero da página de produtos ─────────────────────── */
         .produtos-hero {
@@ -254,95 +251,12 @@
             .cat-tab { padding: 14px 14px; font-size: .75rem; }
         }
     </style>
+    <link rel="stylesheet" href="assets/css/login.css">
 </head>
-<body>
+<body data-pagina="produtos">
 
-<!-- WhatsApp Flutuante -->
-<a href="https://wa.me/5583999999999?text=Olá! Gostaria de fazer um pedido."
-   class="whatsapp-float" target="_blank" aria-label="WhatsApp">
-    <svg viewBox="0 0 32 32">
-        <defs>
-            <linearGradient id="goldGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#FFD700"/>
-                <stop offset="30%" stop-color="#FFF8DC"/>
-                <stop offset="50%" stop-color="#FFFFFF"/>
-                <stop offset="70%" stop-color="#D4AF37"/>
-                <stop offset="100%" stop-color="#FFD700"/>
-            </linearGradient>
-        </defs>
-        <path fill="url(#goldGradient2)" d="M16 0C7.164 0 0 7.163 0 16c0 2.816.736 5.464 2.025 7.76L0 32l8.448-2.218A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.455c-2.513 0-4.88-.69-6.91-1.895l-.496-.296-5.145 1.35 1.374-5.022-.324-.513A13.413 13.413 0 012.545 16c0-7.424 6.03-13.455 13.455-13.455S29.455 8.576 29.455 16 23.424 29.455 16 29.455zm7.394-10.096c-.406-.203-2.397-1.183-2.77-1.318-.372-.135-.642-.203-.913.203-.27.406-1.048 1.318-1.285 1.589-.237.27-.473.304-.88.101-.406-.203-1.713-.631-3.263-2.013-1.206-1.075-2.02-2.402-2.257-2.809-.237-.406-.025-.626.178-.828.183-.183.406-.473.61-.71.203-.237.27-.406.406-.677.135-.27.068-.507-.034-.71-.101-.203-.913-2.2-1.251-3.014-.33-.793-.666-.686-.913-.699-.237-.012-.507-.015-.777-.015s-.71.101-1.082.507c-.372.406-1.42 1.386-1.42 3.383s1.453 3.924 1.656 4.194c.203.27 2.858 4.366 6.927 6.123.968.418 1.724.668 2.313.855.972.309 1.856.265 2.555.161.78-.116 2.397-.98 2.735-1.927.338-.946.338-1.758.237-1.927-.101-.169-.372-.27-.78-.473z"/>
-    </svg>
-</a>
-
-<header class="header">
-        <nav class="nav-container">
-            <div class="logo">
-                <h1>Spinassi <span class="texto-dourado">Chocolate</span></h1>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link active">Início</a></li>
-                <li><a href="#produtos" class="nav-link">Produtos</a></li>
-                <li><a href="#sobre" class="nav-link">Sobre</a></li>
-                <li><a href="#contato" class="nav-link">Contato</a></li>
-            </ul>
-            <button class="cart-btn" id="cartBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="9" cy="21" r="1"></circle>
-                    <circle cx="20" cy="21" r="1"></circle>
-                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-                <span class="cart-count" id="cartCount">0</span>
-            </button>
-
-            <!-- Botão de Login -->
-            <div class="login-wrapper" id="loginWrapper">
-                <button class="login-btn" id="loginBtn" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span class="login-btn-label">Entrar</span>
-                </button>
-
-                <!-- Dropdown de Login -->
-                <div class="login-dropdown" id="loginDropdown">
-                    <div class="login-dropdown-inner">
-                        <div class="login-dropdown-header">
-                            <h3>Bem-vindo</h3>
-                            <p>Acesse sua conta Spinassi</p>
-                        </div>
-                        <form class="login-form" id="loginForm" onsubmit="submitLogin(event)">
-                            <div class="login-field">
-                                <input type="email" id="loginEmail" placeholder=" " autocomplete="email" required>
-                                <label for="loginEmail">E-mail</label>
-                            </div>
-                            <div class="login-field login-field--password">
-                                <input type="password" id="loginPassword" placeholder=" " autocomplete="current-password" required>
-                                <label for="loginPassword">Senha</label>
-                                <button type="button" class="toggle-password" onclick="togglePassword()" aria-label="Mostrar senha">
-                                    <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <a href="recuperar-senha.html" class="forgot-link">Esqueci minha senha</a>
-                            <button type="submit" class="btn-login-submit">Entrar</button>
-                        </form>
-                        <div class="login-divider"><span>ou</span></div>
-                        <a href="cadastro.html" class="btn-register">Cadastre-se grátis</a>
-                        <p class="login-terms">
-                            Ao entrar você concorda com nossos
-                            <a href="#">Termos de Uso</a> e <a href="#">Privacidade</a>.
-                        </p>
-                    </div>
-                </div>
-                <div class="login-backdrop" id="loginBackdrop"></div>
-            </div>
-
-        </nav>
-    </header>
-
+<div id="tpl-whatsapp"></div>
+<div id="tpl-menu"></div>
 <!-- Hero -->
 <section class="produtos-hero">
     <div class="container">
@@ -500,64 +414,11 @@
     </div>
 </section>
 
-<!-- Modal Carrinho (igual ao index) -->
-<div class="cart-modal" id="cartModal">
-    <div class="cart-modal-content">
-        <div class="cart-header">
-            <h3>Seu Carrinho</h3>
-            <button class="close-cart" id="closeCart">&times;</button>
-        </div>
-        <div class="cart-items" id="cartItems"></div>
-        <div class="cart-footer">
-            <div class="cart-total">
-                <span>Total:</span>
-                <span id="cartTotal">R$ 0,00</span>
-            </div>
-            <button class="btn-primary btn-checkout" id="checkoutBtn">Finalizar Pedido</button>
-        </div>
-    </div>
-</div>
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-col">
-                <h3 class="texto-dourado">Spinassi Chocolates</h3>
-                <p>Experiências únicas em cada mordida. Chocolates artesanais premium feitos com paixão.</p>
-            </div>
-            <div class="footer-col">
-                <h4>Links Rápidos</h4>
-                <ul>
-                    <li><a href="index.html#home">Início</a></li>
-                    <li><a href="produtos.html">Produtos</a></li>
-                    <li><a href="index.html#sobre">Sobre</a></li>
-                    <li><a href="index.html#contato">Contato</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Horário</h4>
-                <p>Segunda - Sexta: 9h - 18h<br>Sábado: 10h - 16h<br>Domingo: Fechado</p>
-            </div>
-            <div class="footer-col">
-                <h4>Redes Sociais</h4>
-                <div class="social-links">
-                    <a href="#" aria-label="Instagram">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                    </a>
-                    <a href="#" aria-label="Facebook">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2024 Spinassi Chocolates. Todos os direitos reservados.</p>
-        </div>
-    </div>
-</footer>
-
+<div id="tpl-rodape"></div>
+<div id="tpl-carrinho"></div>
+<script src="assets/js/template.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/login.js"></script>
 <script>
 /* ============================================================
    PRODUTOS.HTML — Catálogo completo
@@ -572,7 +433,8 @@ let searchTerm = '';
 
 function updateCartCount() {
     const count = carrinho.reduce((t, i) => t + i.quantidade, 0);
-    document.getElementById('cartCount').textContent = count;
+    const el = document.getElementById('cartCount');
+    if (el) el.textContent = count;
 }
 function saveCart() { localStorage.setItem('carrinho', JSON.stringify(carrinho)); }
 
@@ -631,7 +493,7 @@ function renderCard(p) {
     return `
     <div class="produto-card" data-id="${p.id}">
         <div class="produto-image">
-            <img src="${imgSrc}" alt="${p.nome}" loading="lazy">
+            <img src="${imgSrc}" alt="${p.nome}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';this.onerror=null;">
             ${p.badge ? `<span class="produto-badge">${p.badge}</span>` : ''}
             <button class="btn-desejo ${ativo ? 'ativo' : ''}" data-id="${p.id}"
                     title="${ativo ? 'Remover dos favoritos' : 'Salvar nos favoritos'}"
@@ -780,11 +642,18 @@ async function init() {
         renderLista(todosOsProdutos);
 
     } catch(e) {
-        document.getElementById('produtosContainer').innerHTML = `
-            <div class="empty-state">
-                <h3>Erro ao carregar produtos</h3>
-                <p>${e.message || 'Tente recarregar a página.'}</p>
-            </div>`;
+        // API indisponível — usa produtos fixos como fallback
+        const fixos = [
+            { id:1, nome:'Trufa Belga Premium', categoria_nome:'Trufas', descricao:'Trufas artesanais com cacau 70% e ganache de champagne', preco:89.90, imagem:'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600', badge:'Bestseller' },
+            { id:2, nome:'Barra Ouro Negro', categoria_nome:'Barras', descricao:'Chocolate amargo 85% com nibs de cacau torrado', preco:45.90, imagem:'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600', badge:'Novo' },
+            { id:3, nome:'Bombons Sortidos Luxo', categoria_nome:'Bombons', descricao:'Caixa com 12 bombons de sabores exclusivos', preco:129.90, imagem:'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=600', badge:'Premium' },
+            { id:4, nome:'Chocolate ao Leite Artesanal', categoria_nome:'Barras', descricao:'Chocolate ao leite 45% com caramelo salgado', preco:42.90, imagem:'https://images.unsplash.com/photo-1511381939415-e44015466834?w=600', badge:'' },
+            { id:5, nome:'Trufas de Pistache', categoria_nome:'Trufas', descricao:'Trufas cremosas com pistache siciliano', preco:95.90, imagem:'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=600', badge:'Exclusivo' },
+            { id:6, nome:'Caixa Degustação', categoria_nome:'Kits', descricao:'Kit degustação com 6 tipos de chocolates', preco:159.90, imagem:'https://images.unsplash.com/photo-1481391243133-f96216dcb5d2?w=600', badge:'Gift' }
+        ];
+        todosOsProdutos = fixos;
+        document.getElementById('cnt-todos').textContent = fixos.length;
+        renderLista(fixos);
     }
 }
 
@@ -826,34 +695,27 @@ function updateQty(id, delta) {
 }
 function removeItem(id) { carrinho = carrinho.filter(x => x.id !== id); saveCart(); updateCartCount(); renderCart(); }
 
-document.getElementById('cartBtn').addEventListener('click', () => {
-    document.getElementById('cartModal').classList.add('active');
-    renderCart();
-});
-document.getElementById('closeCart').addEventListener('click', () => {
-    document.getElementById('cartModal').classList.remove('active');
-});
-document.getElementById('cartModal').addEventListener('click', e => {
-    if (e.target.id === 'cartModal') document.getElementById('cartModal').classList.remove('active');
-});
-document.getElementById('checkoutBtn').addEventListener('click', () => {
-    if (!carrinho.length) { showToast('Adicione produtos ao carrinho primeiro!', 'error'); return; }
-    saveCart();
-    document.getElementById('cartModal').classList.remove('active');
-    setTimeout(() => window.location.href = 'pagamento.html', 250);
+// Eventos do carrinho só após template.js injetar o modal (fetch assíncrono)
+window.addEventListener('templateCarregado', () => {
+    document.getElementById('cartBtn').addEventListener('click', () => {
+        document.getElementById('cartModal').classList.add('active');
+        renderCart();
+    });
+    document.getElementById('closeCart').addEventListener('click', () => {
+        document.getElementById('cartModal').classList.remove('active');
+    });
+    document.getElementById('cartModal').addEventListener('click', e => {
+        if (e.target.id === 'cartModal') document.getElementById('cartModal').classList.remove('active');
+    });
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+        if (!carrinho.length) { showToast('Adicione produtos ao carrinho primeiro!', 'error'); return; }
+        saveCart();
+        document.getElementById('cartModal').classList.remove('active');
+        setTimeout(() => window.location.href = 'pagamento.html', 250);
+    });
+    updateCartCount(); // atualiza contador no header recém-injetado
 });
 
-/* Scroll effect no header */
-window.addEventListener('scroll', () => {
-    const h = document.querySelector('.header');
-    if (window.scrollY > 100) {
-        h.style.padding = '15px 0';
-        h.style.background = 'rgba(62,39,35,.98)';
-    } else {
-        h.style.padding = '20px 0';
-        h.style.background = 'linear-gradient(180deg,rgba(62,39,35,.95) 0%,rgba(62,39,35,.85) 100%)';
-    }
-});
 
 /* Animação do card de entrada */
 const style = document.createElement('style');
@@ -874,8 +736,11 @@ const cardObserver = new MutationObserver(() => {
 });
 cardObserver.observe(document.getElementById('produtosContainer'), { childList: true, subtree: true });
 
-updateCartCount();
-init();
+// Produtos carregam no DOMContentLoaded — grid já existe no HTML
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    updateCartCount();
+});
 </script>
 </body>
 </html>

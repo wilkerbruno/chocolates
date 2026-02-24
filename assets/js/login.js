@@ -8,7 +8,13 @@
 (function () {
     'use strict';
 
-    document.addEventListener('DOMContentLoaded', init);
+    /* Aguarda o template.js injetar o menu antes de inicializar.
+       Se o template já foi carregado (evento já disparado), executa imediatamente. */
+    if (document.getElementById('loginBtn')) {
+        init(); // template já estava no DOM
+    } else {
+        window.addEventListener('templateCarregado', init);
+    }
 
     function init() {
         const btn      = document.getElementById('loginBtn');
@@ -255,11 +261,20 @@
         /* ---------------------------------------------------
            RESTAURA SESSÃO AO RECARREGAR A PÁGINA
         --------------------------------------------------- */
-        if (SpinassiAPI.sessao.estaLogado() && !SpinassiAPI.sessao.tokenExpirado()) {
-            const u = SpinassiAPI.sessao.getUsuario();
-            if (u) onLoginSuccess(u);
-        } else {
-            SpinassiAPI.sessao.limpar(); // remove sessão expirada
+        /* ---------------------------------------------------
+           RESTAURA SESSÃO AO RECARREGAR A PÁGINA
+        --------------------------------------------------- */
+        try {
+            if (SpinassiAPI.sessao.estaLogado() && !SpinassiAPI.sessao.tokenExpirado()) {
+                const u = SpinassiAPI.sessao.getUsuario();
+                if (u) onLoginSuccess(u);
+            } else {
+                SpinassiAPI.sessao.limpar(); // remove sessão expirada
+                renderFormLogin();           // preenche o dropdown-inner
+            }
+        } catch (e) {
+            // api.js não carregou ou sessão corrompida — exibe o formulário normalmente
+            renderFormLogin();
         }
 
     } // fim init()

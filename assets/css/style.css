@@ -128,6 +128,14 @@ h1, h2, h3, h4 {
     width: 100%;
 }
 
+/* Wrapper que agrupa carrinho + login no lado direito do header */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
 .cart-btn {
     background: linear-gradient(45deg, #FFD700, #FFF8DC, #D4AF37);
     border: none;
@@ -139,6 +147,7 @@ h1, h2, h3, h4 {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .cart-btn:hover {
@@ -253,8 +262,8 @@ h1, h2, h3, h4 {
 
 .hero-content {
     position: absolute !important;
-    top: 30% !important;
-    left: 30% !important;
+    top: 50% !important;
+    left: 50% !important;
     transform: translate(-50%, -50%) !important;
     text-align: center !important;
 }
@@ -276,15 +285,14 @@ h1, h2, h3, h4 {
     letter-spacing: 3px;
     text-transform: uppercase;
     margin-bottom: 20px;
-    animation: fadeInUp 1s ease 0.2s backwards;
+    animation: fadeInUp 1s ease 0.2s both;
+    color: #FFD700;
 
-
-
+    /* Gradiente dourado (melhoria progressiva) */
     background: linear-gradient(90deg, #FFD700, #FFF8DC, #D4AF37);
-    background-clip: text;              /* padrão */
-    -webkit-background-clip: text;      /* Chrome / Edge / Safari */
+    background-clip: text;
+    -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: transparent;    
 }
 
 .hero-title {
@@ -1131,4 +1139,41 @@ h1, h2, h3, h4 {
     .hero::after {
         height: 250px;
     }
+}
+/* ── Botão de favorito (coração) nos cards ───────────────── */
+.btn-desejo {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.btn-desejo svg {
+    width: 18px;
+    height: 18px;
+    transition: all 0.25s ease;
+    stroke: #aaa;
+    fill: none;
+}
+.btn-desejo:hover svg {
+    stroke: #e74c3c;
+    transform: scale(1.15);
+}
+.btn-desejo.ativo svg {
+    fill: #e74c3c;
+    stroke: #e74c3c;
+}
+.btn-desejo:hover {
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.2);
 }

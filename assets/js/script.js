@@ -1,26 +1,73 @@
-// Produtos — carregados dinamicamente do banco de dados
+// Produtos fixos — exibidos imediatamente enquanto a API carrega (ou se ela falhar)
+const PRODUTOS_FIXOS = [
+    {
+        id: 1,
+        nome: 'Trufa Belga Premium',
+        categoria: 'Trufas',
+        descricao: 'Trufas artesanais com cacau 70% e ganache de champagne',
+        preco: 89.90,
+        imagem: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600',
+        badge: 'Bestseller'
+    },
+    {
+        id: 2,
+        nome: 'Barra Ouro Negro',
+        categoria: 'Barras',
+        descricao: 'Chocolate amargo 85% com nibs de cacau torrado',
+        preco: 45.90,
+        imagem: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600',
+        badge: 'Novo'
+    },
+    {
+        id: 3,
+        nome: 'Bombons Sortidos Luxo',
+        categoria: 'Bombons',
+        descricao: 'Caixa com 12 bombons de sabores exclusivos',
+        preco: 129.90,
+        imagem: 'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=600',
+        badge: 'Premium'
+    },
+    {
+        id: 4,
+        nome: 'Chocolate ao Leite Artesanal',
+        categoria: 'Barras',
+        descricao: 'Chocolate ao leite 45% com caramelo salgado',
+        preco: 42.90,
+        imagem: 'https://images.unsplash.com/photo-1511381939415-e44015466834?w=600',
+        badge: ''
+    },
+    {
+        id: 5,
+        nome: 'Trufas de Pistache',
+        categoria: 'Trufas',
+        descricao: 'Trufas cremosas com pistache siciliano',
+        preco: 95.90,
+        imagem: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=600',
+        badge: 'Exclusivo'
+    },
+    {
+        id: 6,
+        nome: 'Caixa Degustação',
+        categoria: 'Kits',
+        descricao: 'Kit degustação com 6 tipos de chocolates',
+        preco: 159.90,
+        imagem: 'https://images.unsplash.com/photo-1481391243133-f96216dcb5d2?w=600',
+        badge: 'Gift'
+    }
+];
+
+// Produtos — preenchido pelo banco ou pelo array fixo acima
 let produtos = [];
 
 async function carregarProdutos() {
     const grid = document.getElementById('produtosGrid');
     if (!grid) return;
 
-    // Skeleton loading
-    grid.innerHTML = Array(6).fill(0).map(() => `
-        <div class="produto-card" style="pointer-events:none">
-            <div class="produto-image" style="background:#f0ece4;height:350px;animation:shimmer 1.4s infinite linear;
-                 background:linear-gradient(90deg,#f0ece4 25%,#e8e3da 50%,#f0ece4 75%);
-                 background-size:600px 100%"></div>
-            <div class="produto-info" style="padding:30px">
-                <div style="height:12px;background:#eee;border-radius:4px;width:60%;margin-bottom:12px;
-                     animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,#eee 25%,#e3e3e3 50%,#eee 75%);background-size:600px 100%"></div>
-                <div style="height:20px;background:#eee;border-radius:4px;width:85%;margin-bottom:10px;
-                     animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,#eee 25%,#e3e3e3 50%,#eee 75%);background-size:600px 100%"></div>
-                <div style="height:14px;background:#eee;border-radius:4px;width:100%;margin-bottom:6px;
-                     animation:shimmer 1.4s infinite linear;background:linear-gradient(90deg,#eee 25%,#e3e3e3 50%,#eee 75%);background-size:600px 100%"></div>
-            </div>
-        </div>`).join('');
+    // Mostra os produtos fixos imediatamente — página nunca fica vazia
+    produtos = PRODUTOS_FIXOS;
+    renderProdutos();
 
+    // Tenta substituir pelos produtos reais do banco em segundo plano
     try {
         const res = await fetch('/api/produtos?limite=6&destaque=1');
         const json = await res.json();
@@ -33,16 +80,19 @@ async function carregarProdutos() {
             lista = j2.data || [];
         }
 
-        produtos = lista;
-        await carregarDesejos(); // garante desejos antes de renderizar
-        renderProdutos();
+        // Só substitui se o banco retornar algo
+        if (lista.length) {
+            produtos = lista;
+            await carregarDesejos();
+            renderProdutos();
+        }
 
-        // Mostra/esconde botão "Ver mais"
+        // Mostra botão "Ver mais"
         const btnVerMais = document.getElementById('btnVerMaisProdutos');
         if (btnVerMais) btnVerMais.style.display = 'inline-block';
 
     } catch(e) {
-        grid.innerHTML = '<p style="text-align:center;color:#888;padding:40px">Não foi possível carregar os produtos.</p>';
+        // API indisponível — os produtos fixos já estão visíveis, não faz nada
     }
 }
 
@@ -97,10 +147,17 @@ async function toggleDesejo(id, btn) {
 
 // Inicializar página
 document.addEventListener('DOMContentLoaded', () => {
+    // Produtos e contador não dependem do template — carregam imediatamente
+    carregarProdutos();
     updateCartCount();
+});
+
+// Carrinho e eventos do header só ficam disponíveis após o template.js
+// injetar o menu/modal (que vêm de template.html via fetch)
+window.addEventListener('templateCarregado', () => {
     setupEventListeners();
     setupScrollEffects();
-    carregarProdutos(); // busca produtos do banco + desejos
+    updateCartCount(); // atualiza contador no header recém-injetado
 });
 
 // Renderizar produtos
@@ -109,7 +166,9 @@ function renderProdutos() {
     grid.innerHTML = produtos.map(produto => `
         <div class="produto-card" data-id="${produto.id}">
             <div class="produto-image">
-                <img src="${produto.imagem}" alt="${produto.nome}">
+                <img src="${produto.imagem_principal || produto.imagem || ''}"
+                     alt="${produto.nome}"
+                     onerror="this.src='https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';this.onerror=null;">
                 ${produto.badge ? `<span class="produto-badge">${produto.badge}</span>` : ''}
                 <button class="btn-desejo ${desejosSet.has(produto.id) ? 'ativo' : ''}"
                         data-id="${produto.id}"
@@ -187,7 +246,8 @@ function saveCart() {
 // Atualizar contador do carrinho
 function updateCartCount() {
     const count = carrinho.reduce((total, item) => total + item.quantidade, 0);
-    document.getElementById('cartCount').textContent = count;
+    const el = document.getElementById('cartCount');
+    if (el) el.textContent = count;
 }
 
 // Renderizar carrinho
