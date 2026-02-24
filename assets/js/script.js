@@ -107,7 +107,7 @@ let desejosSet = new Set();
 async function carregarDesejos() {
     if (!window.SpinassiAPI?.sessao?.getToken()) return;
     try {
-        const res = await SpinassiAPI.desejos.listar();
+        const res = await window.SpinassiAPI.desejos.listar();
         desejosSet = new Set((res.data || []).map(d => d.id));
         // Atualiza ícones que já estão na tela
         document.querySelectorAll('.btn-desejo').forEach(btn => {
@@ -129,11 +129,11 @@ async function toggleDesejo(id, btn) {
     btn.classList.toggle('ativo', !ativo);
     try {
         if (ativo) {
-            await SpinassiAPI.desejos.remover(id);
+            await window.SpinassiAPI.desejos.remover(id);
             desejosSet.delete(id);
             showNotification('Removido dos favoritos.');
         } else {
-            await SpinassiAPI.desejos.adicionar(id);
+            await window.SpinassiAPI.desejos.adicionar(id);
             desejosSet.add(id);
             showNotification('Salvo nos favoritos! ❤️');
         }
@@ -290,89 +290,85 @@ function renderCart() {
 }
 
 // Setup event listeners
+// Setup event listeners
 function setupEventListeners() {
-    // Cart modal
-    document.getElementById('cartBtn').addEventListener('click', () => {
-        document.getElementById('cartModal').classList.add('active');
-        renderCart();
-    });
-    
-    document.getElementById('closeCart').addEventListener('click', () => {
-        document.getElementById('cartModal').classList.remove('active');
-    });
-    
-    document.getElementById('cartModal').addEventListener('click', (e) => {
-        if (e.target.id === 'cartModal') {
-            document.getElementById('cartModal').classList.remove('active');
-        }
-    });
-    
-    // Checkout — redireciona para página de pagamento
-    document.getElementById('checkoutBtn').addEventListener('click', () => {
-        if (carrinho.length === 0) {
-            showNotification('Adicione produtos ao carrinho primeiro!', 'error');
-            return;
-        }
 
-        // Salva o carrinho (já está no localStorage) e vai para pagamento
-        saveCart();
+    // ── Carrinho: aguarda template.js injetar o header (fetch assíncrono) ──
+    function bindCart() {
+        const cartBtn     = document.getElementById('cartBtn');
+        const closeCart   = document.getElementById('closeCart');
+        const cartModal   = document.getElementById('cartModal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
 
-        // Fecha o modal do carrinho antes de redirecionar
-        document.getElementById('cartModal').classList.remove('active');
-
-        // Pequeno delay para o modal fechar suavemente
-        setTimeout(() => {
-            window.location.href = 'pagamento.html';
-        }, 250);
-    });
-    
-    // Formulário de contato
-    document.getElementById('contatoForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData);
-        
-        try {
-            const response = await fetch('/api/contato', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
+        if (cartBtn && cartModal) {
+            cartBtn.addEventListener('click', () => {
+                cartModal.classList.add('active');
+                renderCart();
             });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                showFormMessage('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
-                e.target.reset();
-            } else {
+        }
+        if (closeCart && cartModal) {
+            closeCart.addEventListener('click', () => cartModal.classList.remove('active'));
+        }
+        if (cartModal) {
+            cartModal.addEventListener('click', (e) => {
+                if (e.target.id === 'cartModal') cartModal.classList.remove('active');
+            });
+        }
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                if (carrinho.length === 0) {
+                    showNotification('Adicione produtos ao carrinho primeiro!', 'error');
+                    return;
+                }
+                saveCart();
+                if (cartModal) cartModal.classList.remove('active');
+                setTimeout(() => { window.location.href = 'pagamento.html'; }, 250);
+            });
+        }
+    }
+
+    // Tenta vincular imediatamente; se o header ainda não foi injetado,
+    // aguarda o evento templateCarregado do template.js
+    if (document.getElementById('cartBtn')) {
+        bindCart();
+    } else {
+        window.addEventListener('templateCarregado', bindCart);
+    }
+
+    // ── Formulário de contato ──────────────────────────────────────────────
+    const contatoForm = document.getElementById('contatoForm');
+    if (contatoForm) {
+        contatoForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            try {
+                const response = await fetch('/api/contato', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showFormMessage('Mensagem enviada com sucesso! Entraremos em contato em breve.', 'success');
+                    e.target.reset();
+                } else {
+                    showFormMessage('Erro ao enviar mensagem. Tente novamente.', 'error');
+                }
+            } catch (error) {
                 showFormMessage('Erro ao enviar mensagem. Tente novamente.', 'error');
             }
-        } catch (error) {
-            showFormMessage('Erro ao enviar mensagem. Tente novamente.', 'error');
-        }
-    });
-    
-    // Navegação suave
+        });
+    }
+
+    // ── Navegação suave ────────────────────────────────────────────────────
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-                
-                // Atualizar active link
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.classList.remove('active');
-                });
-                if (this.classList.contains('nav-link')) {
-                    this.classList.add('active');
-                }
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                if (this.classList.contains('nav-link')) this.classList.add('active');
             }
         });
     });

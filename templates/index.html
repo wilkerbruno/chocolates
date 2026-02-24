@@ -1,201 +1,137 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spinassi Chocolates - Chocolates Artesanais Premium</title>
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/login.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+{% extends "base.html" %}
 
-    <style>
-        /* Remove a ondulação/drip entre menu e vídeo */
-        .hero::before,
-        .hero::after {
-            display: none !important;
-        }
+{% block titulo %}Spinassi Chocolates — Chocolates Artesanais Premium{% endblock %}
 
-        /* Garante que o vídeo fique no fundo */
-        .hero-video-container {
-            z-index: 0 !important;
-        }
+{% block css_extra %}
+<style>
+    .hero::before, .hero::after { display: none !important; }
+    .hero-video-container { z-index: 0 !important; }
+    .hero-overlay         { z-index: 1 !important; }
+    .hero-content         { z-index: 10 !important; }
+    .hero-videos-showcase { z-index: 10 !important; }
+    .scroll-indicator     { z-index: 10 !important; }
+</style>
+{% endblock %}
 
-        /* Garante que o overlay fique acima do vídeo */
-        .hero-overlay {
-            z-index: 1 !important;
-        }
+{% block conteudo_body %}
 
-        /* Texto e botão ficam na frente de tudo — mantém position:absolute do style.css */
-        .hero-content {
-            z-index: 10 !important;
-        }
+<!-- Hero -->
+<section id="home" class="hero">
+    <div class="hero-video-container">
+        <video autoplay muted loop playsinline disablePictureInPicture
+               class="hero-video" id="heroMainVideo" oncontextmenu="return false;">
+            <source src="/assets/video/chocolate.mp4" type="video/mp4">
+            <img src="/assets/video/chocolate.gif" alt="Chocolate derretendo">
+        </video>
+        <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+        <span class="hero-subtitle">Experiência Artesanal Premium</span>
+        <h2 class="hero-title">O Prazer do<br>Chocolate Perfeito</h2>
+        <p class="hero-description">Criações únicas feitas à mão com cacau selecionado das melhores fazendas do mundo</p>
+        <a href="#produtos" class="btn-primary">Descobrir Coleção</a>
+    </div>
+    
+    <div class="scroll-indicator"><span></span></div>
+</section>
 
-        /* Cards laterais também acima do vídeo */
-        .hero-videos-showcase {
-            z-index: 10 !important;
-        }
-
-        /* Indicador de scroll acima do vídeo */
-        .scroll-indicator {
-            z-index: 10 !important;
-        }
-    </style>
-</head>
-<body data-pagina="home">
-    <div id="tpl-whatsapp"></div>
-    <div id="tpl-menu"></div>
-    <!-- Hero Section com Vídeo e Efeito Parallax -->
-    <section id="home" class="hero">
-        <div class="hero-video-container">
-            <video autoplay muted loop playsinline disablePictureInPicture
-                   class="hero-video" id="heroMainVideo"
-                   oncontextmenu="return false;">
-                <source src="../assets/video/chocolate.mp4" type="video/mp4">
-                <img src="../assets/video/chocolate.gif" alt="Chocolate derretendo">
-            </video>
-            <div class="hero-overlay"></div>
+<!-- Produtos -->
+<section id="produtos" class="produtos-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-subtitle">Nossa Coleção</span>
+            <h2 class="section-title">Chocolates Artesanais</h2>
+            <p class="section-description">Cada peça é uma obra-prima cuidadosamente elaborada</p>
         </div>
-
-        <div class="hero-content">
-            <span class="hero-subtitle" >Experiência Artesanal Premium</span>
-            <h2 class="hero-title">O Prazer do<br>Chocolate Perfeito</h2>
-            <p class="hero-description">Criações únicas feitas à mão com cacau selecionado das melhores fazendas do mundo</p>
-            <a href="#produtos" class="btn-primary">Descobrir Coleção</a>
+        <div class="produtos-grid" id="produtosGrid"></div>
+        <div style="text-align:center;margin-top:60px;">
+            <a href="/produtos" id="btnVerMaisProdutos" class="btn-primary" style="display:none;">
+                Ver todos os produtos
+            </a>
         </div>
+    </div>
+</section>
 
-
-        <div class="scroll-indicator">
-            <span></span>
-        </div>
-    </section>
-
-    <!-- Produtos Section -->
-    <section id="produtos" class="produtos-section">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-subtitle">Nossa Coleção</span>
-                <h2 class="section-title">Chocolates Artesanais</h2>
-                <p class="section-description">Cada peça é uma obra-prima cuidadosamente elaborada</p>
-            </div>
-
-            <div class="produtos-grid" id="produtosGrid">
-                <!-- Produtos carregados via API -->
-            </div>
-            <div style="text-align:center;margin-top:60px;">
-                <a href="produtos.html" id="btnVerMaisProdutos"
-                   class="btn-primary" style="display:none;">
-                    Ver todos os produtos
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sobre Section -->
-    <section id="sobre" class="sobre-section">
-        <div class="container">
-            <div class="sobre-grid">
-                <div class="sobre-content">
-                    <span class="section-subtitle">Nossa História</span>
-                    <h2 class="section-title">Artesanato & Paixão</h2>
-                    <p>Na Spinassi Chocolates, transformamos cacau premium em experiências inesquecíveis. Cada chocolate é feito à mão por nossos mestres chocolatiers, usando técnicas tradicionais belgas e ingredientes selecionados.</p>
-                    <p>Nossa jornada começou com um sonho: criar chocolates que não apenas satisfazem, mas encantam todos os sentidos. Hoje, somos reconhecidos pela excelência e inovação.</p>
-                    <div class="sobre-stats">
-                        <div class="stat">
-                            <span class="stat-number">15+</span>
-                            <span class="stat-label">Anos de Experiência</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number">100%</span>
-                            <span class="stat-label">Artesanal</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number">50+</span>
-                            <span class="stat-label">Criações Únicas</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="sobre-image">
-                    <img src="https://images.unsplash.com/photo-1511381939415-e44015466834?w=800" alt="Chocolate artesanal">
+<!-- Sobre -->
+<section id="sobre" class="sobre-section">
+    <div class="container">
+        <div class="sobre-grid">
+            <div class="sobre-content">
+                <span class="section-subtitle">Nossa História</span>
+                <h2 class="section-title">Artesanato &amp; Paixão</h2>
+                <p>Na Spinassi Chocolates, transformamos cacau premium em experiências inesquecíveis. Cada chocolate é feito à mão por nossos mestres chocolatiers, usando técnicas tradicionais belgas e ingredientes selecionados.</p>
+                <p>Nossa jornada começou com um sonho: criar chocolates que não apenas satisfazem, mas encantam todos os sentidos. Hoje, somos reconhecidos pela excelência e inovação.</p>
+                <div class="sobre-stats">
+                    <div class="stat"><span class="stat-number">15+</span><span class="stat-label">Anos de Experiência</span></div>
+                    <div class="stat"><span class="stat-number">100%</span><span class="stat-label">Artesanal</span></div>
+                    <div class="stat"><span class="stat-number">50+</span><span class="stat-label">Criações Únicas</span></div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Contato Section -->
-    <section id="contato" class="contato-section">
-        <div class="container">
-            <div class="contato-grid">
-                <div class="contato-info">
-                    <span class="section-subtitle">Entre em Contato</span>
-                    <h2 class="section-title">Adoraríamos Ouvir Você</h2>
-                    <p>Tem alguma dúvida ou pedido especial? Nossa equipe está pronta para ajudar.</p>
-                    
-                    <div class="contato-details">
-                        <div class="detail-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                <circle cx="12" cy="10" r="3"></circle>
-                            </svg>
-                            <div>
-                                <h4>Endereço</h4>
-                                <p>Av. Chocolat, 123 - Centro<br>São Paulo, SP</p>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                            </svg>
-                            <div>
-                                <h4>Telefone</h4>
-                                <p>(83) 99999-9999</p>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                                <polyline points="22,6 12,13 2,6"></polyline>
-                            </svg>
-                            <div>
-                                <h4>Email</h4>
-                                <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="47242829332633280714372e292634342e242f2824282b263322346924282a">[email&#160;protected]</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <form class="contato-form" id="contatoForm">
-                    <div class="form-group">
-                        <input type="text" id="nome" name="nome" required placeholder=" ">
-                        <label for="nome">Seu Nome</label>
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="email" name="email" required placeholder=" ">
-                        <label for="email">Seu Email</label>
-                    </div>
-                    <div class="form-group">
-                        <input type="tel" id="telefone" name="telefone" placeholder=" ">
-                        <label for="telefone">Telefone (opcional)</label>
-                    </div>
-                    <div class="form-group">
-                        <textarea id="mensagem" name="mensagem" rows="5" required placeholder=" "></textarea>
-                        <label for="mensagem">Sua Mensagem</label>
-                    </div>
-                    <button type="submit" class="btn-primary">Enviar Mensagem</button>
-                    <div class="form-message" id="formMessage"></div>
-                </form>
+            <div class="sobre-image">
+                <img src="https://images.unsplash.com/photo-1511381939415-e44015466834?w=800" alt="Chocolate artesanal">
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <div id="tpl-rodape"></div>
-        <div id="tpl-carrinho"></div>
+<!-- Contato -->
+<section id="contato" class="contato-section">
+    <div class="container">
+        <div class="contato-grid">
+            <div class="contato-info">
+                <span class="section-subtitle">Entre em Contato</span>
+                <h2 class="section-title">Adoraríamos Ouvir Você</h2>
+                <p>Tem alguma dúvida ou pedido especial? Nossa equipe está pronta para ajudar.</p>
+                <div class="contato-details">
+                    <div class="detail-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <div><h4>Endereço</h4><p>Av. Chocolat, 123 - Centro<br>São Paulo, SP</p></div>
+                    </div>
+                    <div class="detail-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                        <div><h4>Telefone</h4><p>(83) 99999-9999</p></div>
+                    </div>
+                    <div class="detail-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                        <div><h4>Email</h4><p>contato@spinassichocolates.com</p></div>
+                    </div>
+                </div>
+            </div>
+            <form class="contato-form" id="contatoForm">
+                <div class="form-group">
+                    <input type="text"  id="nome"      name="nome"      required placeholder=" ">
+                    <label for="nome">Seu Nome</label>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="email"     name="email"     required placeholder=" ">
+                    <label for="email">Seu Email</label>
+                </div>
+                <div class="form-group">
+                    <input type="tel"   id="telefone"  name="telefone"  placeholder=" ">
+                    <label for="telefone">Telefone (opcional)</label>
+                </div>
+                <div class="form-group">
+                    <textarea id="mensagem" name="mensagem" rows="5" required placeholder=" "></textarea>
+                    <label for="mensagem">Sua Mensagem</label>
+                </div>
+                <button type="submit" class="btn-primary">Enviar Mensagem</button>
+                <div class="form-message" id="formMessage"></div>
+            </form>
+        </div>
+    </div>
+</section>
 
+{% endblock %}
+
+{% block scripts_extra %}
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../assets/js/script.js"></script>
-    <script src="../assets/js/template.js"></script>
-    <script src="assets/js/login.js"></script>
-    <script src="assets/js/script.js"></script>
+
 
     <script>
         // Garante que o vídeo principal nunca pare de rodar
@@ -208,5 +144,5 @@
             video.addEventListener('loadedmetadata', () => { video.play().catch(() => {}); });
         })();
     </script>
-</body>
-</html>
+{% endblock %}
+

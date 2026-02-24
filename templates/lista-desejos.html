@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/conta.css">
+    <link rel="stylesheet" href="assets/css/conta.css">
 </head>
 <body>
 
@@ -47,8 +47,8 @@
     </main>
 </div>
 
-<script src="../assets/js/api.js"></script>
-    <script src="../assets/js/sidebar.js"></script>
+<script src="assets/js/api.js"></script>
+    <script src="assets/js/sidebar.js"></script>
 <script>
 /* ============================================================
    LISTA DE DESEJOS — lógica
@@ -68,8 +68,10 @@ async function carregarDesejos() {
         desejos   = res.data || [];
 
         const badge = document.getElementById('badgeDesejos');
-        if (desejos.length) { badge.textContent = desejos.length; badge.style.display = 'inline-flex'; }
-        else { badge.style.display = 'none'; }
+        if (badge) {
+            if (desejos.length) { badge.textContent = desejos.length; badge.style.display = 'inline-flex'; }
+            else { badge.style.display = 'none'; }
+        }
 
         document.getElementById('subtitleDesejos').textContent =
             desejos.length
@@ -155,10 +157,9 @@ async function removerDesejo(id) {
         desejos = desejos.filter(d => d.id !== id);
 
         const badge = document.getElementById('badgeDesejos');
-        if (desejos.length) {
-            badge.textContent = desejos.length;
-        } else {
-            badge.style.display = 'none';
+        if (badge) {
+            if (desejos.length) { badge.textContent = desejos.length; }
+            else { badge.style.display = 'none'; }
         }
 
         document.getElementById('subtitleDesejos').textContent =
@@ -174,7 +175,7 @@ async function removerDesejo(id) {
     }
 }
 
-/* ── Adiciona ao carrinho (integra com script.js) ─────── */
+/* ── Adiciona ao carrinho (integra com assets/js/script.js) ─────── */
 function adicionarCarrinho(id, nome, preco) {
     try {
         let carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');

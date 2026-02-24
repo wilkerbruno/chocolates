@@ -3,7 +3,7 @@
 #  Conecta ao MySQL e expõe todas as rotas da API
 # ============================================================
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 import pymysql
 import pymysql.cursors
@@ -31,8 +31,14 @@ except ImportError:
 #  CONFIGURAÇÕES
 # ============================================================
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__, static_folder='.', template_folder='templates')
 CORS(app, supports_credentials=True)
+
+# Injeta `now` em todos os templates Jinja2 (para o ano no footer)
+from datetime import datetime
+@app.context_processor
+def inject_globals():
+    return {'now': datetime.now()}
 
 # ── Banco de dados ─────────────────────────────────────────
 DB_CONFIG = {
@@ -206,16 +212,51 @@ def log(usuario_id, acao, descricao='', ip=None):
 
 @app.route('/')
 def index():
-    return send_from_directory('templates', 'index.html')
+    return render_template('index.html', pagina_ativa='home')
 
+@app.route('/produtos')
+def pagina_produtos():
+    return render_template('produtos.html', pagina_ativa='produtos')
 
 @app.route('/<path:path>')
 def serve_static(path):
     import os
-    # Tenta templates/ primeiro, depois raiz (para assets/)
-    templates_path = os.path.join('templates', path)
-    if os.path.exists(templates_path):
-        return send_from_directory('templates', path)
+
+    # Redireciona URLs com .html para as rotas limpas
+    redirecionamentos = {
+        'index.html':            '/',
+        'produtos.html':         '/produtos',
+        'cadastro.html':         '/cadastro',
+        'pagamento.html':        '/pagamento',
+        'minha-conta.html':      '/minha-conta',
+        'meus-pedidos.html':     '/meus-pedidos',
+        'lista-desejos.html':    '/lista-desejos',
+        'recuperar-senha.html':  '/recuperar-senha',
+        'admin-produtos.html':   '/admin-produtos',
+        'gestao-financeira.html': '/gestao-financeira',
+        'config-pagamento.html':  '/config-pagamento',
+    }
+    if path in redirecionamentos:
+        from flask import redirect
+        return redirect(redirecionamentos[path], code=301)
+
+    # Páginas HTML sem extensão → render_template
+    paginas = {
+        'cadastro':          ('cadastro.html',          'cadastro'),
+        'pagamento':         ('pagamento.html',          'pagamento'),
+        'minha-conta':       ('minha-conta.html',        ''),
+        'meus-pedidos':      ('meus-pedidos.html',       ''),
+        'lista-desejos':     ('lista-desejos.html',      ''),
+        'recuperar-senha':   ('recuperar-senha.html',    ''),
+        'admin-produtos':    ('admin-produtos.html',     ''),
+        'gestao-financeira': ('gestao-financeira.html',  ''),
+        'config-pagamento':  ('config-pagamento.html',   ''),
+    }
+    if path in paginas:
+        tpl, pagina = paginas[path]
+        return render_template(tpl, pagina_ativa=pagina)
+
+    # Arquivos estáticos (CSS, JS, imagens, vídeos, etc.)
     return send_from_directory('.', path)
 
 # ============================================================

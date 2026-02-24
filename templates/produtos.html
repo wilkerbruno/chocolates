@@ -1,263 +1,102 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produtos — Spinassi Chocolates</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        /* ── Hero da página de produtos ─────────────────────── */
-        .produtos-hero {
-            background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
-            padding: 160px 0 80px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .produtos-hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .produtos-hero h2 {
-            font-size: 3.8rem;
-            color: var(--cream);
-            margin-bottom: 16px;
-            font-weight: 700;
-            position: relative;
-        }
-        .produtos-hero p {
-            color: rgba(255,248,231,.75);
-            font-size: 1.1rem;
-            max-width: 520px;
-            margin: 0 auto 32px;
-            position: relative;
-        }
+{% extends "base.html" %}
 
-        /* ── Barra de busca e filtros ────────────────────────── */
-        .produtos-controls {
-            background: #fff;
-            border-bottom: 2px solid var(--gold-light);
-            position: sticky;
-            top: 70px;
-            z-index: 900;
-            box-shadow: 0 2px 12px rgba(62,39,35,.08);
-        }
-        .produtos-controls-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 40px;
-            display: flex;
-            align-items: center;
-            gap: 0;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-        .produtos-controls-inner::-webkit-scrollbar { display:none; }
+{% block titulo %}Produtos — Spinassi Chocolates{% endblock %}
 
-        /* Busca */
-        .produtos-search-wrap {
-            position: relative;
-            flex-shrink: 0;
-            border-right: 1px solid #eee;
-            padding-right: 20px;
-            margin-right: 4px;
-        }
-        .produtos-search-wrap svg {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #b0a090;
-            width: 16px;
-            height: 16px;
-        }
-        .produtos-search {
-            border: none;
-            outline: none;
-            padding: 18px 16px 18px 38px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: .88rem;
-            background: transparent;
-            min-width: 200px;
-            color: var(--text-dark);
-        }
-        .produtos-search::placeholder { color: #b0a090; }
+{% block css_extra %}
+<style>
+    .produtos-hero {
+        background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+        padding: 160px 0 80px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .produtos-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .produtos-hero h2 { font-size:3.8rem;color:var(--cream);margin-bottom:16px;font-weight:700;position:relative; }
+    .produtos-hero p  { color:rgba(255,248,231,.75);font-size:1.1rem;max-width:520px;margin:0 auto 32px;position:relative; }
 
-        /* Tabs de categoria */
-        .cat-tabs {
-            display: flex;
-            align-items: stretch;
-            gap: 0;
-            flex: 1;
-        }
-        .cat-tab {
-            padding: 18px 22px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-size: .82rem;
-            font-weight: 500;
-            letter-spacing: .8px;
-            text-transform: uppercase;
-            color: var(--text-light);
-            white-space: nowrap;
-            transition: all .25s;
-            position: relative;
-        }
-        .cat-tab:hover { color: var(--chocolate-dark); }
-        .cat-tab.active {
-            color: var(--chocolate-dark);
-            border-bottom-color: var(--gold);
-            font-weight: 600;
-        }
-        .cat-tab .cat-count {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--gold-light);
-            color: var(--chocolate-dark);
-            font-size: .68rem;
-            font-weight: 600;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
-            padding: 0 5px;
-            margin-left: 6px;
-        }
-        .cat-tab.active .cat-count {
-            background: var(--gold);
-        }
+    .produtos-controls {
+        background: #fff;
+        border-bottom: 2px solid var(--gold-light);
+        position: sticky;
+        top: 70px;
+        z-index: 900;
+        box-shadow: 0 2px 12px rgba(62,39,35,.08);
+    }
+    .produtos-controls-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .produtos-controls-inner::-webkit-scrollbar { display:none; }
+    .produtos-search-wrap {
+        position: relative;
+        flex-shrink: 0;
+        border-right: 1px solid #eee;
+        padding-right: 20px;
+        margin-right: 4px;
+    }
+    .produtos-search-wrap svg { position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#b0a090;width:16px;height:16px; }
+    .produtos-search { border:none;outline:none;padding:18px 16px 18px 38px;font-family:'Montserrat',sans-serif;font-size:.88rem;background:transparent;min-width:200px;color:var(--text-dark); }
+    .produtos-search::placeholder { color:#b0a090; }
+    .cat-tabs { display:flex;align-items:stretch;gap:0;flex:1; }
+    .cat-tab {
+        padding:18px 22px;background:none;border:none;border-bottom:3px solid transparent;
+        cursor:pointer;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:500;
+        letter-spacing:.8px;text-transform:uppercase;color:var(--text-light);white-space:nowrap;transition:all .25s;
+    }
+    .cat-tab:hover { color:var(--chocolate-dark); }
+    .cat-tab.active { color:var(--chocolate-dark);border-bottom-color:var(--gold);font-weight:600; }
+    .cat-tab .cat-count {
+        display:inline-flex;align-items:center;justify-content:center;
+        background:var(--gold-light);color:var(--chocolate-dark);font-size:.68rem;font-weight:600;
+        min-width:18px;height:18px;border-radius:9px;padding:0 5px;margin-left:6px;
+    }
+    .cat-tab.active .cat-count { background:var(--gold); }
+    .result-count { flex-shrink:0;font-size:.8rem;color:#b0a090;padding-left:20px;border-left:1px solid #eee;white-space:nowrap; }
+    .sort-select { border:1px solid #ddd;border-radius:4px;padding:6px 12px;font-family:'Montserrat',sans-serif;font-size:.8rem;color:var(--text-dark);background:#fff;cursor:pointer;outline:none;flex-shrink:0; }
 
-        /* Contador de resultados */
-        .result-count {
-            flex-shrink: 0;
-            font-size: .8rem;
-            color: #b0a090;
-            padding-left: 20px;
-            border-left: 1px solid #eee;
-            white-space: nowrap;
-        }
+    .produtos-page-section { background:var(--cream);min-height:60vh;padding:60px 0 100px; }
+    .produtos-page-section .container { max-width:1400px;margin:0 auto;padding:0 40px; }
+    .cat-section-title { display:flex;align-items:center;gap:18px;margin:48px 0 28px; }
+    .cat-section-title:first-child { margin-top:0; }
+    .cat-section-title h3 { font-size:1.8rem;color:var(--chocolate-dark);font-family:'Cormorant Garamond',serif;font-weight:600;white-space:nowrap; }
+    .cat-section-title::after { content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent); }
+    .cat-section-badge { font-size:.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);background:var(--gold-light);padding:3px 10px;border-radius:20px; }
+    .produtos-page-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:32px; }
+    .empty-state { text-align:center;padding:80px 20px; }
+    .empty-state svg { width:64px;height:64px;color:#ccc;margin-bottom:20px; }
+    .empty-state h3 { color:var(--chocolate-dark);margin-bottom:8px;font-size:1.5rem; }
+    .empty-state p { color:var(--text-light); }
 
-        /* ── Área de produtos ────────────────────────────────── */
-        .produtos-page-section {
-            background: var(--cream);
-            min-height: 60vh;
-            padding: 60px 0 100px;
-        }
-        .produtos-page-section .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
+    @keyframes shimmer { 0%{background-position:-600px 0} 100%{background-position:600px 0} }
+    .skel { background:linear-gradient(90deg,#f0ece4 25%,#e8e3da 50%,#f0ece4 75%);background-size:600px 100%;animation:shimmer 1.4s infinite linear;border-radius:4px; }
 
-        /* Título de categoria */
-        .cat-section-title {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            margin: 48px 0 28px;
-        }
-        .cat-section-title:first-child { margin-top: 0; }
-        .cat-section-title h3 {
-            font-size: 1.8rem;
-            color: var(--chocolate-dark);
-            font-family: 'Cormorant Garamond', serif;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-        .cat-section-title::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, var(--gold), transparent);
-        }
-        .cat-section-badge {
-            font-size: .72rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-light);
-            background: var(--gold-light);
-            padding: 3px 10px;
-            border-radius: 20px;
-        }
+    @media(max-width:768px) {
+        .produtos-hero h2 { font-size:2.6rem; }
+        .produtos-controls-inner { padding:0 16px; }
+        .produtos-page-section .container { padding:0 16px; }
+        .produtos-page-grid { grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px; }
+    }
+    @media(max-width:480px) {
+        .produtos-page-grid { grid-template-columns:1fr 1fr;gap:16px; }
+        .cat-tab { padding:14px 14px;font-size:.75rem; }
+    }
+</style>
+{% endblock %}
 
-        /* Grid de produtos (igual ao index mas sem min-height fixo na img) */
-        .produtos-page-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 32px;
-        }
+{% block conteudo_body %}
 
-        /* Estado vazio */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-        }
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-        .empty-state h3 {
-            color: var(--chocolate-dark);
-            margin-bottom: 8px;
-            font-size: 1.5rem;
-        }
-        .empty-state p { color: var(--text-light); }
-
-        /* Loading skeleton */
-        @keyframes shimmer {
-            0%   { background-position: -600px 0; }
-            100% { background-position:  600px 0; }
-        }
-        .skel {
-            background: linear-gradient(90deg, #f0ece4 25%, #e8e3da 50%, #f0ece4 75%);
-            background-size: 600px 100%;
-            animation: shimmer 1.4s infinite linear;
-            border-radius: 4px;
-        }
-
-        /* ── Ordenação ───────────────────────────────────────── */
-        .sort-select {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 6px 12px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: .8rem;
-            color: var(--text-dark);
-            background: #fff;
-            cursor: pointer;
-            outline: none;
-            flex-shrink: 0;
-        }
-
-        /* ── Responsivo ──────────────────────────────────────── */
-        @media(max-width: 768px) {
-            .produtos-hero h2 { font-size: 2.6rem; }
-            .produtos-controls-inner { padding: 0 16px; }
-            .produtos-page-section .container { padding: 0 16px; }
-            .produtos-page-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        }
-        @media(max-width: 480px) {
-            .produtos-page-grid { grid-template-columns: 1fr 1fr; gap: 16px; }
-            .cat-tab { padding: 14px 14px; font-size: .75rem; }
-        }
-    </style>
-    <link rel="stylesheet" href="assets/css/login.css">
-</head>
-<body data-pagina="produtos">
-
-<div id="tpl-whatsapp"></div>
-<div id="tpl-menu"></div>
-<!-- Hero -->
 <section class="produtos-hero">
     <div class="container">
         <span class="hero-subtitle" style="font-size:.85rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;display:block;
@@ -269,27 +108,19 @@
     </div>
 </section>
 
-<!-- Controles: busca + filtro por categoria -->
 <div class="produtos-controls">
     <div class="produtos-controls-inner">
-        <!-- Busca -->
         <div class="produtos-search-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input class="produtos-search" type="text" id="searchInput"
-                   placeholder="Buscar produto…" oninput="filtrar()">
+            <input class="produtos-search" type="text" id="searchInput" placeholder="Buscar produto…" oninput="filtrar()">
         </div>
-
-        <!-- Tabs de categoria -->
         <div class="cat-tabs" id="catTabs">
             <button class="cat-tab active" data-cat="todos" onclick="selecionarCat('todos', this)">
                 Todos <span class="cat-count" id="cnt-todos">—</span>
             </button>
-            <!-- Categorias dinâmicas serão inseridas aqui -->
         </div>
-
-        <!-- Ordenação -->
         <select class="sort-select" id="sortSelect" onchange="filtrar()">
             <option value="padrao">Ordenar: Padrão</option>
             <option value="menor">Menor preço</option>
@@ -299,12 +130,12 @@
     </div>
 </div>
 
-<!-- Área principal de produtos -->
 <section class="produtos-page-section">
     <div class="container">
         <div id="produtosContainer">
-            <!-- Skeleton loading inicial -->
+            <!-- Skeleton loading -->
             <div class="produtos-page-grid">
+                {% for _ in range(8) %}
                 <div class="produto-card">
                     <div class="produto-image skel" style="height:280px"></div>
                     <div class="produto-info" style="padding:24px">
@@ -318,118 +149,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="produto-card">
-                    <div class="produto-image skel" style="height:280px"></div>
-                    <div class="produto-info" style="padding:24px">
-                        <div class="skel" style="height:10px;width:50%;margin-bottom:10px"></div>
-                        <div class="skel" style="height:18px;width:80%;margin-bottom:8px"></div>
-                        <div class="skel" style="height:12px;width:100%;margin-bottom:6px"></div>
-                        <div class="skel" style="height:12px;width:70%;margin-bottom:20px"></div>
-                        <div style="display:flex;justify-content:space-between;align-items:center">
-                            <div class="skel" style="height:24px;width:80px"></div>
-                            <div class="skel" style="height:36px;width:100px"></div>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </section>
 
-<div id="tpl-rodape"></div>
-<div id="tpl-carrinho"></div>
-<script src="assets/js/template.js"></script>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/login.js"></script>
+{% endblock %}
+
+{% block scripts_extra %}
 <script>
 /* ============================================================
-   PRODUTOS.HTML — Catálogo completo
+   PRODUTOS — Catálogo completo
 ============================================================ */
-
-/* ── Carrinho (igual ao script.js) ───────────────────────── */
-let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-let desejosSet = new Set();
-let todosOsProdutos = [];  // todos do banco
-let catAtiva = 'todos';
-let searchTerm = '';
+let carrinho     = JSON.parse(localStorage.getItem('carrinho')) || [];
+let desejosSet   = new Set();
+let todosOsProdutos = [];
+let catAtiva     = 'todos';
+let searchTerm   = '';
 
 function updateCartCount() {
     const count = carrinho.reduce((t, i) => t + i.quantidade, 0);
@@ -453,18 +190,16 @@ function showToast(msg, type = 'success') {
     const t = document.createElement('div');
     t.style.cssText = `position:fixed;top:90px;right:20px;background:${type==='success'?'#2ECC71':'#E74C3C'};
         color:#fff;padding:14px 24px;font-weight:500;z-index:3000;font-family:Montserrat,sans-serif;
-        font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.25);
-        animation:slideInRight .3s ease;`;
+        font-size:.9rem;box-shadow:0 4px 20px rgba(0,0,0,.25);animation:slideInRight .3s ease;`;
     t.textContent = msg;
     document.body.appendChild(t);
     setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3000);
 }
 
-/* ── Desejos ─────────────────────────────────────────────── */
 async function carregarDesejos() {
     if (!window.SpinassiAPI?.sessao?.getToken()) return;
     try {
-        const res = await SpinassiAPI.desejos.listar();
+        const res = await window.SpinassiAPI.desejos.listar();
         desejosSet = new Set((res.data || []).map(d => d.id));
         document.querySelectorAll('.btn-desejo').forEach(btn => {
             const id = parseInt(btn.dataset.id);
@@ -480,29 +215,27 @@ async function toggleDesejo(id, btn) {
     const ativo = desejosSet.has(id);
     btn.classList.toggle('ativo', !ativo);
     try {
-        if (ativo) { await SpinassiAPI.desejos.remover(id); desejosSet.delete(id); showToast('Removido dos favoritos.'); }
-        else        { await SpinassiAPI.desejos.adicionar(id); desejosSet.add(id);   showToast('Salvo nos favoritos! ❤️'); }
+        if (ativo) { await window.SpinassiAPI.desejos.remover(id); desejosSet.delete(id); showToast('Removido dos favoritos.'); }
+        else       { await window.SpinassiAPI.desejos.adicionar(id); desejosSet.add(id);  showToast('Salvo nos favoritos! ❤️'); }
     } catch(e) { btn.classList.toggle('ativo', ativo); showToast('Erro.', 'error'); }
 }
 
-/* ── Renderiza card de produto ───────────────────────────── */
 function renderCard(p) {
-    const preco    = parseFloat(p.preco).toFixed(2).replace('.', ',');
-    const imgSrc   = p.imagem_principal || p.imagem || 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';
-    const ativo    = desejosSet.has(p.id);
+    const preco  = parseFloat(p.preco).toFixed(2).replace('.', ',');
+    const imgSrc = p.imagem_principal || p.imagem || 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';
+    const ativo  = desejosSet.has(p.id);
     return `
     <div class="produto-card" data-id="${p.id}">
         <div class="produto-image">
-            <img src="${imgSrc}" alt="${p.nome}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';this.onerror=null;">
+            <img src="${imgSrc}" alt="${p.nome}" loading="lazy"
+                 onerror="this.src='https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600';this.onerror=null;">
             ${p.badge ? `<span class="produto-badge">${p.badge}</span>` : ''}
             <button class="btn-desejo ${ativo ? 'ativo' : ''}" data-id="${p.id}"
                     title="${ativo ? 'Remover dos favoritos' : 'Salvar nos favoritos'}"
                     onclick="toggleDesejo(${p.id}, this); event.stopPropagation();">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
-                             a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
-                             1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
             </button>
         </div>
@@ -520,72 +253,49 @@ function renderCard(p) {
     </div>`;
 }
 
-/* ── Filtra e renderiza ──────────────────────────────────── */
 function filtrar() {
     searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const sort  = document.getElementById('sortSelect').value;
-
-    let lista = todosOsProdutos.filter(p => {
-        const matchCat = catAtiva === 'todos' || (p.categoria_slug === catAtiva || p.categoria_nome === catAtiva);
-        const matchQ   = !searchTerm ||
-                         p.nome.toLowerCase().includes(searchTerm) ||
+    const sort = document.getElementById('sortSelect').value;
+    let lista  = todosOsProdutos.filter(p => {
+        const matchCat = catAtiva === 'todos' || p.categoria_slug === catAtiva || p.categoria_nome === catAtiva;
+        const matchQ   = !searchTerm || p.nome.toLowerCase().includes(searchTerm) ||
                          (p.descricao_curta||'').toLowerCase().includes(searchTerm) ||
                          (p.categoria_nome||'').toLowerCase().includes(searchTerm);
         return matchCat && matchQ;
     });
-
-    // Ordenação
     if (sort === 'menor') lista.sort((a,b) => a.preco - b.preco);
     else if (sort === 'maior') lista.sort((a,b) => b.preco - a.preco);
     else if (sort === 'az')    lista.sort((a,b) => a.nome.localeCompare(b.nome));
-
     renderLista(lista);
 }
 
 function renderLista(lista) {
     const container = document.getElementById('produtosContainer');
-
     if (!lista.length) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-                <h3>Nenhum produto encontrado</h3>
-                <p>Tente outros termos ou selecione uma categoria diferente.</p>
-            </div>`;
+        container.innerHTML = `<div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg><h3>Nenhum produto encontrado</h3>
+            <p>Tente outros termos ou selecione outra categoria.</p></div>`;
         return;
     }
-
-    // Agrupa por categoria (quando mostra "todos" e sem busca, exibe títulos de categoria)
     if (catAtiva === 'todos' && !searchTerm) {
         const grupos = {};
-        lista.forEach(p => {
-            const cat = p.categoria_nome || 'Outros';
-            if (!grupos[cat]) grupos[cat] = [];
-            grupos[cat].push(p);
-        });
-
+        lista.forEach(p => { const c = p.categoria_nome||'Outros'; if(!grupos[c])grupos[c]=[]; grupos[c].push(p); });
         let html = '';
         for (const [cat, prods] of Object.entries(grupos)) {
-            html += `
-                <div class="cat-section-title">
-                    <h3>${cat}</h3>
-                    <span class="cat-section-badge">${prods.length} produto${prods.length !== 1 ? 's' : ''}</span>
-                </div>
-                <div class="produtos-page-grid">${prods.map(renderCard).join('')}</div>`;
+            html += `<div class="cat-section-title"><h3>${cat}</h3>
+                     <span class="cat-section-badge">${prods.length} produto${prods.length!==1?'s':''}</span></div>
+                     <div class="produtos-page-grid">${prods.map(renderCard).join('')}</div>`;
         }
         container.innerHTML = html;
     } else {
         container.innerHTML = `<div class="produtos-page-grid">${lista.map(renderCard).join('')}</div>`;
     }
-
-    // Atualiza contador de resultados
     const cnt = document.getElementById('resultCount');
-    if (cnt) cnt.textContent = `${lista.length} produto${lista.length !== 1 ? 's' : ''}`;
+    if (cnt) cnt.textContent = `${lista.length} produto${lista.length!==1?'s':''}`;
 }
 
-/* ── Seleciona categoria ─────────────────────────────────── */
 function selecionarCat(slug, btn) {
     catAtiva = slug;
     document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
@@ -593,30 +303,20 @@ function selecionarCat(slug, btn) {
     filtrar();
 }
 
-/* ── Carrega dados da API ────────────────────────────────── */
 async function init() {
     try {
-        // Carrega categorias e produtos em paralelo
         const [resCats, resPrds] = await Promise.all([
             fetch('/api/categorias').then(r => r.json()),
             fetch('/api/produtos?limite=200').then(r => r.json())
         ]);
-
-        const categorias = resCats.data  || [];
-        const produtos   = resPrds.data  || [];
+        const categorias = resCats.data || [];
+        const produtos   = resPrds.data || [];
         todosOsProdutos  = produtos;
 
-        // Conta por categoria
         const contagens = {};
-        produtos.forEach(p => {
-            const slug = p.categoria_slug || p.categoria_nome || 'outros';
-            contagens[slug] = (contagens[slug] || 0) + 1;
-        });
-
-        // Atualiza total
+        produtos.forEach(p => { const s=p.categoria_slug||p.categoria_nome||'outros'; contagens[s]=(contagens[s]||0)+1; });
         document.getElementById('cnt-todos').textContent = produtos.length;
 
-        // Monta tabs de categoria
         const tabsEl = document.getElementById('catTabs');
         categorias.forEach(cat => {
             const n = contagens[cat.slug] || 0;
@@ -629,27 +329,19 @@ async function init() {
             tabsEl.appendChild(btn);
         });
 
-        // Adiciona contador de resultados na barra
         const inner = document.querySelector('.produtos-controls-inner');
-        const cnt   = document.createElement('div');
-        cnt.className = 'result-count';
-        cnt.id = 'resultCount';
-        cnt.textContent = `${produtos.length} produto${produtos.length !== 1 ? 's' : ''}`;
+        const cnt = document.createElement('div');
+        cnt.className = 'result-count'; cnt.id = 'resultCount';
+        cnt.textContent = `${produtos.length} produto${produtos.length!==1?'s':''}`;
         inner.appendChild(cnt);
 
-        // Carrega desejos e renderiza
         await carregarDesejos();
         renderLista(todosOsProdutos);
-
     } catch(e) {
-        // API indisponível — usa produtos fixos como fallback
         const fixos = [
-            { id:1, nome:'Trufa Belga Premium', categoria_nome:'Trufas', descricao:'Trufas artesanais com cacau 70% e ganache de champagne', preco:89.90, imagem:'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600', badge:'Bestseller' },
-            { id:2, nome:'Barra Ouro Negro', categoria_nome:'Barras', descricao:'Chocolate amargo 85% com nibs de cacau torrado', preco:45.90, imagem:'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600', badge:'Novo' },
-            { id:3, nome:'Bombons Sortidos Luxo', categoria_nome:'Bombons', descricao:'Caixa com 12 bombons de sabores exclusivos', preco:129.90, imagem:'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=600', badge:'Premium' },
-            { id:4, nome:'Chocolate ao Leite Artesanal', categoria_nome:'Barras', descricao:'Chocolate ao leite 45% com caramelo salgado', preco:42.90, imagem:'https://images.unsplash.com/photo-1511381939415-e44015466834?w=600', badge:'' },
-            { id:5, nome:'Trufas de Pistache', categoria_nome:'Trufas', descricao:'Trufas cremosas com pistache siciliano', preco:95.90, imagem:'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=600', badge:'Exclusivo' },
-            { id:6, nome:'Caixa Degustação', categoria_nome:'Kits', descricao:'Kit degustação com 6 tipos de chocolates', preco:159.90, imagem:'https://images.unsplash.com/photo-1481391243133-f96216dcb5d2?w=600', badge:'Gift' }
+            { id:1, nome:'Trufa Belga Premium', categoria_nome:'Trufas', descricao:'Trufas artesanais com cacau 70%', preco:89.90, imagem:'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=600', badge:'Bestseller' },
+            { id:2, nome:'Barra Ouro Negro', categoria_nome:'Barras', descricao:'Chocolate amargo 85%', preco:45.90, imagem:'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=600', badge:'Novo' },
+            { id:3, nome:'Bombons Sortidos Luxo', categoria_nome:'Bombons', descricao:'12 bombons exclusivos', preco:129.90, imagem:'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=600', badge:'Premium' },
         ];
         todosOsProdutos = fixos;
         document.getElementById('cnt-todos').textContent = fixos.length;
@@ -657,7 +349,7 @@ async function init() {
     }
 }
 
-/* ── Carrinho modal ──────────────────────────────────────── */
+/* Carrinho modal — cartBtn já está no DOM (header inline via base.html) */
 function renderCart() {
     const el = document.getElementById('cartItems');
     if (!carrinho.length) {
@@ -690,13 +382,13 @@ function updateQty(id, delta) {
     const i = carrinho.find(x => x.id === id);
     if (!i) return;
     i.quantidade += delta;
-    if (i.quantidade <= 0) { carrinho = carrinho.filter(x => x.id !== id); }
+    if (i.quantidade <= 0) carrinho = carrinho.filter(x => x.id !== id);
     saveCart(); updateCartCount(); renderCart();
 }
 function removeItem(id) { carrinho = carrinho.filter(x => x.id !== id); saveCart(); updateCartCount(); renderCart(); }
 
-// Eventos do carrinho só após template.js injetar o modal (fetch assíncrono)
-window.addEventListener('templateCarregado', () => {
+/* Vincular eventos do carrinho — header já está inline, sem esperar evento */
+document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cartBtn').addEventListener('click', () => {
         document.getElementById('cartModal').classList.add('active');
         renderCart();
@@ -711,22 +403,20 @@ window.addEventListener('templateCarregado', () => {
         if (!carrinho.length) { showToast('Adicione produtos ao carrinho primeiro!', 'error'); return; }
         saveCart();
         document.getElementById('cartModal').classList.remove('active');
-        setTimeout(() => window.location.href = 'pagamento.html', 250);
+        setTimeout(() => window.location.href = '/pagamento', 250);
     });
-    updateCartCount(); // atualiza contador no header recém-injetado
+    updateCartCount();
+    init();
 });
 
-
-/* Animação do card de entrada */
-const style = document.createElement('style');
-style.textContent = `
+/* Animações */
+const _style = document.createElement('style');
+_style.textContent = `
 @keyframes slideInRight{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
 .produto-card{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
 .produto-card.visible{opacity:1;transform:translateY(0)}`;
-document.head.appendChild(style);
+document.head.appendChild(_style);
 
-// IntersectionObserver para animação de entrada dos cards
 const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.05 });
@@ -735,12 +425,5 @@ const cardObserver = new MutationObserver(() => {
     document.querySelectorAll('.produto-card:not(.visible)').forEach(c => io.observe(c));
 });
 cardObserver.observe(document.getElementById('produtosContainer'), { childList: true, subtree: true });
-
-// Produtos carregam no DOMContentLoaded — grid já existe no HTML
-document.addEventListener('DOMContentLoaded', () => {
-    init();
-    updateCartCount();
-});
 </script>
-</body>
-</html>
+{% endblock %}
