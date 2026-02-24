@@ -1,21 +1,14 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finalizar Pedido - Spinassi Chocolates</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/pagamento.css">
-    <link rel="stylesheet" href="assets/css/login.css">
-</head>
-<body data-pagina="pagamento">
+{% extends "base.html" %}
 
-<div id="tpl-whatsapp"></div>
-<div id="tpl-menu"></div>
-<div id="tpl-rodape"></div>
-<!-- ========== OVERLAY DE SUCESSO ========== -->
+{% block titulo %}Finalizar Pedido — Spinassi Chocolates{% endblock %}
+
+{% block css_extra %}
+<link rel="stylesheet" href="/assets/css/pagamento.css">
+{% endblock %}
+
+{% block conteudo_body %}
+
+<!-- ===== OVERLAY DE SUCESSO ===== -->
 <div class="success-overlay" id="successOverlay">
     <div class="success-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -26,324 +19,636 @@
     <p>Obrigado pela sua compra. Você receberá um e-mail com os detalhes do pedido em instantes.</p>
     <p>Nossa equipe já está preparando seu chocolate com todo o carinho 🍫</p>
     <div class="success-order-id">Pedido #SC-<span id="successOrderNum"></span> confirmado</div>
-    <a href="index.html" class="btn-success-home">Continuar Comprando</a>
+    <a href="/" class="btn-success-home">Continuar Comprando</a>
 </div>
 
-<!-- ========== JAVASCRIPT ========== -->
-<script src="assets/js/template.js"></script>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/login.js"></script>
-<script>
-    /* -------------------------------------------------------
-       1. CARRINHO
-    ------------------------------------------------------- */
-    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-    let currentMethod = 'card';
-    let pixInterval   = null;
-    let pixSeconds    = 900;
-
-    if (carrinho.length === 0) {
-        const demo = [
-            { id: 1, nome: 'Trufa Belga Premium',  preco: 89.90,  quantidade: 2,
-              imagem: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=200' },
-            { id: 3, nome: 'Bombons Sortidos Luxo', preco: 129.90, quantidade: 1,
-              imagem: 'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=200' }
-        ];
-        demo.forEach(i => carrinho.push(i));
-    }
-
-    /* -------------------------------------------------------
-       2. RESUMO DO PEDIDO
-    ------------------------------------------------------- */
-    function renderSummary() {
-        const container = document.getElementById('summaryItems');
-        container.innerHTML = carrinho.map(item => `
-            <div class="summary-item">
-                <img src="${item.imagem}" alt="${item.nome}" class="summary-item-img">
-                <div class="summary-item-info">
-                    <div class="summary-item-name">${item.nome}</div>
-                    <div class="summary-item-qty">${item.quantidade}x R$ ${item.preco.toFixed(2).replace('.', ',')}</div>
-                </div>
-                <div class="summary-item-price">R$ ${(item.preco * item.quantidade).toFixed(2).replace('.', ',')}</div>
+<!-- ===== HERO DA PÁGINA ===== -->
+<section class="checkout-hero">
+    <div class="container">
+        <span class="section-subtitle">Última Etapa</span>
+        <h2>Finalizar Pedido</h2>
+        <p>Preencha os dados abaixo para concluir sua compra com segurança</p>
+        <div class="checkout-steps">
+            <div class="step done">
+                <span class="step-num">✓</span>
+                <span class="step-label">Carrinho</span>
             </div>
-        `).join('');
-        recalcularTotais();
-    }
+            <div class="step-line done"></div>
+            <div class="step active">
+                <span class="step-num">2</span>
+                <span class="step-label">Pagamento</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <span class="step-num">3</span>
+                <span class="step-label">Confirmação</span>
+            </div>
+        </div>
+    </div>
+</section>
 
-    let desconto = 0;
+<!-- ===== LAYOUT PRINCIPAL ===== -->
+<div class="checkout-layout">
 
-    function recalcularTotais() {
-        const subtotal = carrinho.reduce((s, i) => s + i.preco * i.quantidade, 0);
-        const frete    = subtotal >= 150 ? 0 : 19.90;
-        const total    = subtotal - desconto + frete;
+    <!-- ── COLUNA ESQUERDA: formulário ── -->
+    <div class="checkout-form-area">
 
-        document.getElementById('subtotalDisplay').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
-        document.getElementById('freteDisplay').textContent    = frete === 0 ? 'Grátis' : `R$ ${frete.toFixed(2).replace('.', ',')}`;
-        document.getElementById('totalDisplay').textContent    = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        <!-- 1. DADOS PESSOAIS -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </span>
+                Dados Pessoais
+            </h3>
+            <div class="form-row">
+                <div class="form-group" id="fg-nome">
+                    <input type="text" id="nome" placeholder=" " autocomplete="name">
+                    <label for="nome">Nome completo *</label>
+                </div>
+                <div class="form-group" id="fg-email">
+                    <input type="email" id="email" placeholder=" " autocomplete="email">
+                    <label for="email">E-mail *</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" id="fg-cpf">
+                    <input type="text" id="cpf" placeholder=" " maxlength="14">
+                    <label for="cpf">CPF *</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="telefone" placeholder=" " maxlength="15">
+                    <label for="telefone">Telefone</label>
+                </div>
+            </div>
+        </div>
 
-        const parc   = parseInt(document.getElementById('parcelas')?.value || 1);
-        const parcEl = document.getElementById('installmentsDisplay');
-        if (currentMethod === 'card' && parc > 1) {
-            parcEl.textContent    = `${parc}x de R$ ${(total / parc).toFixed(2).replace('.', ',')}`;
-            parcEl.style.display  = 'block';
-        } else {
-            parcEl.style.display  = 'none';
-        }
+        <!-- 2. ENDEREÇO DE ENTREGA -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </span>
+                Endereço de Entrega
+            </h3>
+            <div class="form-row">
+                <div class="form-group" id="fg-cep">
+                    <input type="text" id="cep" placeholder=" " maxlength="9">
+                    <label for="cep">CEP *</label>
+                </div>
+                <div class="form-group" id="fg-rua">
+                    <input type="text" id="rua" placeholder=" ">
+                    <label for="rua">Rua / Logradouro *</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="numero" placeholder=" ">
+                    <label for="numero">Número</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="complemento" placeholder=" ">
+                    <label for="complemento">Complemento</label>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <input type="text" id="bairro" placeholder=" ">
+                    <label for="bairro">Bairro</label>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="cidade" placeholder=" ">
+                    <label for="cidade">Cidade</label>
+                </div>
+            </div>
+            <div class="form-row single">
+                <div class="form-group">
+                    <input type="text" id="estado" placeholder=" " maxlength="2">
+                    <label for="estado">Estado (UF)</label>
+                </div>
+            </div>
+        </div>
 
-        const descontoLine = document.getElementById('descontoLine');
-        if (desconto > 0) {
-            descontoLine.style.display = 'flex';
-            document.getElementById('descontoDisplay').textContent = `-R$ ${desconto.toFixed(2).replace('.', ',')}`;
-        } else {
-            descontoLine.style.display = 'none';
-        }
-    }
+        <!-- 3. FORMA DE PAGAMENTO -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2"/>
+                        <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                </span>
+                Forma de Pagamento
+            </h3>
 
-    const orderNum = Math.floor(Math.random() * 900000 + 100000);
-    document.getElementById('orderNum').textContent        = orderNum;
-    document.getElementById('successOrderNum').textContent = orderNum;
+            <!-- Botões de seleção -->
+            <div class="payment-methods">
+                <button class="payment-method-btn active" onclick="selectMethod('card', this)">
+                    <span class="method-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="1" y="4" width="22" height="16" rx="2"/>
+                            <line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                    </span>
+                    <span class="method-label">Cartão</span>
+                </button>
+                <button class="payment-method-btn" onclick="selectMethod('pix', this)">
+                    <span class="method-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 10l8-8 8 8M4 14l8 8 8-8"/>
+                        </svg>
+                    </span>
+                    <span class="method-label">Pix</span>
+                </button>
+                <button class="payment-method-btn" onclick="selectMethod('boleto', this)">
+                    <span class="method-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="1"/>
+                            <line x1="6" y1="9" x2="6" y2="15"/>
+                            <line x1="9" y1="9" x2="9" y2="15"/>
+                            <line x1="13" y1="9" x2="13" y2="15"/>
+                            <line x1="16" y1="9" x2="16" y2="13"/>
+                        </svg>
+                    </span>
+                    <span class="method-label">Boleto</span>
+                </button>
+            </div>
 
-    /* -------------------------------------------------------
-       3. SELEÇÃO DE MÉTODO
-    ------------------------------------------------------- */
-    function selectMethod(method, btn) {
-        currentMethod = method;
-        document.querySelectorAll('.payment-method-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + method).classList.add('active');
-        if (method === 'pix') startPixTimer();
-        else stopPixTimer();
-        recalcularTotais();
-    }
+            <!-- PAINEL: CARTÃO -->
+            <div class="payment-panel active" id="panel-card">
+                <!-- Preview do cartão -->
+                <div class="card-preview">
+                    <div class="card-chip"></div>
+                    <div class="card-num-preview" id="cardNumPreview">•••• •••• •••• ••••</div>
+                    <div class="card-bottom">
+                        <div class="card-name-preview" id="cardNamePreview">SEU NOME</div>
+                        <div class="card-exp-preview"  id="cardExpPreview">MM/AA</div>
+                    </div>
+                </div>
+                <!-- Campos do cartão -->
+                <div class="form-row single">
+                    <div class="form-group" id="fg-cardnum">
+                        <input type="text" id="cardNum" placeholder=" " maxlength="19" inputmode="numeric">
+                        <label for="cardNum">Número do Cartão *</label>
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-group">
+                        <input type="text" id="cardName" placeholder=" " style="text-transform:uppercase">
+                        <label for="cardName">Nome no Cartão</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" id="fg-cardexp">
+                        <input type="text" id="cardExp" placeholder=" " maxlength="5">
+                        <label for="cardExp">Validade (MM/AA) *</label>
+                    </div>
+                    <div class="form-group" id="fg-cardcvv">
+                        <input type="text" id="cardCvv" placeholder=" " maxlength="4" inputmode="numeric">
+                        <label for="cardCvv">CVV *</label>
+                    </div>
+                </div>
+                <div class="form-row single">
+                    <div class="form-group">
+                        <select id="parcelas">
+                            <option value="1">1x sem juros</option>
+                            <option value="2">2x sem juros</option>
+                            <option value="3">3x sem juros</option>
+                            <option value="4">4x sem juros</option>
+                            <option value="5">5x sem juros</option>
+                            <option value="6">6x sem juros</option>
+                        </select>
+                        <label for="parcelas" class="select-label">Parcelas</label>
+                    </div>
+                </div>
+            </div>
 
-    /* -------------------------------------------------------
-       4. PREVIEW CARTÃO
-    ------------------------------------------------------- */
-    document.getElementById('cardNum').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g, '').substring(0, 16);
-        v = v.replace(/(.{4})/g, '$1 ').trim();
-        this.value = v;
-        document.getElementById('cardNumPreview').textContent =
-            v.length >= 4 ? v.padEnd(19, '\u2022') : '\u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022';
-    });
-    document.getElementById('cardName').addEventListener('input', function () {
-        document.getElementById('cardNamePreview').textContent = this.value.toUpperCase() || 'SEU NOME';
-    });
-    document.getElementById('cardExp').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g, '');
-        if (v.length > 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
-        this.value = v;
-        document.getElementById('cardExpPreview').textContent = v || 'MM/AA';
-    });
-    document.getElementById('cardCvv').addEventListener('input', function () {
-        this.value = this.value.replace(/\D/g, '');
-    });
-    document.getElementById('cpf').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g, '');
-        if (v.length > 3)  v = v.substring(0, 3)  + '.' + v.substring(3);
-        if (v.length > 7)  v = v.substring(0, 7)  + '.' + v.substring(7);
-        if (v.length > 11) v = v.substring(0, 11) + '-' + v.substring(11, 13);
-        this.value = v.substring(0, 14);
-    });
-    document.getElementById('cep').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g, '');
-        if (v.length > 5) v = v.substring(0, 5) + '-' + v.substring(5, 8);
-        this.value = v;
-    });
-    document.getElementById('telefone').addEventListener('input', function () {
-        let v = this.value.replace(/\D/g, '');
-        if (v.length > 0)  v = '(' + v;
-        if (v.length > 3)  v = v.substring(0, 3) + ') ' + v.substring(3);
-        if (v.length > 10) v = v.substring(0, 10) + '-' + v.substring(10, 15);
-        this.value = v;
-    });
-    document.getElementById('parcelas').addEventListener('change', recalcularTotais);
+            <!-- PAINEL: PIX -->
+            <div class="payment-panel" id="panel-pix">
+                <div class="pix-display">
+                    <div class="pix-qr">
+                        <div class="qr-code" id="qrPattern"></div>
+                    </div>
+                    <div class="pix-info">
+                        <p class="pix-timer-label">Expira em: <strong id="pixTimerDisplay">15:00</strong></p>
+                        <p class="pix-instructions">Abra o app do seu banco, escolha pagar via Pix e escaneie o QR Code ou copie o código abaixo:</p>
+                        <div class="pix-code-wrap">
+                            <code id="pixCode">00020126580014br.gov.bcb.pix0136spinassi-choc-pix-key5204000053039865802BR5925Spinassi Chocolates6009SAO PAULO62070503***6304ABCD</code>
+                            <button class="btn-copy-pix" onclick="copyPix()">Copiar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    /* -------------------------------------------------------
-       5. TIMER PIX
-    ------------------------------------------------------- */
-    function startPixTimer() {
-        stopPixTimer();
-        pixSeconds = 900;
-        updatePixTimer();
-        pixInterval = setInterval(() => { pixSeconds--; updatePixTimer(); if (pixSeconds <= 0) stopPixTimer(); }, 1000);
-    }
-    function stopPixTimer() { if (pixInterval) clearInterval(pixInterval); }
-    function updatePixTimer() {
-        const m = Math.floor(pixSeconds / 60);
-        const s = pixSeconds % 60;
-        document.getElementById('pixTimerDisplay').textContent =
-            `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-    function copyPix() {
-        navigator.clipboard.writeText(document.getElementById('pixCode').textContent.trim())
-            .then(() => showToast('Código Pix copiado!', 'success'))
-            .catch(() => showToast('Não foi possível copiar automaticamente.', 'error'));
-    }
-    function downloadBoleto() { showToast('Boleto gerado! O download iniciará em breve.', 'success'); }
+            <!-- PAINEL: BOLETO -->
+            <div class="payment-panel" id="panel-boleto">
+                <div class="boleto-display">
+                    <div class="boleto-info">
+                        <p>Após confirmar, o boleto será gerado e enviado para o seu e-mail.</p>
+                        <p>Prazo de pagamento: <strong>3 dias úteis</strong></p>
+                    </div>
+                    <div class="boleto-barcode">
+                        <div id="barcodeLines" class="barcode-lines"></div>
+                        <p class="boleto-code-text">1234.56789 0001.234567 89012.345678 9 12340000030000</p>
+                    </div>
+                    <button class="btn-boleto-download" onclick="downloadBoleto()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Baixar Boleto
+                    </button>
+                </div>
+            </div>
+        </div>
 
-    /* -------------------------------------------------------
-       6. QR CODE DECORATIVO
-    ------------------------------------------------------- */
-    function generateQR() {
-        const el = document.getElementById('qrPattern');
-        if (!el) return;
-        const fixedOn = new Set(['0,0','1,0','2,0','3,0','4,0','5,0','6,0','0,1','6,1','0,2','6,2',
-            '0,3','6,3','0,4','6,4','0,5','6,5','0,6','1,6','2,6','3,6','4,6','5,6','6,6',
-            '0,7','0,8','0,9','0,10','0,11','0,12','1,12','2,12','3,12','4,12','5,12','6,12',
-            '6,7','6,8','6,9','6,10','6,11','1,8','2,8','3,8','4,8','1,9','2,9','3,9','4,9',
-            '1,10','2,10','3,10','4,10','1,11','2,11','3,11','4,11']);
-        let html = '';
-        for (let r = 0; r < 13; r++)
-            for (let c = 0; c < 13; c++)
-                html += `<span style="opacity:${fixedOn.has(`${c},${r}`) || Math.random() > 0.5 ? 1 : 0}"></span>`;
-        el.style.gridTemplateColumns = 'repeat(13, 1fr)';
-        el.innerHTML = html;
-    }
+        <!-- 4. CUPOM -->
+        <div class="form-section">
+            <h3 class="form-section-title">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                        <line x1="7" y1="7" x2="7.01" y2="7"/>
+                    </svg>
+                </span>
+                Cupom de Desconto
+            </h3>
+            <div class="cupom-row">
+                <input type="text" id="cupomInput" class="cupom-input" placeholder="Digite seu cupom">
+                <button class="btn-cupom" onclick="aplicarCupom()">Aplicar</button>
+            </div>
+            <div class="cupom-msg" id="cupomMsg" style="display:none"></div>
+        </div>
 
-    /* -------------------------------------------------------
-       7. CÓDIGO DE BARRAS DECORATIVO
-    ------------------------------------------------------- */
-    function generateBarcode() {
-        const el = document.getElementById('barcodeLines');
-        if (!el) return;
-        [1,2,1,3,1,2,3,1,2,1,3,2,1,1,3,2,1,3,2,1,2,1,3,1,2,1,2,3,1,3,2,1,2,1,3,2,1,3,1,2,
-         1,3,2,1,1,3,2,1,3,1,2,3,1,2,1,3,1,2,1,3].forEach((w, i) => {
-            const bar = document.createElement('span');
-            bar.style.width   = (w * 2) + 'px';
-            bar.style.opacity = i % 2 === 0 ? '1' : '0';
-            el.appendChild(bar);
-        });
-    }
+    </div><!-- /checkout-form-area -->
 
-    /* -------------------------------------------------------
-       8. CUPOM
-    ------------------------------------------------------- */
-    const cupons = { 'CHOCOLATE10': 10, 'NOIR20': 20, 'NOIR2024': 15 };
-    function aplicarCupom() {
-        const code = document.getElementById('cupomInput').value.trim().toUpperCase();
-        const msg  = document.getElementById('cupomMsg');
-        if (cupons[code]) {
-            desconto = cupons[code];
-            msg.textContent = `\u2713 Cupom aplicado: ${desconto}% de desconto!`;
-            msg.className   = 'cupom-msg cupom-msg--success';
-        } else {
-            msg.textContent = '\u2717 Cupom inv\u00e1lido ou expirado.';
-            msg.className   = 'cupom-msg cupom-msg--error';
-            desconto = 0;
-        }
-        msg.style.display = 'block';
-        recalcularTotais();
-    }
+    <!-- ── COLUNA DIREITA: resumo do pedido ── -->
+    <div class="order-summary">
+        <div class="summary-header">
+            <h3>Resumo do Pedido</h3>
+            <span class="order-badge">Pedido #SC-<span id="orderNum"></span></span>
+        </div>
 
-    /* -------------------------------------------------------
-       9. VALIDAÇÃO E PROCESSAMENTO
-    ------------------------------------------------------- */
-    function validateField(id, ok) {
-        const fg = document.getElementById('fg-' + id);
-        if (!fg) return true;
-        fg.classList.toggle('error', !ok);
-        return ok;
-    }
+        <div class="summary-items" id="summaryItems">
+            <!-- Preenchido por JS -->
+        </div>
 
-    async function processarPagamento() {
-        const nome  = document.getElementById('nome').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const cpf   = document.getElementById('cpf').value.trim();
-        const rua   = document.getElementById('rua').value.trim();
-        const cep   = document.getElementById('cep').value.trim();
-        let valid   = true;
+        <div class="summary-totals">
+            <div class="summary-line">
+                <span>Subtotal</span>
+                <span id="subtotalDisplay">R$ 0,00</span>
+            </div>
+            <div class="summary-line" id="descontoLine" style="display:none;color:#27ae60">
+                <span>Desconto</span>
+                <span id="descontoDisplay">-R$ 0,00</span>
+            </div>
+            <div class="summary-line">
+                <span>Frete</span>
+                <span id="freteDisplay">—</span>
+            </div>
+            <div class="summary-line summary-line--parcelas" id="installmentsDisplay" style="display:none">
+                <!-- Preenchido por JS -->
+            </div>
+            <div class="summary-line summary-line--total">
+                <span>Total</span>
+                <span id="totalDisplay">R$ 0,00</span>
+            </div>
+        </div>
 
-        valid = validateField('nome',  nome.length >= 3)                         && valid;
-        valid = validateField('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && valid;
-        valid = validateField('cpf',   /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf))  && valid;
-        valid = validateField('rua',   rua.length >= 3)                          && valid;
-        valid = validateField('cep',   /^\d{5}-\d{3}$/.test(cep))               && valid;
+        <div class="summary-security">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Compra 100% segura e criptografada
+        </div>
 
-        if (currentMethod === 'card') {
-            const num = document.getElementById('cardNum').value.replace(/\s/g, '');
-            valid = validateField('cardnum', num.length === 16)                                                   && valid;
-            valid = validateField('cardexp', /^\d{2}\/\d{2}$/.test(document.getElementById('cardExp').value)) && valid;
-            valid = validateField('cardcvv', document.getElementById('cardCvv').value.length >= 3)               && valid;
-        }
-
-        if (!valid) {
-            showToast('Por favor, corrija os campos destacados.', 'error');
-            const first = document.querySelector('.form-group.error');
-            if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
-
-        const btn = document.getElementById('btnPagar');
-        btn.disabled  = true;
-        btn.innerHTML = `
-            <span class="btn-loading-inner">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
-                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83
-                             M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                </svg>
-                Processando pagamento...
-            </span>`;
-
-        /* ── Monta payload para a API ─────────────────────── */
-        const bairro = document.getElementById('bairro')?.value.trim() || '';
-        const cidade = document.getElementById('cidade')?.value.trim() || '';
-        const estado = document.getElementById('estado')?.value.trim() || '';
-        const numero = document.getElementById('numero')?.value.trim() || '';
-        const compl  = document.getElementById('complemento')?.value.trim() || '';
-
-        const payload = {
-            carrinho: carrinho.map(i => ({ id: i.id, quantidade: i.quantidade })),
-            cliente:  { nome, email, telefone: cpf },
-            entrega:  { cep, logradouro: rua, numero, complemento: compl,
-                        bairro, cidade, estado },
-            forma_pagamento: currentMethod === 'card'  ? 'cartao'  :
-                             currentMethod === 'pix'   ? 'pix'     : 'boleto',
-            observacao: ''
-        };
-
-        try {
-            /* Envia pedido para o banco de dados */
-            const res = await SpinassiAPI.pedidos.criar(payload);
-            const pedidoId = res.data?.pedido_id || '---';
-
-            /* Atualiza número do pedido na tela de sucesso */
-            document.getElementById('successOrderNum').textContent = pedidoId;
-            document.getElementById('orderNum').textContent        = pedidoId;
-
-            stopPixTimer();
-            localStorage.removeItem('carrinho');
-            document.getElementById('successOverlay').classList.add('active');
-
-        } catch (e) {
-            showToast(e.message || 'Erro ao processar pedido. Tente novamente.', 'error');
-            btn.disabled  = false;
-            btn.innerHTML = `<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+        <button class="btn-pagar" id="btnPagar" onclick="processarPagamento()">
+            <svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" width="18" height="18">
                 <rect x="3" y="11" width="18" height="11" rx="2"/>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg> Confirmar Pagamento`;
-        }
+            </svg>
+            Confirmar Pagamento
+        </button>
+
+        <div class="payment-badges">
+            <span class="badge">Visa</span>
+            <span class="badge">Master</span>
+            <span class="badge">Pix</span>
+            <span class="badge">Boleto</span>
+        </div>
+    </div>
+
+</div><!-- /checkout-layout -->
+
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+/* -------------------------------------------------------
+   1. CARRINHO
+------------------------------------------------------- */
+const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+let currentMethod = 'card';
+let pixInterval   = null;
+let pixSeconds    = 900;
+
+if (carrinho.length === 0) {
+    const demo = [
+        { id: 1, nome: 'Trufa Belga Premium',  preco: 89.90,  quantidade: 2,
+          imagem: 'https://images.unsplash.com/photo-1548907040-4baa42d10919?w=200' },
+        { id: 3, nome: 'Bombons Sortidos Luxo', preco: 129.90, quantidade: 1,
+          imagem: 'https://images.unsplash.com/photo-1606312619070-d48b4f0c1b2d?w=200' }
+    ];
+    demo.forEach(i => carrinho.push(i));
+}
+
+/* -------------------------------------------------------
+   2. RESUMO DO PEDIDO
+------------------------------------------------------- */
+function renderSummary() {
+    const container = document.getElementById('summaryItems');
+    container.innerHTML = carrinho.map(item => `
+        <div class="summary-item">
+            <img src="${item.imagem_principal || item.imagem || ''}" alt="${item.nome}" class="summary-item-img"
+                 onerror="this.src='https://images.unsplash.com/photo-1548907040-4baa42d10919?w=200';this.onerror=null;">
+            <div class="summary-item-info">
+                <div class="summary-item-name">${item.nome}</div>
+                <div class="summary-item-qty">${item.quantidade}x R$ ${parseFloat(item.preco).toFixed(2).replace('.', ',')}</div>
+            </div>
+            <div class="summary-item-price">R$ ${(parseFloat(item.preco) * item.quantidade).toFixed(2).replace('.', ',')}</div>
+        </div>
+    `).join('');
+    recalcularTotais();
+}
+
+let desconto = 0;
+
+function recalcularTotais() {
+    const subtotal = carrinho.reduce((s, i) => s + parseFloat(i.preco) * i.quantidade, 0);
+    const frete    = subtotal >= 150 ? 0 : 19.90;
+    const total    = subtotal - desconto + frete;
+
+    document.getElementById('subtotalDisplay').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+    document.getElementById('freteDisplay').textContent    = frete === 0 ? 'Grátis' : `R$ ${frete.toFixed(2).replace('.', ',')}`;
+    document.getElementById('totalDisplay').textContent    = `R$ ${total.toFixed(2).replace('.', ',')}`;
+
+    const parc   = parseInt(document.getElementById('parcelas')?.value || 1);
+    const parcEl = document.getElementById('installmentsDisplay');
+    if (currentMethod === 'card' && parc > 1) {
+        parcEl.textContent   = `${parc}x de R$ ${(total / parc).toFixed(2).replace('.', ',')}`;
+        parcEl.style.display = 'flex';
+    } else {
+        parcEl.style.display = 'none';
     }
 
-    /* -------------------------------------------------------
-       10. TOAST
-    ------------------------------------------------------- */
-    function showToast(msg, type = 'success') {
-        const t = document.createElement('div');
-        t.className   = `toast toast--${type}`;
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => { t.classList.add('toast--out'); setTimeout(() => t.remove(), 320); }, 3000);
+    const descontoLine = document.getElementById('descontoLine');
+    if (desconto > 0) {
+        descontoLine.style.display = 'flex';
+        document.getElementById('descontoDisplay').textContent = `-R$ ${desconto.toFixed(2).replace('.', ',')}`;
+    } else {
+        descontoLine.style.display = 'none';
+    }
+}
+
+const orderNum = Math.floor(Math.random() * 900000 + 100000);
+document.getElementById('orderNum').textContent        = orderNum;
+document.getElementById('successOrderNum').textContent = orderNum;
+
+/* -------------------------------------------------------
+   3. SELEÇÃO DE MÉTODO
+------------------------------------------------------- */
+function selectMethod(method, btn) {
+    currentMethod = method;
+    document.querySelectorAll('.payment-method-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.payment-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + method).classList.add('active');
+    if (method === 'pix') startPixTimer();
+    else stopPixTimer();
+    recalcularTotais();
+}
+
+/* -------------------------------------------------------
+   4. PREVIEW CARTÃO
+------------------------------------------------------- */
+document.getElementById('cardNum').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '').substring(0, 16);
+    v = v.replace(/(.{4})/g, '$1 ').trim();
+    this.value = v;
+    document.getElementById('cardNumPreview').textContent =
+        v.length >= 4 ? v.padEnd(19, '•') : '•••• •••• •••• ••••';
+});
+document.getElementById('cardName').addEventListener('input', function () {
+    document.getElementById('cardNamePreview').textContent = this.value.toUpperCase() || 'SEU NOME';
+});
+document.getElementById('cardExp').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+    this.value = v;
+    document.getElementById('cardExpPreview').textContent = v || 'MM/AA';
+});
+document.getElementById('cardCvv').addEventListener('input', function () {
+    this.value = this.value.replace(/\D/g, '');
+});
+document.getElementById('cpf').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 3)  v = v.substring(0, 3)  + '.' + v.substring(3);
+    if (v.length > 7)  v = v.substring(0, 7)  + '.' + v.substring(7);
+    if (v.length > 11) v = v.substring(0, 11) + '-' + v.substring(11, 13);
+    this.value = v.substring(0, 14);
+});
+document.getElementById('cep').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 5) v = v.substring(0, 5) + '-' + v.substring(5, 8);
+    this.value = v;
+});
+document.getElementById('telefone').addEventListener('input', function () {
+    let v = this.value.replace(/\D/g, '');
+    if (v.length > 0)  v = '(' + v;
+    if (v.length > 3)  v = v.substring(0, 3) + ') ' + v.substring(3);
+    if (v.length > 10) v = v.substring(0, 10) + '-' + v.substring(10, 15);
+    this.value = v;
+});
+document.getElementById('parcelas').addEventListener('change', recalcularTotais);
+
+/* -------------------------------------------------------
+   5. TIMER PIX
+------------------------------------------------------- */
+function startPixTimer() {
+    stopPixTimer();
+    pixSeconds = 900;
+    updatePixTimer();
+    pixInterval = setInterval(() => { pixSeconds--; updatePixTimer(); if (pixSeconds <= 0) stopPixTimer(); }, 1000);
+}
+function stopPixTimer() { if (pixInterval) clearInterval(pixInterval); }
+function updatePixTimer() {
+    const m = Math.floor(pixSeconds / 60);
+    const s = pixSeconds % 60;
+    document.getElementById('pixTimerDisplay').textContent =
+        `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function copyPix() {
+    navigator.clipboard.writeText(document.getElementById('pixCode').textContent.trim())
+        .then(() => showToast('Código Pix copiado!'))
+        .catch(() => showToast('Não foi possível copiar automaticamente.', 'error'));
+}
+function downloadBoleto() { showToast('Boleto gerado! O download iniciará em breve.'); }
+
+/* -------------------------------------------------------
+   6. QR CODE DECORATIVO
+------------------------------------------------------- */
+function generateQR() {
+    const el = document.getElementById('qrPattern');
+    if (!el) return;
+    const fixedOn = new Set(['0,0','1,0','2,0','3,0','4,0','5,0','6,0','0,1','6,1','0,2','6,2',
+        '0,3','6,3','0,4','6,4','0,5','6,5','0,6','1,6','2,6','3,6','4,6','5,6','6,6',
+        '0,7','0,8','0,9','0,10','0,11','0,12','1,12','2,12','3,12','4,12','5,12','6,12',
+        '6,7','6,8','6,9','6,10','6,11','1,8','2,8','3,8','4,8','1,9','2,9','3,9','4,9',
+        '1,10','2,10','3,10','4,10','1,11','2,11','3,11','4,11']);
+    let html = '';
+    for (let r = 0; r < 13; r++)
+        for (let c = 0; c < 13; c++)
+            html += `<span style="opacity:${fixedOn.has(`${c},${r}`) || Math.random() > 0.5 ? 1 : 0}"></span>`;
+    el.style.gridTemplateColumns = 'repeat(13, 1fr)';
+    el.innerHTML = html;
+}
+
+/* -------------------------------------------------------
+   7. CÓDIGO DE BARRAS DECORATIVO
+------------------------------------------------------- */
+function generateBarcode() {
+    const el = document.getElementById('barcodeLines');
+    if (!el) return;
+    [1,2,1,3,1,2,3,1,2,1,3,2,1,1,3,2,1,3,2,1,2,1,3,1,2,1,2,3,1,3,2,1,2,1,3,2,1,3,1,2,
+     1,3,2,1,1,3,2,1,3,1,2,3,1,2,1,3,1,2,1,3].forEach((w, i) => {
+        const bar = document.createElement('span');
+        bar.style.width   = (w * 2) + 'px';
+        bar.style.opacity = i % 2 === 0 ? '1' : '0';
+        el.appendChild(bar);
+    });
+}
+
+/* -------------------------------------------------------
+   8. CUPOM
+------------------------------------------------------- */
+const cupons = { 'CHOCOLATE10': 10, 'NOIR20': 20, 'NOIR2024': 15 };
+function aplicarCupom() {
+    const code = document.getElementById('cupomInput').value.trim().toUpperCase();
+    const msg  = document.getElementById('cupomMsg');
+    if (cupons[code]) {
+        desconto = cupons[code];
+        msg.textContent = `✓ Cupom aplicado: ${desconto}% de desconto!`;
+        msg.className   = 'cupom-msg cupom-msg--success';
+    } else {
+        msg.textContent = '✗ Cupom inválido ou expirado.';
+        msg.className   = 'cupom-msg cupom-msg--error';
+        desconto = 0;
+    }
+    msg.style.display = 'block';
+    recalcularTotais();
+}
+
+/* -------------------------------------------------------
+   9. VALIDAÇÃO E PROCESSAMENTO
+------------------------------------------------------- */
+function validateField(id, ok) {
+    const fg = document.getElementById('fg-' + id);
+    if (!fg) return true;
+    fg.classList.toggle('error', !ok);
+    return ok;
+}
+
+async function processarPagamento() {
+    const nome  = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const cpf   = document.getElementById('cpf').value.trim();
+    const rua   = document.getElementById('rua').value.trim();
+    const cep   = document.getElementById('cep').value.trim();
+    let valid   = true;
+
+    valid = validateField('nome',  nome.length >= 3)                         && valid;
+    valid = validateField('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && valid;
+    valid = validateField('cpf',   /^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf))  && valid;
+    valid = validateField('rua',   rua.length >= 3)                          && valid;
+    valid = validateField('cep',   /^\d{5}-\d{3}$/.test(cep))               && valid;
+
+    if (currentMethod === 'card') {
+        const num = document.getElementById('cardNum').value.replace(/\s/g, '');
+        valid = validateField('cardnum', num.length === 16)                                                    && valid;
+        valid = validateField('cardexp', /^\d{2}\/\d{2}$/.test(document.getElementById('cardExp').value)) && valid;
+        valid = validateField('cardcvv', document.getElementById('cardCvv').value.length >= 3)                && valid;
     }
 
-    /* -------------------------------------------------------
-       11. INIT
-    ------------------------------------------------------- */
-    renderSummary();
-    generateQR();
-    generateBarcode();
+    if (!valid) {
+        showToast('Por favor, corrija os campos destacados.', 'error');
+        const first = document.querySelector('.form-group.error');
+        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+    }
+
+    const btn = document.getElementById('btnPagar');
+    btn.disabled  = true;
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin">
+        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+    </svg> Processando...`;
+
+    const bairro = document.getElementById('bairro')?.value.trim() || '';
+    const cidade = document.getElementById('cidade')?.value.trim() || '';
+    const estado = document.getElementById('estado')?.value.trim() || '';
+    const numero = document.getElementById('numero')?.value.trim() || '';
+    const compl  = document.getElementById('complemento')?.value.trim() || '';
+
+    const payload = {
+        carrinho: carrinho.map(i => ({ id: i.id, quantidade: i.quantidade })),
+        cliente:  { nome, email, telefone: cpf },
+        entrega:  { cep, logradouro: rua, numero, complemento: compl, bairro, cidade, estado },
+        forma_pagamento: currentMethod === 'card' ? 'cartao' : currentMethod === 'pix' ? 'pix' : 'boleto',
+        observacao: ''
+    };
+
+    try {
+        const res = await window.SpinassiAPI.pedidos.criar(payload);
+        const pedidoId = res.data?.pedido_id || orderNum;
+        document.getElementById('successOrderNum').textContent = pedidoId;
+        document.getElementById('orderNum').textContent        = pedidoId;
+        stopPixTimer();
+        localStorage.removeItem('carrinho');
+        document.getElementById('successOverlay').classList.add('active');
+    } catch (e) {
+        showToast(e.message || 'Erro ao processar pedido. Tente novamente.', 'error');
+        btn.disabled  = false;
+        btn.innerHTML = `<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" width="18" height="18">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg> Confirmar Pagamento`;
+    }
+}
+
+/* -------------------------------------------------------
+   10. TOAST
+------------------------------------------------------- */
+function showToast(msg, type = 'success') {
+    const t = document.createElement('div');
+    t.className   = `toast toast--${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.classList.add('toast--out'); setTimeout(() => t.remove(), 320); }, 3000);
+}
+
+/* -------------------------------------------------------
+   11. INIT
+------------------------------------------------------- */
+renderSummary();
+generateQR();
+generateBarcode();
 </script>
-<div id="tpl-carrinho"></div>
-</body>
-</html>
+{% endblock %}

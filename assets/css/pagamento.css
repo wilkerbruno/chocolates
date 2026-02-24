@@ -1286,3 +1286,135 @@ h1, h2, h3, h4 {
 .toast--out {
     animation: slideOut 0.32s ease forwards;
 }
+
+/* ── Adições para o template Jinja2 ───────────────────── */
+
+/* Hero do checkout */
+.checkout-hero {
+    background: linear-gradient(135deg, var(--chocolate-dark) 0%, var(--chocolate-medium) 100%);
+    padding: 130px 0 60px;
+    text-align: center;
+    color: var(--cream);
+}
+.checkout-hero .section-subtitle {
+    color: var(--gold);
+    letter-spacing: 3px;
+    font-size: .85rem;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 12px;
+}
+.checkout-hero h2 {
+    font-size: 3rem;
+    color: var(--cream);
+    margin-bottom: 12px;
+}
+.checkout-hero p {
+    color: rgba(255,248,231,.75);
+    margin-bottom: 32px;
+}
+
+/* Steps */
+.checkout-steps {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 8px;
+}
+.step-line {
+    width: 60px;
+    height: 2px;
+    background: rgba(255,255,255,.25);
+}
+.step-line.done { background: var(--gold); }
+
+/* Preview do cartão */
+.card-preview {
+    background: linear-gradient(135deg, var(--chocolate-dark), var(--chocolate-medium));
+    border-radius: 12px;
+    padding: 28px 28px 22px;
+    color: #fff;
+    margin-bottom: 28px;
+    position: relative;
+    min-height: 160px;
+    box-shadow: 0 8px 30px var(--shadow-heavy);
+}
+.card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 24px;
+}
+.card-num-preview {
+    font-size: 1.25rem;
+    letter-spacing: 3px;
+    font-family: monospace;
+    margin-top: 20px;
+}
+.card-name-preview,
+.card-exp-preview {
+    font-size: .85rem;
+    opacity: .85;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Segurança e botão pagar */
+.summary-security {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .8rem;
+    color: var(--text-light);
+    margin-bottom: 20px;
+}
+.btn-pagar {
+    width: 100%;
+    background: linear-gradient(45deg, #FFD700, #FFF8DC, #D4AF37);
+    color: var(--chocolate-dark);
+    border: none;
+    padding: 18px;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all .3s ease;
+    margin-bottom: 20px;
+}
+.btn-pagar:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 24px var(--shadow-heavy); }
+.btn-pagar:disabled { opacity: .7; cursor: not-allowed; }
+
+/* Badges de pagamento */
+.payment-badges {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.payment-badges .badge {
+    background: var(--cream);
+    border: 1px solid var(--gold-light);
+    color: var(--text-light);
+    font-size: .72rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: .5px;
+}
+
+/* Select label */
+.select-label {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    font-size: .85rem;
+    background: var(--white);
+    padding: 0 5px;
+    color: var(--gold);
+    pointer-events: none;
+}
