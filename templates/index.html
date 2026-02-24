@@ -130,11 +130,10 @@
 {% endblock %}
 
 {% block scripts_extra %}
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="../assets/js/script.js"></script>
-
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="/assets/js/script.js"></script>
 
     <script>
-        // Garante que o vídeo principal nunca pare de rodar
         (function () {
             const video = document.getElementById('heroMainVideo');
             if (!video) return;

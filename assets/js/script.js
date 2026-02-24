@@ -147,18 +147,19 @@ async function toggleDesejo(id, btn) {
 
 // Inicializar página
 document.addEventListener('DOMContentLoaded', () => {
-    // Produtos e contador não dependem do template — carregam imediatamente
     carregarProdutos();
+    setupEventListeners();
+    setupScrollEffects();
     updateCartCount();
 });
 
-// Carrinho e eventos do header só ficam disponíveis após o template.js
-// injetar o menu/modal (que vêm de template.html via fetch)
+// Retrocompatibilidade com páginas que ainda usam template.js
 window.addEventListener('templateCarregado', () => {
     setupEventListeners();
     setupScrollEffects();
-    updateCartCount(); // atualiza contador no header recém-injetado
+    updateCartCount();
 });
+
 
 // Renderizar produtos
 function renderProdutos() {

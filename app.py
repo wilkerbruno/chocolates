@@ -49,7 +49,7 @@ DB_CONFIG = {
     'database': 'chocolate',
     'charset':  'utf8mb4',
     'cursorclass': pymysql.cursors.DictCursor,
-    'connect_timeout': 10,
+    'connect_timeout': 3,
     'autocommit': True,
 }
 
@@ -548,8 +548,11 @@ def deletar_endereco(eid):
 
 @app.route('/api/categorias', methods=['GET'])
 def listar_categorias():
-    rows, _ = query("SELECT * FROM categorias WHERE ativa=1 ORDER BY ordem, nome")
-    return ok(rows)
+    try:
+        rows, _ = query("SELECT * FROM categorias WHERE ativa=1 ORDER BY ordem, nome")
+        return ok(rows)
+    except Exception:
+        return ok([])
 
 # ============================================================
 #  PRODUTOS (público)
@@ -584,13 +587,16 @@ def listar_produtos():
         LIMIT %s OFFSET %s
     """
     params += [limite, offset]
-    rows, _ = query(sql, params)
-    # Converte Decimal para float
-    for r in (rows or []):
-        r['preco'] = float(r['preco'])
-        if r.get('preco_promocional'):
-            r['preco_promocional'] = float(r['preco_promocional'])
-    return ok(rows)
+    try:
+        rows, _ = query(sql, params)
+        # Converte Decimal para float
+        for r in (rows or []):
+            r['preco'] = float(r['preco'])
+            if r.get('preco_promocional'):
+                r['preco_promocional'] = float(r['preco_promocional'])
+        return ok(rows)
+    except Exception:
+        return ok([])
 
 
 @app.route('/api/produtos/<int:pid>', methods=['GET'])
@@ -1499,4 +1505,4 @@ if __name__ == '__main__':
     print('=' * 60 + '\n')
 
     os.makedirs('logs', exist_ok=True)
-    #app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

@@ -389,6 +389,7 @@ function removeItem(id) { carrinho = carrinho.filter(x => x.id !== id); saveCart
 
 /* Vincular eventos do carrinho — header já está inline, sem esperar evento */
 document.addEventListener('DOMContentLoaded', () => {
+    /* Carrinho */
     document.getElementById('cartBtn').addEventListener('click', () => {
         document.getElementById('cartModal').classList.add('active');
         renderCart();
@@ -406,24 +407,20 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => window.location.href = '/pagamento', 250);
     });
     updateCartCount();
+
+    /* Animação de entrada dos cards — sem opacity:0 inicial para evitar
+       produtos invisíveis caso o IntersectionObserver não dispare */
+    const _style = document.createElement('style');
+    _style.textContent = `
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.produto-card { animation: fadeInUp 0.4s ease both; }`;
+    document.head.appendChild(_style);
+
+    /* Carrega produtos */
     init();
 });
-
-/* Animações */
-const _style = document.createElement('style');
-_style.textContent = `
-@keyframes slideInRight{from{transform:translateX(400px);opacity:0}to{transform:translateX(0);opacity:1}}
-.produto-card{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
-.produto-card.visible{opacity:1;transform:translateY(0)}`;
-document.head.appendChild(_style);
-
-const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.05 });
-
-const cardObserver = new MutationObserver(() => {
-    document.querySelectorAll('.produto-card:not(.visible)').forEach(c => io.observe(c));
-});
-cardObserver.observe(document.getElementById('produtosContainer'), { childList: true, subtree: true });
 </script>
 {% endblock %}
