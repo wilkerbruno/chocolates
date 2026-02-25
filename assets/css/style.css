@@ -91,6 +91,39 @@ h1, h2, h3, h4 {
     gap: 40px;
 }
 
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    z-index: 1001;
+}
+.hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--cream);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+}
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.mobile-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
+.mobile-backdrop.active { display: block; }
+
 .nav-link {
     color: var(--cream);
     text-decoration: none;
@@ -474,12 +507,12 @@ h1, h2, h3, h4 {
     transform: translateY(-6px);
     box-shadow: 0 20px 60px var(--shadow-heavy);
 }
-
 .produto-card:hover .produto-descricao {
     max-height: 60px;
     opacity: 1;
     margin-bottom: 10px;
 }
+
 
 .produto-image {
     position: relative;
@@ -531,6 +564,8 @@ h1, h2, h3, h4 {
 }
 
 .produto-descricao {
+    color: var(--text-light);
+    margin-bottom: 10px;
     font-size: 0.80rem;
     line-height: 1.4;
     display: -webkit-box;
@@ -545,14 +580,12 @@ h1, h2, h3, h4 {
 }
 
 .produto-footer {
-    flex-direction: column;
+    display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
+    align-items: center;
 }
 
 .produto-preco {
-    white-space: nowrap;
     font-size: 1.3rem;
     color: var(--chocolate-dark);
     font-weight: 600;
@@ -561,7 +594,7 @@ h1, h2, h3, h4 {
 
 .btn-add-cart {
     background: var(--chocolate-dark);
-    width: 100%;
+    
     border: 2px solid var(--chocolate-dark);
     padding: 12px 24px;
     font-size: 0.9rem;
@@ -1051,7 +1084,7 @@ h1, h2, h3, h4 {
     width: 100%;
 }
 
-
+/* WhatsApp Float */
 /* Instagram flutuante */
 .instagram-float {
     position: fixed;
@@ -1079,7 +1112,6 @@ h1, h2, h3, h4 {
     height: 28px;
 }
 
-/* WhatsApp Float */
 .whatsapp-float {
     position: fixed;
     bottom: 30px;
@@ -1139,16 +1171,97 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 768px) {
+
+    .cart-btn {
+        padding: 8px;
+    }
+
+    .cart-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .login-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .login-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .header {
+        padding: 0 0;
+    }
+
+    .logo h1 {
+        font-size: 1.4rem;
+    }
+
+
     .container {
         padding: 0 20px;
     }
-    
+
+
     .nav-container {
-        padding: 0 20px;
+        flex-wrap: wrap;
+        padding: 14px 20px;
+        gap: 8px;
     }
-    
+
+    .logo {
+        flex: 1 1 100%;
+    }
+
+    .nav-actions {
+        margin-left: auto;
+    }
+
+    /* Hambúrguer posicionado fora do header via position:fixed */
+    .hamburger {
+        display: flex;
+        position: fixed;
+        top: 78px;
+        left: 16px;
+        z-index: 1200;
+    }
+
+
     .nav-menu {
-        display: none;
+        display: flex !important;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        left: -280px;
+        right: auto;
+        width: 280px;
+        height: 100vh;
+        background: var(--chocolate-dark);
+        padding: 80px 30px 40px;
+        gap: 0;
+        z-index: 1100;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 30px rgba(0,0,0,0.4);
+        overflow-y: auto;
+    }
+    .nav-menu.open {
+        left: 0;
+    }
+    .nav-menu li {
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .nav-menu .nav-link {
+        display: block;
+        padding: 16px 0;
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+    .nav-menu .nav-link:hover,
+    .nav-menu .nav-link.active {
+        color: var(--gold);
+        -webkit-text-fill-color: var(--gold);
     }
     
     .hero-title {
@@ -1160,7 +1273,7 @@ h1, h2, h3, h4 {
     }
     
     .produtos-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
     }
     
     .footer-content {

@@ -19,6 +19,9 @@
 </head>
 <body data-pagina="{{ pagina_ativa | default('') }}">
 
+<!-- Backdrop mobile menu -->
+<div class="mobile-backdrop" id="mobileBackdrop"></div>
+
 <!-- ── INSTAGRAM FLUTUANTE ────────────────────────────── -->
 <a href="https://www.instagram.com/chocolatespinassi"
    class="instagram-float" target="_blank" rel="noopener" aria-label="Instagram">
@@ -125,13 +128,22 @@
                 <div class="login-dropdown" id="loginDropdown">
                     <div class="login-dropdown-inner"></div>
                 </div>
-
-                <div class="login-backdrop" id="loginBackdrop"></div>
             </div>
         </div>
 
     </nav>
 </header>
+
+<!-- Hambúrguer fora do header — precisa estar acima do nav-menu (z-index 1100) -->
+<button class="hamburger" id="hamburgerBtn" aria-label="Abrir menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+
+<!-- Backdrop fora do header — o backdrop-filter no header criaria um stacking
+     context isolado que impediria o dropdown de aparecer sobre o conteúdo -->
+<div class="login-backdrop" id="loginBackdrop"></div>
 
 <!-- ── CONTEÚDO DA PÁGINA ─────────────────────────────── -->
 {% block conteudo_body %}{% endblock %}
@@ -205,6 +217,24 @@
 {% block scripts_extra %}{% endblock %}
 
 <script>
+    /* Hambúrguer */
+    const hamburgerBtn   = document.getElementById('hamburgerBtn');
+    const navMenu        = document.querySelector('.nav-menu');
+    const mobileBackdrop = document.getElementById('mobileBackdrop');
+
+    function toggleMenu(force) {
+        const open = force !== undefined ? force : !navMenu.classList.contains('open');
+        navMenu.classList.toggle('open', open);
+        hamburgerBtn.classList.toggle('active', open);
+        hamburgerBtn.setAttribute('aria-expanded', String(open));
+        mobileBackdrop.classList.toggle('active', open);
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', () => toggleMenu());
+    if (mobileBackdrop) mobileBackdrop.addEventListener('click', () => toggleMenu(false));
+    /* Menu permanece aberto ao clicar nos links */
+
     /* Scroll header */
     window.addEventListener('scroll', function () {
         var h = document.querySelector('.header');
